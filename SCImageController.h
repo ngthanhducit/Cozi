@@ -12,7 +12,7 @@
 
 @interface SCImageController : UIViewController
 {
-        NSMutableArray *itemData;
+    NSMutableArray *itemData;
     Helper              *helperIns;
 }
 
