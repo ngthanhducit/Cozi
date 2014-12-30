@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20px"
+	 height="20px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+<g id="imageLibrary">
+	<path fill="black" d="M18.375,6.299c0-0.963-0.752-1.754-1.674-1.754h-3.351V3.668
+		c0-0.483-0.376-0.877-0.836-0.877H7.489c-0.462,0-0.838,0.394-0.838,0.877v0.877h-3.35c-0.921,0-1.675,0.791-1.675,1.754v8.773
+		c0,0.963,0.754,1.754,1.675,1.754h13.4c0.922,0,1.674-0.791,1.674-1.754V6.299z"/>
+	<rect x="15.027" y="6.299" fill="#FFFFFF" width="1.674" height="1.755"/>
+	<ellipse  fill="#FFFFFF" cx="10.002" cy="9.808" rx="3.352" ry="3.509"/>
+</g>
+</svg>

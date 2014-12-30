@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="45px"
+	 height="45px" viewBox="-7.5 -7.5 45 45" enable-background="new -7.5 -7.5 45 45" xml:space="preserve">
+<g id="Email" display="none">
+	<g display="inline">
+		<polygon fill="#FFFFFF" points="24.952,8.071 24.755,8.031 5.243,8.031 5.123,8.057 15.001,16.855 "/>
+		<path fill="#FFFFFF" d="M26.054,8.957l-7.025,6.203l6.937,6.069c0.109-0.199,0.187-0.414,0.187-0.653V9.426
+			C26.149,9.26,26.108,9.105,26.054,8.957z"/>
+		<path fill="#FFFFFF" d="M3.958,8.887C3.89,9.053,3.849,9.234,3.849,9.426v11.15c0,0.201,0.049,0.394,0.129,0.566l7-6.002
+			L3.958,8.887z"/>
+		<polygon fill="#FFFFFF" points="14.997,18.721 12.028,16.074 5.169,21.955 5.243,21.969 24.692,21.969 17.974,16.09 "/>
+	</g>
+</g>
+</svg>

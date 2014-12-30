@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px"
+	 height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
+<g id="avatarFemale">
+	<path fill="#F1F0F0" d="M29.062,26.544c-1.886-0.515-4.493-0.59-6.691-2.237v-2.893c2.165,1.045,4.794,0.984,5.698-1.732
+		c-1.425,0-2.849-1.425-2.849-5.699c0-2.849-4.275-5.139-5.7-3.715c-1.425-1.424-5.699,0.866-5.699,3.715
+		c0,4.274-1.425,5.699-2.85,5.699c0.907,2.716,3.537,2.777,5.699,1.732v2.893c-2.195,1.647-4.804,1.723-6.692,2.237
+		c-1.094,0.298-1.856,2.005-1.856,3.139v1.397h22.795v-1.397C30.919,28.549,30.159,26.842,29.062,26.544z"/>
+</g>
+</svg>
