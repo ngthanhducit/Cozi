@@ -21,11 +21,19 @@
     Store               *storeIns;
     Helper              *helperIns;
     UIRefreshControl            *refreshControl;
+    UIRefreshControl            *bottomRefreshControl;
     UIActivityIndicatorView         *spinner;
  
     CGFloat                 spacing;
+    CGFloat                 bottomSpacing;
+    CGFloat                 deltaWithStatus;
+    CGFloat                 spacingViewAllComment;
+    CGFloat                 spacingLineComment;
     BOOL                isMoreData;
+    BOOL                isEnd;
+    CGPoint         lastOffset;
+    
 }
 
-- (void) stopLoadWall;
+- (void) stopLoadWall:(BOOL)_isEndData;
 @end
