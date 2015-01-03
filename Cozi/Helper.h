@@ -69,4 +69,5 @@
 - (BOOL) checkConnected;
 
 - (UIImage *)blurWithImageEffectsRestore:(UIImage *)image withRadius:(CGFloat)_radius;
+- (UIImage *)scaleUIImage:(UIImage *)_img scaledToSize:(CGSize)newSize;
 @end
