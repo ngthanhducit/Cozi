@@ -18,5 +18,5 @@
 @synthesize latitude;
 @synthesize time;
 @synthesize clientKey;
-
+@synthesize typePost;
 @end

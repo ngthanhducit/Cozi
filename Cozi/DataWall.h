@@ -26,4 +26,5 @@
 @property (nonatomic, strong) NSString                  *lastName;
 @property (nonatomic, strong) NSMutableArray            *comments;
 @property (nonatomic, strong) NSMutableArray            *likes;
+@property (nonatomic) int                               typePost; //0: image with title or not - 1: title
 @end
