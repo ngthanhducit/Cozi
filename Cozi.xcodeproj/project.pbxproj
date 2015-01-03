@@ -165,6 +165,17 @@
 		3FCFF9891A4AAAA6005C2598 /* SCWallTableViewCellV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FCFF9881A4AAAA6005C2598 /* SCWallTableViewCellV2.m */; };
 		3FCFF98C1A4AAABF005C2598 /* SCWallTableViewV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FCFF98B1A4AAABF005C2598 /* SCWallTableViewV2.m */; };
 		3FD0DCEA1A2AF93F00F0B4AF /* MainPageV7.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD0DCE91A2AF93F00F0B4AF /* MainPageV7.m */; };
+		3FD933321A56799000E6F266 /* SCLikeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD933311A56799000E6F266 /* SCLikeView.m */; };
+		3FD9333B1A56899A00E6F266 /* SCCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FD9333A1A56899A00E6F266 /* SCCommentView.m */; };
+		3FD933431A569B1200E6F266 /* icon-ClockGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933421A569B1200E6F266 /* icon-ClockGreen.svg */; };
+		3FD933451A569B5400E6F266 /* icon-LikeGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933441A569B5400E6F266 /* icon-LikeGreen.svg */; };
+		3FD933471A569B8100E6F266 /* icon-QuoteGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933461A569B8100E6F266 /* icon-QuoteGreen.svg */; };
+		3FD933491A569BCC00E6F266 /* icon-MoreCommentsGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933481A569BCC00E6F266 /* icon-MoreCommentsGreen.svg */; };
+		3FD9334B1A569E0700E6F266 /* icon-LeftMenuOpenGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD9334A1A569E0700E6F266 /* icon-LeftMenuOpenGreen.svg */; };
+		3FD9334D1A56A0B900E6F266 /* icon-LocationGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD9334C1A56A0B900E6F266 /* icon-LocationGreen.svg */; };
+		3FD9334F1A56AA1500E6F266 /* icon-LikeWhite.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD9334E1A56AA1500E6F266 /* icon-LikeWhite.svg */; };
+		3FD933511A56AA3000E6F266 /* icon-QuoteWhite.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933501A56AA3000E6F266 /* icon-QuoteWhite.svg */; };
+		3FD933531A56B7CC00E6F266 /* icon-openMenuGreen.svg in Resources */ = {isa = PBXBuildFile; fileRef = 3FD933521A56B7CC00E6F266 /* icon-openMenuGreen.svg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -575,6 +586,19 @@
 		3FCFF98B1A4AAABF005C2598 /* SCWallTableViewV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCWallTableViewV2.m; sourceTree = "<group>"; };
 		3FD0DCE81A2AF93F00F0B4AF /* MainPageV7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainPageV7.h; sourceTree = "<group>"; };
 		3FD0DCE91A2AF93F00F0B4AF /* MainPageV7.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainPageV7.m; sourceTree = "<group>"; };
+		3FD933301A56799000E6F266 /* SCLikeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCLikeView.h; sourceTree = "<group>"; };
+		3FD933311A56799000E6F266 /* SCLikeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCLikeView.m; sourceTree = "<group>"; };
+		3FD933391A56899A00E6F266 /* SCCommentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCCommentView.h; sourceTree = "<group>"; };
+		3FD9333A1A56899A00E6F266 /* SCCommentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCCommentView.m; sourceTree = "<group>"; };
+		3FD933421A569B1200E6F266 /* icon-ClockGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-ClockGreen.svg"; sourceTree = "<group>"; };
+		3FD933441A569B5400E6F266 /* icon-LikeGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-LikeGreen.svg"; sourceTree = "<group>"; };
+		3FD933461A569B8100E6F266 /* icon-QuoteGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-QuoteGreen.svg"; sourceTree = "<group>"; };
+		3FD933481A569BCC00E6F266 /* icon-MoreCommentsGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-MoreCommentsGreen.svg"; sourceTree = "<group>"; };
+		3FD9334A1A569E0700E6F266 /* icon-LeftMenuOpenGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-LeftMenuOpenGreen.svg"; sourceTree = "<group>"; };
+		3FD9334C1A56A0B900E6F266 /* icon-LocationGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-LocationGreen.svg"; sourceTree = "<group>"; };
+		3FD9334E1A56AA1500E6F266 /* icon-LikeWhite.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-LikeWhite.svg"; sourceTree = "<group>"; };
+		3FD933501A56AA3000E6F266 /* icon-QuoteWhite.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-QuoteWhite.svg"; sourceTree = "<group>"; };
+		3FD933521A56B7CC00E6F266 /* icon-openMenuGreen.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "icon-openMenuGreen.svg"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -685,6 +709,14 @@
 		3F89182E1A26E1D500ABCDA9 = {
 			isa = PBXGroup;
 			children = (
+				3FD933501A56AA3000E6F266 /* icon-QuoteWhite.svg */,
+				3FD9334E1A56AA1500E6F266 /* icon-LikeWhite.svg */,
+				3FD9334C1A56A0B900E6F266 /* icon-LocationGreen.svg */,
+				3FD9334A1A569E0700E6F266 /* icon-LeftMenuOpenGreen.svg */,
+				3FD933481A569BCC00E6F266 /* icon-MoreCommentsGreen.svg */,
+				3FD933461A569B8100E6F266 /* icon-QuoteGreen.svg */,
+				3FD933441A569B5400E6F266 /* icon-LikeGreen.svg */,
+				3FD933421A569B1200E6F266 /* icon-ClockGreen.svg */,
 				3F8918391A26E1D500ABCDA9 /* Cozi */,
 				3F8918531A26E1D600ABCDA9 /* CoziTests */,
 				3F8918601A26E1E300ABCDA9 /* Frameworks */,
@@ -804,6 +836,7 @@
 			children = (
 				3FCFF9791A4983BA005C2598 /* icon-contactSearch.svg */,
 				3FCFF97A1A4983BA005C2598 /* icon-openMenu.svg */,
+				3FD933521A56B7CC00E6F266 /* icon-openMenuGreen.svg */,
 				3F2AA3D51A4828A200ADA6F3 /* emptyAvatar.svg */,
 				3F2AA3D11A4823F900ADA6F3 /* notify.svg */,
 				3FB598821A27827100288443 /* arrow-grey.svg */,
@@ -1188,6 +1221,10 @@
 				3F0B41EF1A4342E100062AA3 /* SCSearchBar.m */,
 				3FB6D4071A5255C8002B226E /* NoisesPage.h */,
 				3FB6D4081A5255C8002B226E /* NoisesPage.m */,
+				3FD933301A56799000E6F266 /* SCLikeView.h */,
+				3FD933311A56799000E6F266 /* SCLikeView.m */,
+				3FD933391A56899A00E6F266 /* SCCommentView.h */,
+				3FD9333A1A56899A00E6F266 /* SCCommentView.m */,
 			);
 			name = UIView;
 			sourceTree = "<group>";
@@ -1361,8 +1398,11 @@
 				3FB5982C1A2720DB00288443 /* Roboto-Light.ttf in Resources */,
 				3FCFF97B1A4983BA005C2598 /* icon-contactSearch.svg in Resources */,
 				3FCFF97C1A4983BA005C2598 /* icon-openMenu.svg in Resources */,
+				3FD933451A569B5400E6F266 /* icon-LikeGreen.svg in Resources */,
+				3FD933511A56AA3000E6F266 /* icon-QuoteWhite.svg in Resources */,
 				3FB598351A27245600288443 /* form-icon-birthdate.svg in Resources */,
 				3FCFF96E1A496807005C2598 /* like.png in Resources */,
+				3FD933531A56B7CC00E6F266 /* icon-openMenuGreen.svg in Resources */,
 				3FB5982D1A2720DB00288443 /* Roboto-Medium.ttf in Resources */,
 				3FB5982E1A2720DB00288443 /* Roboto-Thin.ttf in Resources */,
 				3FB598851A27827100288443 /* arrow-white.svg in Resources */,
@@ -1371,14 +1411,17 @@
 				3F8919081A26E32B00ABCDA9 /* header-3.svg in Resources */,
 				3FB5983A1A27245600288443 /* form-icon-username.svg in Resources */,
 				3F8919031A26E32B00ABCDA9 /* header-1-white.svg in Resources */,
+				3FD933431A569B1200E6F266 /* icon-ClockGreen.svg in Resources */,
 				3FB598871A27835500288443 /* icon-cong.svg in Resources */,
 				3F8918461A26E1D600ABCDA9 /* Main.storyboard in Resources */,
 				3F8919071A26E32B00ABCDA9 /* header-3-white.svg in Resources */,
 				3F2AA3D61A4828A200ADA6F3 /* emptyAvatar.svg in Resources */,
+				3FD9334B1A569E0700E6F266 /* icon-LeftMenuOpenGreen.svg in Resources */,
 				3F89184B1A26E1D600ABCDA9 /* LaunchScreen.xib in Resources */,
 				3F2AA3D21A4823F900ADA6F3 /* notify.svg in Resources */,
 				3FB598371A27245600288443 /* form-icon-female.svg in Resources */,
 				3F8919061A26E32B00ABCDA9 /* header-2.svg in Resources */,
+				3FD9334F1A56AA1500E6F266 /* icon-LikeWhite.svg in Resources */,
 				3FB5981B1A27198100288443 /* icon-chat-sendMessage.svg in Resources */,
 				3F8919051A26E32B00ABCDA9 /* header-2-white.svg in Resources */,
 				3F6797831A40354D0047DE6F /* bg@2x.png in Resources */,
@@ -1389,8 +1432,11 @@
 				3FB598621A27355A00288443 /* v_icon_logo_white.svg in Resources */,
 				3FB5981A1A27198100288443 /* icon-chat-sendLocation.svg in Resources */,
 				3FB598361A27245600288443 /* form-icon-email.svg in Resources */,
+				3FD933491A569BCC00E6F266 /* icon-MoreCommentsGreen.svg in Resources */,
 				3FB5981D1A27198100288443 /* icon-contact-female.svg in Resources */,
+				3FD9334D1A56A0B900E6F266 /* icon-LocationGreen.svg in Resources */,
 				3FB5981E1A27198100288443 /* icon-contact-male.svg in Resources */,
+				3FD933471A569B8100E6F266 /* icon-QuoteGreen.svg in Resources */,
 				3FB5981C1A27198100288443 /* icon-chat-sendPicture.svg in Resources */,
 				3FB598381A27245600288443 /* form-icon-male.svg in Resources */,
 				3F0B41ED1A42ECD400062AA3 /* cozi@2x.jpg in Resources */,
@@ -1461,6 +1507,7 @@
 				3F8919251A2705BD00ABCDA9 /* Store.m in Sources */,
 				3F57A8981A4C093C00E09305 /* TTTAttributedLabel.m in Sources */,
 				3FB5980B1A27165B00288443 /* Helper.m in Sources */,
+				3FD9333B1A56899A00E6F266 /* SCCommentView.m in Sources */,
 				3FB598221A2719EA00288443 /* LoginPage.m in Sources */,
 				3F6C1D491A32126000501682 /* SDWebImageDecoder.m in Sources */,
 				3FA8A6421A398D9F00055972 /* Users.m in Sources */,
@@ -1488,6 +1535,7 @@
 				3FB6D4031A525141002B226E /* SCNoiseCollectionViewLayout.m in Sources */,
 				3FB6D40D1A526494002B226E /* ViewController+PrivateFunction.m in Sources */,
 				3F04585F1A2F841A00403048 /* CoziCoreData.m in Sources */,
+				3FD933321A56799000E6F266 /* SCLikeView.m in Sources */,
 				3FCFF97F1A49B93A005C2598 /* WallItemV7.m in Sources */,
 				3FCFF9891A4AAAA6005C2598 /* SCWallTableViewCellV2.m in Sources */,
 				3FA8A63B1A398D3A00055972 /* MessengersDB.m in Sources */,
@@ -1643,6 +1691,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_MODULES_AUTOLINK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1658,6 +1707,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -1668,6 +1718,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_MODULES_AUTOLINK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1683,6 +1734,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
