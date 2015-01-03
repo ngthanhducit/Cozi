@@ -203,9 +203,9 @@
     [bottomGender setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.mainJoinView.layer addSublayer:bottomGender];
     
-//    self.cameraCapture = [[CameraCaptureV6 alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];
-//    self.cameraCapture.tag=1;
-//    [self.cameraCapture setIsFullCameraCapture:YES];
+    self.cameraCapture = [[CameraCaptureV6 alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];
+    self.cameraCapture.tag=1;
+    [self.cameraCapture setIsFullCameraCapture:YES];
     
     UILabel *lblCancelCamera = [[UILabel alloc] initWithFrame:CGRectMake(0, self.bounds.size.height - 80, self.bounds.size.width / 4, 60)];
     [lblCancelCamera setText:@"CANCEL"];
