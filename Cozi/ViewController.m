@@ -44,6 +44,7 @@ static NSString         *dataNetwork;
 #pragma mark- init UIViewController
 
 - (void) initVariable{
+    currentPage = 1;
     isFirstLoadWall = YES;
     heightRowLeftMenu   = 40;
     alphatView = 0.8;
@@ -291,7 +292,7 @@ static NSString         *dataNetwork;
     [mainScroll setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 //    [mainScroll setScrollEnabled:YES];
 //    [mainScroll setScrollsToTop:NO];
-    [mainScroll setBounces:NO];
+    [mainScroll setBounces:YES];
     [mainScroll setDelaysContentTouches:YES];
     [mainScroll setDelegate:self];
     
@@ -411,7 +412,7 @@ static NSString         *dataNetwork;
 //    [self.wallPageV8 didMoveToParentViewController:self];
     
     self.wallPageV8 = [[SCWallTableViewV2 alloc] initWithFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height) style:UITableViewStylePlain];
-    [self.wallPageV8 setBackgroundColor:[UIColor lightGrayColor]];
+    [self.wallPageV8 setBackgroundColor:[UIColor clearColor]];
     [mainScroll addSubview:self.wallPageV8];
     
 //    self.wallPageV7 = [[SCWallTableView alloc] initWithFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
@@ -427,7 +428,7 @@ static NSString         *dataNetwork;
 //    [self.wallPageV6 setBackgroundColor:[UIColor clearColor]];
 //    [mainScroll addSubview:self.wallPageV6];
     
-    self.noisePageV6 = [[NoisesPage alloc] initWithFrame:CGRectMake(3 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    self.noisePageV6 = [[NoisesPage alloc] initWithFrame:CGRectMake(3 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
     [self.noisePageV6 setBackgroundColor:[UIColor clearColor]];
     [mainScroll addSubview:self.noisePageV6];
     
@@ -465,6 +466,8 @@ static NSString         *dataNetwork;
     [self.view addSubview:viewStatusConnect];
 
     [mainScroll setContentOffset:CGPointMake(self.view.bounds.size.width, 0) animated:NO];
+    
+    [self.homePageV6 setAlpha:1.0f];
     
     //set first icon select
     UIImage *imgFirstSelect = [SVGKImage imageNamed:[NSString stringWithFormat:@"header-%i", 2]].UIImage;
@@ -640,7 +643,7 @@ static NSString         *dataNetwork;
     [rmScrollView setDelegate:self];
     [rightView addSubview:rmScrollView];
     
-    tbContact = [[SCContactTableView alloc] initWithFrame:CGRectMake(0, 0, rightView.bounds.size.width, self.view.bounds.size.height - 30) style:UITableViewStylePlain];
+    tbContact = [[SCContactTableView alloc] initWithFrame:CGRectMake(0, 0, rightView.bounds.size.width, self.view.bounds.size.height - heightHeader - 30) style:UITableViewStylePlain];
     [tbContact initData:self.storeIns.friends];
     [tbContact reloadData];
     [rmScrollView addSubview:tbContact];
@@ -650,23 +653,18 @@ static NSString         *dataNetwork;
  *  init Gestures
  */
 -(void)initializeGestures{
-    
-//    panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+
+//    UIScreenEdgePanGestureRecognizer *leftRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleLeftRecognizer:)];
+//    leftRecognizer.edges = UIRectEdgeLeft;
+//    leftRecognizer.delegate = self;
 //    
-//    [panGestureRecognizer setDelegate:self];
-//    [mainScroll addGestureRecognizer:panGestureRecognizer];
-    
-    UIScreenEdgePanGestureRecognizer *leftRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleLeftRecognizer:)];
-    leftRecognizer.edges = UIRectEdgeLeft;
-    leftRecognizer.delegate = self;
-    
-    [mainScroll addGestureRecognizer:leftRecognizer];
-    
-    UIScreenEdgePanGestureRecognizer *rightRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleRightRecognizer:)];
-    rightRecognizer.edges = UIRectEdgeRight;
-    rightRecognizer.delegate = self;
-    
-    [mainScroll addGestureRecognizer:rightRecognizer];
+//    [mainScroll addGestureRecognizer:leftRecognizer];
+//    
+//    UIScreenEdgePanGestureRecognizer *rightRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleRightRecognizer:)];
+//    rightRecognizer.edges = UIRectEdgeRight;
+//    rightRecognizer.delegate = self;
+//    
+//    [mainScroll addGestureRecognizer:rightRecognizer];
     
 }
 
@@ -901,6 +899,11 @@ static NSString         *dataNetwork;
     preLocation = touchPoint;
 }
 
+/**
+ *  swipe left show menu
+ *
+ *  @param recognizer EdgePanGestureRecognizer
+ */
 - (void)handleLeftRecognizer:(UIScreenEdgePanGestureRecognizer*)recognizer {
     CGPoint touchPoint = [recognizer locationInView:self.view];
     
@@ -967,8 +970,12 @@ static NSString         *dataNetwork;
     preLocation = touchPoint;
 }
 
-- (void)handleRightRecognizer:(UIScreenEdgePanGestureRecognizer*)recognizer
-{
+/**
+ *  swipe right show menu
+ *
+ *  @param recognizer EdgePanGestureRecognizer
+ */
+- (void)handleRightRecognizer:(UIScreenEdgePanGestureRecognizer*)recognizer{
     CGPoint touchPoint = [recognizer locationInView:self.view];
     
     if(recognizer.state == UIGestureRecognizerStateChanged){
@@ -1125,10 +1132,7 @@ static NSString         *dataNetwork;
                     } completion:^(BOOL finished) {
                         
                     }];
-                    
-                    
                 }
-                
             }
             
             if (isShowMenuRight) {
@@ -1145,9 +1149,7 @@ static NSString         *dataNetwork;
                     } completion:^(BOOL finished) {
                         
                     }];
-                    
                 }
-                
             }
         }
         
@@ -1233,6 +1235,10 @@ static NSString         *dataNetwork;
 }
 
 #pragma -mark UIScrollView Delegate
+- (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+    NSLog(@"BEGIN DRAGGING");
+    beginScroll = scrollView.contentOffset;
+}
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView{
 
@@ -1241,10 +1247,9 @@ static NSString         *dataNetwork;
     [self.chatViewPage endEditing:YES];
     
     CGFloat pageWidth = mainScroll.frame.size.width;
-    int currentPage = floor((mainScroll.contentOffset.x - (pageWidth / 2)) / pageWidth) + 1;
+    int cPage = floor((mainScroll.contentOffset.x - (pageWidth / 2)) / pageWidth) + 1;
 
-    page = currentPage;
-
+    page = cPage;
     if (scrollView.contentOffset.x < self.view.bounds.size.width && page == 1) {
         [mainScroll setScrollEnabled:NO];
     }else{
@@ -1252,6 +1257,81 @@ static NSString         *dataNetwork;
     }
     
     if (scrollView == mainScroll) {
+        
+        //get current page
+        switch (currentPage) {
+            case 0:
+                
+                break;
+                
+            case 1:{
+                [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                    
+                    CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
+                    CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
+                    
+                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
+
+                    
+                    [self.homePageV6 setAlpha:(self.homePageV6.alpha - deltaAlpha)];
+                    
+                    
+                } completion:^(BOOL finished) {
+                    
+                }];
+            }
+                break;
+                
+            case 2:{
+                [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                    
+                    
+                    CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
+                    CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
+                    
+                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
+                    
+                    if (beginScroll.x < scrollView.contentOffset.x) {
+                        //move right
+                        NSLog(@"move right");
+                        self.wallPageV8.alpha -= (deltaAlpha);
+                    }else{
+                        //move left;
+                        NSLog(@"move left");
+                        self.wallPageV8.alpha += (deltaAlpha);
+                    }
+                    
+                } completion:^(BOOL finished) {
+                    
+                }];
+            }
+                break;
+                
+            case 3:{
+                [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                    
+                    
+                    CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
+                    CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
+                    
+                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
+                    
+                    if (beginScroll.x < scrollView.contentOffset.x) {
+                        //move right
+                        NSLog(@"move right");
+                        self.noisePageV6.alpha -= (deltaAlpha);
+                    }else{
+                        //move left;
+                        NSLog(@"move left");
+                        self.noisePageV6.alpha += (deltaAlpha);
+                    }
+                    
+                } completion:^(BOOL finished) {
+                    
+                }];
+            }
+                break;
+        }
         
 //        if(_isInAni==YES)
 //        {
@@ -1278,7 +1358,7 @@ static NSString         *dataNetwork;
 //            isEndScroll = NO;
 //        }
 //        
-//        preScrollLocation = scrollView.contentOffset;
+        
     }
 
     if (scrollView == rmScrollView) {
@@ -1290,6 +1370,8 @@ static NSString         *dataNetwork;
             }];
         }
     }
+    
+    preScrollLocation = scrollView.contentOffset;
     
 }
 
@@ -1341,9 +1423,21 @@ static NSString         *dataNetwork;
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     
+    int _temp = mainScroll.contentOffset.x / self.view.bounds.size.width;
+    currentPage = _temp;
+    
     [self.homePageV6.scCollection reloadData];
     
     if (scrollView == mainScroll) {
+        
+        [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+            [self.chatViewPage setAlpha:1.0f];
+            [self.homePageV6 setAlpha:1.0f];
+            [self.wallPageV8 setAlpha:1.0f];
+            [self.noisePageV6 setAlpha:1.0f];
+        } completion:^(BOOL finished) {
+            
+        }];
         
 //        if (scrollView.contentOffset.x < self.view.bounds.size.width || page == 0) {
 //            [mainScroll setScrollEnabled:NO];
@@ -1726,8 +1820,6 @@ static NSString         *dataNetwork;
         }
     }
 }
-
-
 
 - (void) showAddPost{
 

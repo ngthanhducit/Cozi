@@ -62,8 +62,10 @@
     int                                         _lastPage,_aniTimeout,_aniStep,_txtW;
     int                                         _iconW,_pageW;
     int                                         page;
+        int                                         currentPage;
     NSTimer                                     *_timer;
     CGPoint                                     preScrollLocation;
+    CGPoint                                     beginScroll;
     
     UIPanGestureRecognizer *panGestureRecognizer;
     LoginPage                   *_loginPage;

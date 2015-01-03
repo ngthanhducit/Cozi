@@ -22,12 +22,18 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     Store   *storeIns = [Store shareInstance];
-    [application setApplicationIconBadgeNumber:0];
+//    [application setApplicationIconBadgeNumber:0];
     [self reloadDeviceToken];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     return YES;
 }
+
+//#ifdef __IPHONE_8_0
+//- (void) application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings{
+//    [self reloadDeviceToken];
+//}
+//#endif
 
 - (void) reloadDeviceToken{
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
