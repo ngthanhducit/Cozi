@@ -975,7 +975,7 @@
                 if (![[subCommand objectAtIndex:2] isEqualToString:@""]) {
                     
                     __block int indexImage = 0;
-                    
+                    newDataWall.typePost = 0;
                     NSArray *subImage = [[subCommand objectAtIndex:2] componentsSeparatedByString:@"$"];
                     if ([subImage count] > 0) {
                         int countImage = (int)[subImage count];
@@ -988,6 +988,7 @@
                                     
                                 } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
   
+//                                    UIImage *tempImage = [self.helperIns scaleUIImage:image scaledToSize:CGSizeMake(100, 100)];
                                     if (image && finished) {
                                         if (newDataWall.images == nil) {
                                             newDataWall.images = [NSMutableArray new];
@@ -1008,12 +1009,14 @@
                             }
                         }
                     }
+                }else{
+                    newDataWall.typePost = 1;
                 }
                 
                 newDataWall.video = [self.helperIns decode:[subCommand objectAtIndex:3]];
                 
                 //process location
-                if (![[subCommand objectAtIndex:3] isEqualToString:@""]) {
+                if (![[subCommand objectAtIndex:4] isEqualToString:@""]) {
                     NSArray *subLocation = [[subCommand objectAtIndex:4] componentsSeparatedByString:@"|"];
                     if ([subLocation count] == 2) {
                         [newDataWall setLongitude:[subLocation objectAtIndex:0]];
