@@ -33,6 +33,9 @@ static NSString * const reuseIdentifier = @"Cell";
     [self registerClass:[SCNoiseCollectionViewCell class] forCellWithReuseIdentifier:NoiseCellIdentifier];
     [self setDelegate:self];
     [self setDataSource:self];
+    
+    [self setBounces:YES];
+    [self setAlwaysBounceVertical:YES];
 }
 
 #pragma mark <UICollectionViewDataSource>
@@ -74,7 +77,6 @@ static NSString * const reuseIdentifier = @"Cell";
     SCNoiseCollectionViewCell *scCell = (SCNoiseCollectionViewCell*)[self cellForItemAtIndexPath:indexPath];
 
 }
-
 
 - (void) stopLoadNoise{
     
