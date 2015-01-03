@@ -123,6 +123,33 @@
     }
 }
 
+- (void) hiddenMenu{
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        //hidden right
+        [rightView setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height)];
+        
+        [blurView setAlpha:0.0];
+        
+        [self.view bringSubviewToFront:blurView];
+        [self.view bringSubviewToFront:rightView];
+        
+        [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+        
+        //hidden left
+        [leftView setFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, leftView.bounds.size.height)];
+        
+        [blurView setAlpha:0.0];
+        
+        [self.view bringSubviewToFront:blurView];
+        [self.view bringSubviewToFront:leftView];
+        
+        [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+        
+    } completion:^(BOOL finished) {
+        isShowMenuRight = NO;
+    }];
+}
+
 - (void) logout{
     
     [mainScroll removeFromSuperview];
@@ -219,6 +246,5 @@
 
 - (void) onTick:(id)sender{
     self.storeIns.timeServer = [self.storeIns.timeServer dateByAddingTimeInterval:1];
-    NSLog(@"tick time: %@", self.storeIns.timeServer);
 }
 @end

@@ -812,8 +812,12 @@ static NSString         *dataNetwork;
                         NSMutableArray *dataWall = [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                     }
                     
-                    [self.wallPageV8 reloadData];
-                    [self.wallPageV8 stopLoadWall];
+//                    [self.wallPageV8 reloadData];
+                    if ([[subCommand objectAtIndex:1] isEqualToString:@"0"]) {
+                        [self.wallPageV8 stopLoadWall:YES];
+                    }else{
+                        [self.wallPageV8 stopLoadWall:NO];
+                    }
                     
                 }
                 

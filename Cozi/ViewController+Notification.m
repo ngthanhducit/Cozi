@@ -96,7 +96,7 @@
     [self.chatViewPage._backView addGestureRecognizer:tapLogoReturn];
     //    [self.chatViewPage initLibraryImage];
     
-    [self showHiddenRightMenu];
+    [self hiddenMenu];
     
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];

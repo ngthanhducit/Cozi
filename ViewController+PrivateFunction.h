@@ -20,4 +20,5 @@
 - (void) vibrate;
 - (void) logout;
 - (void) showStatusConnected:(int)_isConnected;
+- (void) hiddenMenu;
 @end
