@@ -260,6 +260,7 @@ static NSString * const reuseIdentifier = @"Cell";
             [[itemData objectAtIndex:indexPath.section] setIsSelected:NO];
             
         }else{
+            
             [[itemData objectAtIndex:indexPath.section] setIsSelected:YES];
         }
         
