@@ -27,11 +27,13 @@
     spacingLineComment = 20;
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
+    networkControllerIns = [NetworkController shareInstance];
     
     [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setUserInteractionEnabled:YES];
     [self setShowsHorizontalScrollIndicator:NO];
     [self setShowsVerticalScrollIndicator:NO];
+//    [self setAllowsSelection:NO];
     [self setDelegate:self];
     [self setDataSource:self];
     
@@ -71,145 +73,152 @@
 }
 
 - (UIView *) tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
-    [view setBackgroundColor:[[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:1] colorWithAlphaComponent:0.8]];
-//    [view setBackgroundColor:[UIColor whiteColor]];
-//    [view setAlpha:0.9];
-    
-//    view.layer.shadowColor = [UIColor blackColor].CGColor;
-//    view.layer.shadowOffset = CGSizeMake(0, 1);
-//    view.layer.shadowOpacity = 1;
-//    view.layer.shadowRadius = 1.0;
-    
-    UIImageView *imgAvatar = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, 30, 30)];
-    [imgAvatar setContentMode:UIViewContentModeScaleAspectFill];
-    [imgAvatar setAutoresizingMask:UIViewAutoresizingNone];
-    imgAvatar.layer.borderWidth = 0.0f;
-    [imgAvatar setClipsToBounds:YES];
-    imgAvatar.layer.cornerRadius = CGRectGetHeight(imgAvatar.frame)/2;
-    
-    [view addSubview:imgAvatar];
-    
     DataWall *_wall = [storeIns.walls objectAtIndex:section];
+    SCHeaderFooterView *header = [[SCHeaderFooterView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
+    [header initWithData:_wall withSection:section];
+    return header;
     
-    Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
-    if (_friend) {
-        _wall.fullName = _friend.nickName;
-        [imgAvatar setImage:_friend.thumbnail];
-    }else{
-        
-        _wall.fullName = storeIns.user.nickName;
-        [imgAvatar setImage:storeIns.user.thumbnail];
-    }
-
-    //calculation height cell + spacing top and bottom
-    CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
-    CGSize sizeFullName = { 0 , 0 };
-    CGSize sizeLocation = { 0, 0 };
-    
-    if (_wall.longitude != 0 || _wall.latitude != 0) {
-        
-        /* Create custom view to display section header... */
-        
-        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-        
-        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
-        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-        [lblFullName setTextColor:[UIColor blackColor]];
-        [lblFullName setBackgroundColor:[UIColor clearColor]];
-        
-        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-        /* Section header is in 0th index... */
-        
-        [lblFullName setText:[string uppercaseString]];
-        
-        [view addSubview:lblFullName];
-
-        NSString *strLocation = @"LONDON";
-        sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
-        
-        UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
-//        [imgLocation setBackgroundColor:[UIColor redColor]];
-        [imgLocation setFrame:CGRectMake(50, 25, 10, 10)];
-        [imgLocation setContentMode:UIViewContentModeScaleAspectFill];
-        [view addSubview:imgLocation];
-        
-        UILabel *lblLocation = [[UILabel alloc] initWithFrame:CGRectMake(60, 25, sizeLocation.width, 10)];
-        [lblLocation setText:strLocation];
-        [lblLocation setFont:[helperIns getFontLight:10.0f]];
-        [view addSubview:lblLocation];
-        
-    }else{
-        /* Create custom view to display section header... */
-        
-        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-        
-        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
-        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-        [lblFullName setTextColor:[UIColor blackColor]];
-        [lblFullName setBackgroundColor:[UIColor clearColor]];
-        
-        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-        /* Section header is in 0th index... */
-        
-        [lblFullName setText:[string uppercaseString]];
-        
-        [view addSubview:lblFullName];
-    }
-    
-    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
-    NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
-    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
-    
-    NSTimeInterval deltaWall = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
-                                                        fromDate:_dateTimeMessage
-                                                          toDate:[NSDate date]
-                                                         options:0];
-    
-    NSString *timeAgo = @"";
-    NSInteger w = [components week];
-    if (w <= 0) {
-        NSInteger d = [components day];
-        if (d <= 0) {
-            NSInteger h = components.hour;
-            if (h <=0) {
-                NSInteger m = [components minute];
-                if (m <= 0) {
-                    NSInteger s = [components second];
-                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
-                }else{
-                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
-                }
-            }else{
-                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
-            }
-        }else{
-            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
-        }
-    }else{
-        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
-    }
-
-    CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-    
-    UILabel *lblTime = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20), 20 - (sizeFullName.height / 2), sizeTime.width + 10, sizeTime.height)];
-    [lblTime setBackgroundColor:[UIColor clearColor]];
-    [lblTime setTextColor:[UIColor blackColor]];
-    [lblTime setText:timeAgo];
-    [lblTime setFont:[helperIns getFontLight:13.0f]];
-    
-    [view addSubview:lblTime];
-    
-    UIImageView *imgClock = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-ClockGreen.svg"]];
-    [imgClock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
-    [view addSubview:imgClock];
-    
-    return view;
+//    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
+//    [view setBackgroundColor:[[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:1] colorWithAlphaComponent:0.8]];
+////    [view setBackgroundColor:[UIColor whiteColor]];
+////    [view setAlpha:0.9];
+//    
+////    view.layer.shadowColor = [UIColor blackColor].CGColor;
+////    view.layer.shadowOffset = CGSizeMake(0, 1);
+////    view.layer.shadowOpacity = 1;
+////    view.layer.shadowRadius = 1.0;
+//    
+//    UIImageView *imgAvatar = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, 30, 30)];
+//    [imgAvatar setContentMode:UIViewContentModeScaleAspectFill];
+//    [imgAvatar setAutoresizingMask:UIViewAutoresizingNone];
+//    imgAvatar.layer.borderWidth = 0.0f;
+//    [imgAvatar setClipsToBounds:YES];
+//    imgAvatar.layer.cornerRadius = CGRectGetHeight(imgAvatar.frame)/2;
+//    
+//    [view addSubview:imgAvatar];
+//    
+//    DataWall *_wall = [storeIns.walls objectAtIndex:section];
+//    
+//    Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
+//    if (_friend) {
+//        _wall.fullName = _friend.nickName;
+//        [imgAvatar setImage:_friend.thumbnail];
+//    }else{
+//        
+//        _wall.fullName = storeIns.user.nickName;
+//        [imgAvatar setImage:storeIns.user.thumbnail];
+//    }
+//
+//    //calculation height cell + spacing top and bottom
+//    CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
+//    CGSize sizeFullName = { 0 , 0 };
+//    CGSize sizeLocation = { 0, 0 };
+//    
+//    if (_wall.longitude != 0 || _wall.latitude != 0) {
+//        
+//        /* Create custom view to display section header... */
+//        
+//        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+//        
+//        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
+//        [lblFullName setFont:[helperIns getFontLight:15.0f]];
+//        [lblFullName setTextAlignment:NSTextAlignmentLeft];
+//        [lblFullName setTextColor:[UIColor blackColor]];
+//        [lblFullName setBackgroundColor:[UIColor clearColor]];
+//        
+//        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
+//        /* Section header is in 0th index... */
+//        
+//        [lblFullName setText:[string uppercaseString]];
+//        
+//        [view addSubview:lblFullName];
+//
+//        NSString *strLocation = @"LONDON";
+//        sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+//        
+//        UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
+////        [imgLocation setBackgroundColor:[UIColor redColor]];
+//        [imgLocation setFrame:CGRectMake(50, 25, 10, 10)];
+//        [imgLocation setContentMode:UIViewContentModeScaleAspectFill];
+//        [view addSubview:imgLocation];
+//        
+//        UILabel *lblLocation = [[UILabel alloc] initWithFrame:CGRectMake(60, 25, sizeLocation.width, 10)];
+//        [lblLocation setText:strLocation];
+//        [lblLocation setFont:[helperIns getFontLight:10.0f]];
+//        [view addSubview:lblLocation];
+//        
+//    }else{
+//        /* Create custom view to display section header... */
+//        
+//        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+//        
+//        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
+//        [lblFullName setFont:[helperIns getFontLight:15.0f]];
+//        [lblFullName setTextAlignment:NSTextAlignmentLeft];
+//        [lblFullName setTextColor:[UIColor blackColor]];
+//        [lblFullName setBackgroundColor:[UIColor clearColor]];
+//        
+//        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
+//        /* Section header is in 0th index... */
+//        
+//        [lblFullName setText:[string uppercaseString]];
+//        
+//        [view addSubview:lblFullName];
+//    }
+//    
+//    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
+//    NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
+//    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
+//    
+//    NSTimeInterval deltaWall = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
+//    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+//    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
+//                                                        fromDate:_dateTimeMessage
+//                                                          toDate:[NSDate date]
+//                                                         options:0];
+//    
+//    NSString *timeAgo = @"";
+//    NSInteger w = [components week];
+//    if (w <= 0) {
+//        NSInteger d = [components day];
+//        if (d <= 0) {
+//            NSInteger h = components.hour;
+//            if (h <=0) {
+//                NSInteger m = [components minute];
+//                if (m <= 0) {
+//                    NSInteger s = [components second];
+//                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
+//                }else{
+//                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
+//                }
+//            }else{
+//                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
+//            }
+//        }else{
+//            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
+//        }
+//    }else{
+//        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
+//    }
+//
+//    timeAgo = _wall.time;
+//    
+//    CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+//    
+//    UILabel *lblTime = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20), 20 - (sizeFullName.height / 2), sizeTime.width + 10, sizeTime.height)];
+//    [lblTime setBackgroundColor:[UIColor clearColor]];
+//    [lblTime setTextColor:[UIColor blackColor]];
+//    [lblTime setText:timeAgo];
+//    [lblTime setTag:2004];
+//    [lblTime setFont:[helperIns getFontLight:13.0f]];
+//    
+//    [view addSubview:lblTime];
+//    
+//    UIImageView *imgClock = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-ClockGreen.svg"]];
+//    [imgClock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
+//    [view addSubview:imgClock];
+//    
+//    return view;
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -232,9 +241,36 @@
         scCell = [[SCWallTableViewCellV2 alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     }
     
+    [scCell.btnMore setTag:indexPath.section];
+    [scCell.btnMore addTarget:self action:@selector(btnMore:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [scCell.btnLike setTag:1000 + indexPath.section];
+    [scCell.btnLike addTarget:self action:@selector(btnLike:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [scCell.btnComment setTag:2000 + indexPath.section];
+    [scCell.btnComment addTarget:self action:@selector(btnComment:) forControlEvents:UIControlEventTouchUpInside];
+    
+    if (_wall.isLike) {
+        [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    }else{
+        [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
+    }
+    
     if (_wall.typePost == 0) {
         
         //post with image and caption
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//            __block UIImage *img = [[UIImage alloc] initWithData:_wall.imgData];
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                
+//                [scCell.imgView setImage:img];
+//                img = nil;
+//                [scCell.spinner setHidden:YES];
+//                [scCell.spinner stopAnimating];
+//                
+//            });
+//        });
+        
         [scCell.imgView setImage:[_wall.images lastObject]];
         
         CGFloat heightMain = [self calculationHeightRow:indexPath.section];
@@ -273,7 +309,7 @@
             sizeStatus.height = 40;
             [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
         }else{
-            [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, -5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+            [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
         }
         
 //        sizeStatus.height = sizeStatus.height < 40 ? 40 : sizeStatus.height;
@@ -372,10 +408,9 @@
         
         if (sizeStatus.height < 60) {
             sizeStatus.height = 60;
-            [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
         }
         
-        [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, 0, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
+        [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, 10, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
         [scCell.lblStatus setDelegate:self];
         scCell.lblStatus.userInteractionEnabled = YES;
         
@@ -383,7 +418,7 @@
         
         [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
         
-        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, 0, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height)];
+        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, 0, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height + spacing + spacing)];
         [scCell.vStatus setBackgroundColor:[UIColor lightGrayColor]];
         
         [scCell.vLike setFrame:CGRectMake(scCell.vLike.frame.origin.x, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height, scCell.vLike.bounds.size.width , scCell.vLike.bounds.size.height)];
@@ -392,8 +427,8 @@
         [scCell.imgQuotes setHidden:YES];
         [scCell.imgQuotesWhite setHidden:NO];
         [scCell.imgQuotesWhiteRight setHidden:NO];
-        [scCell.imgQuotesWhite setFrame:CGRectMake(0, (sizeStatus.height / 2) - (scCell.imgQuotesWhite.bounds.size.height / 2), scCell.imgQuotesWhite.bounds.size.width, scCell.imgQuotesWhite.bounds.size.height)];
-        [scCell.imgQuotesWhiteRight setFrame:CGRectMake(scCell.imgQuotesWhiteRight.frame.origin.x, (sizeStatus.height / 2) - (scCell.imgQuotesWhite.bounds.size.height / 2), scCell.imgQuotesWhiteRight.bounds.size.width, scCell.imgQuotesWhiteRight.bounds.size.height)];
+        [scCell.imgQuotesWhite setFrame:CGRectMake(0, ((sizeStatus.height / 2 + spacing)) - (scCell.imgQuotesWhite.bounds.size.height / 2), scCell.imgQuotesWhite.bounds.size.width, scCell.imgQuotesWhite.bounds.size.height)];
+        [scCell.imgQuotesWhiteRight setFrame:CGRectMake(scCell.imgQuotesWhiteRight.frame.origin.x, ((sizeStatus.height / 2) + spacing) - (scCell.imgQuotesWhite.bounds.size.height / 2), scCell.imgQuotesWhiteRight.bounds.size.width, scCell.imgQuotesWhiteRight.bounds.size.height)];
         
         //===========COMMENT=============
         if ([_wall.comments count] > 0) {
@@ -430,7 +465,8 @@
             [scCell.vAllComment setHidden:YES];
             [scCell.vComment setHidden:YES];
             
-            [scCell.vTool setFrame:CGRectMake(0, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height + 10, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+            [scCell.vTool setFrame:CGRectMake(0, scCell.vStatus.frame.origin.y + scCell.vLike.bounds.size.height + scCell.vStatus.bounds.size.height, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+            [scCell.bottomLike setHidden:YES];
         }
         
         //===========Waiting=======
@@ -600,7 +636,11 @@
             
             if ([_wall.comments count] > 4) {
                 heightViewAllComment = 40;
+            }else{
+                spacingViewAllComment = 0;
             }
+        }else{
+            spacingViewAllComment = 0;
         }
     }
     
@@ -651,19 +691,143 @@
     NSArray *paths = [self indexPathsForVisibleRows];
     NSMutableSet *visibleCells = [NSMutableSet new];
     for (NSIndexPath *path in paths) {
-        DataWall *_wall = [storeIns.walls objectAtIndex:path.row];
+        DataWall *_wall = [storeIns.walls objectAtIndex:path.section];
         SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
         
-        NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
         NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
-        NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
         
-        NSTimeInterval deltaWall = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
-        NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-        NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
-                                                            fromDate:_dateTimeMessage
-                                                              toDate:[NSDate date]
-                                                             options:0];
+        NSDate *_endTimeMessage = [timeMessage dateByAddingTimeInterval:86400];
+        NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
+        
+        NSDate *newDate = [_endTimeMessage dateByAddingTimeInterval:deltaTime];
+        
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+        
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        
+        NSDateComponents *todayComps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:_endTimeMessage];
+        
+        NSDateComponents *comps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:newDate];
+        
+        comps.minute = todayComps.minute;
+        comps.second = todayComps.second;
+        
+        NSDate *date = [calendar dateFromComponents:comps];
+
+        
+        NSTimeInterval countDownTime = [date timeIntervalSinceDate:[NSDate date]];
+        NSDate *countTime = [date dateByAddingTimeInterval:countDownTime];
+        
+        NSDate *fromDate;
+        NSDate *toDate;
+        
+        [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&fromDate
+                     interval:NULL forDate:[NSDate date]];
+        [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&toDate
+                     interval:NULL forDate:date];
+        
+        NSDateComponents *difference = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit)
+                                                   fromDate:fromDate toDate:toDate options:0];
+        
+        NSInteger h = [difference hour];
+        NSInteger m = [difference minute];
+        NSInteger s = [difference second];
+        
+//        NSLog(@"current date: %@ - server date: %@ - count down: %@", [dateFormatter stringFromDate:[NSDate date]], [dateFormatter stringFromDate:date], [dateFormatter stringFromDate:countTime]);
+        
+        NSString *sHour, *sMinute, *sSecond;
+        sHour = [NSString stringWithFormat:@"%i", h];
+        sMinute = [NSString stringWithFormat:@"%i", m];
+        sSecond = [NSString stringWithFormat:@"%i", s];
+        
+        if (s < 10) {
+            sSecond = [NSString stringWithFormat:@"0%i", s];
+        }
+        
+        if (m < 10) {
+            sMinute = [NSString stringWithFormat:@"0%i", m];
+        }
+        
+        if (h < 10) {
+            sHour = [NSString stringWithFormat:@"0%i", h];
+        }
+        
+        SCHeaderFooterView *viewHeader = (SCHeaderFooterView*)[self headerViewForSection:path.section];
+
+//        viewHeader.lblTime.text = [helperIns convertNSDateToString:countTime withFormat:@"HH:mm:ss"];
+        viewHeader.lblTime.text = [NSString stringWithFormat:@"%@:%@:%@", sHour, sMinute, sSecond];
+        
+    }
+}
+
+- (void) btnMore:(id)sender{
+    UIButton *btnMore = (UIButton*)sender;
+    NSInteger _tagButton = btnMore.tag;
+    NSLog(@"button click: %i", (int)_tagButton);
+    
+    NSString *actionSheetTitle = @"Please Select Action"; //Action Sheet Title
+    NSString *destructiveTitle = @"Report Inappropriate"; //Action Sheet Button Titles
+    NSString *other1 = @"Copy Share URL";
+    NSString *cancelTitle = @"Cancel";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                                  initWithTitle:nil
+                                  delegate:self
+                                  cancelButtonTitle:cancelTitle
+                                  destructiveButtonTitle:destructiveTitle
+                                  otherButtonTitles:other1, nil];
+    
+    [actionSheet showInView:self];
+}
+
+- (void) btnLike:(id)sender{
+    UIButton *btnLike = (UIButton*)sender;
+    NSInteger _tagButton = btnLike.tag;
+    NSLog(@"button click like: %i", (int)_tagButton);
+    
+    NSArray *paths = [self indexPathsForVisibleRows];
+    
+    for (NSIndexPath *path in paths) {
+        if (path.section == (_tagButton - 1000)) {
+            DataWall *_wall = [storeIns.walls objectAtIndex:(_tagButton - 1000)];
+            if (!_wall.isLike) {
+                SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
+                
+                [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+//                [_wall setIsLike:YES];
+//                [((DataWall*)[storeIns.walls objectAtIndex:(_tagButton - 1000)]) setIsLike:YES];
+                
+                [networkControllerIns addPostLike:_wall];
+            }else{
+                SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
+                
+                [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
+                [_wall setIsLike:NO];
+                [((DataWall*)[storeIns.walls objectAtIndex:(_tagButton - 1000)]) setIsLike:NO];
+            }
+        }
+    }
+}
+
+- (void) btnComment:(id)sender{
+    
+}
+
+- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+    switch (buttonIndex) {
+        case 0:{
+            
+        }
+            break;
+            
+        case 1:
+            
+            break;
+            
+        default:
+            break;
     }
 }
 @end

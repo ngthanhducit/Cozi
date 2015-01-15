@@ -49,7 +49,7 @@
 @property (nonatomic, strong) UIButton                *btnComment;
 
 @property (nonatomic, strong) UIImageView             *imgView;
-@property (nonatomic, strong) UIButton                *imgMore;
+@property (nonatomic, strong) UIButton                *btnMore;
 @property (nonatomic,strong ) UIImageView             *imgQuotes;
 @property (nonatomic, strong) UIImageView               *imgQuotesWhite;
 @property (nonatomic, strong) UIImageView               *imgQuotesWhiteRight;

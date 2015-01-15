@@ -35,7 +35,7 @@
 @synthesize nickNameText = _nickNameText;
 @synthesize wallData = _wallData;
 @synthesize spinner;
-@synthesize imgMore;
+@synthesize btnMore;
 @synthesize imgQuotes;
 @synthesize imgQuotesWhite;
 @synthesize imgQuotesWhiteRight;
@@ -60,6 +60,7 @@
 }
 
 - (void) setupVariable{
+    [self setSelectionStyle:UITableViewCellSelectionStyleNone];
     spacing = 0;
     leftSpacing = 30;
     heightDefault = 40; //height like, view all comment
@@ -121,11 +122,11 @@
     [self.lblLike setFont:[helperIns getFontLight:18.0f]];
     [vLike addSubview:self.lblLike];
     
-    self.imgMore = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.imgMore setImage:[helperIns getImageFromSVGName:@"icon-openMenuGreen.svg"] forState:UIControlStateNormal];
-    [self.imgMore setContentMode:UIViewContentModeCenter];
-    [self.imgMore setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
-    [self.vLike addSubview:self.imgMore];
+    self.btnMore = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.btnMore setImage:[helperIns getImageFromSVGName:@"icon-openMenuGreen.svg"] forState:UIControlStateNormal];
+    [self.btnMore setContentMode:UIViewContentModeCenter];
+    [self.btnMore setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
+    [self.vLike addSubview:self.btnMore];
 
     [self.mainView addSubview:vLike];
     
@@ -170,11 +171,11 @@
     self.lblStatus.activeLinkAttributes = mutableActiveLinkAttributes;
     
     self.lblStatus.highlightedTextColor = [UIColor whiteColor];
-    self.lblStatus.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
-    self.lblStatus.shadowOffset = CGSizeMake(0.0f, 1.0f);
-    self.lblStatus.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
-    self.lblStatus.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
-    self.lblStatus.highlightedShadowRadius = 1;
+//    self.lblStatus.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
+//    self.lblStatus.shadowOffset = CGSizeMake(0.0f, 1.0f);
+//    self.lblStatus.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
+//    self.lblStatus.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
+//    self.lblStatus.highlightedShadowRadius = 1;
     self.lblStatus.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
     [self.lblStatus setFont:[helperIns getFontLight:14.0f]];
     
@@ -375,11 +376,11 @@
             _lblComment.activeLinkAttributes = mutableActiveLinkAttributes;
             
             _lblComment.highlightedTextColor = [UIColor whiteColor];
-            _lblComment.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
-            _lblComment.shadowOffset = CGSizeMake(0.0f, 1.0f);
-            _lblComment.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
-            _lblComment.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
-            _lblComment.highlightedShadowRadius = 1;
+//            _lblComment.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
+//            _lblComment.shadowOffset = CGSizeMake(0.0f, 1.0f);
+//            _lblComment.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
+//            _lblComment.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
+//            _lblComment.highlightedShadowRadius = 1;
             _lblComment.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
             [_lblComment setFont:[helperIns getFontLight:14.0f]];
             

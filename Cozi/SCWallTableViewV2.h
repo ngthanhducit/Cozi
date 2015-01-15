@@ -15,8 +15,10 @@
 #import "NetworkCommunication.h"
 #import "PostComment.h"
 #import "PostLike.h"
+#import "SCHeaderFooterView.h"
+#import "NetworkController.h"
 
-@interface SCWallTableViewV2 : UITableView <UITableViewDataSource, UITableViewDelegate, TTTAttributedLabelDelegate, UIScrollViewDelegate>
+@interface SCWallTableViewV2 : UITableView <UITableViewDataSource, UITableViewDelegate, TTTAttributedLabelDelegate, UIScrollViewDelegate, UIActionSheetDelegate>
 {
     Store               *storeIns;
     Helper              *helperIns;
@@ -32,6 +34,7 @@
     BOOL                isMoreData;
     BOOL                isEnd;
     CGPoint         lastOffset;
+    NetworkController           *networkControllerIns;
     
 }
 
