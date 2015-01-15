@@ -88,9 +88,7 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self.tbView setFrame:CGRectMake(0, [self getHeaderHeight], self.bounds.size.width, self.bounds.size.height - [self getHeaderHeight] - heightTextField - heightToolkitNormal)];
     [self.tbView setScMessageTableViewDelegate:self];
     [self.tbView setContentOffset:CGPointMake(20, 0) animated:NO];
-    
     [self addSubview:self.tbView];
-    
     
     self.viewSendMessage = [[UIView alloc] initWithFrame:CGRectMake(0, self.bounds.size.height - heightTextField, self.bounds.size.width, heightTextField)];
     [self.viewSendMessage setBackgroundColor:[UIColor clearColor]];
@@ -333,7 +331,7 @@ const CGSize sizeButtonSend = { 30, 30 };
     [btnCameraCapture addTarget:self action:@selector(btnCaptureImage:) forControlEvents:UIControlEventTouchUpInside];
     [toolkitCamera addSubview:btnCameraCapture];
     
-//    cameraPreview = [[CameraCaptureV6 alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, 200)];
+    cameraPreview = [[CameraCaptureV6 alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, 200)];
     
     UITapGestureRecognizer *tapLogo = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapCameraTakePhoto:)];
     [tapLogo setNumberOfTapsRequired:1];
