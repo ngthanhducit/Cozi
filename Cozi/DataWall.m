@@ -19,4 +19,10 @@
 @synthesize time;
 @synthesize clientKey;
 @synthesize typePost;
+@synthesize isLike;
+@synthesize timeLike;
+@synthesize thumb;
+@synthesize urlFull;
+@synthesize urlThumb;
+
 @end
