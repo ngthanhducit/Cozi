@@ -65,4 +65,18 @@
     cusLayer.path=p.CGPath;
     self.layer.mask=cusLayer;
 }
+
+- (void) drawTrianUp{
+    CAShapeLayer *cusLayer=[CAShapeLayer layer];
+    UIBezierPath *p=[UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(0, 0)];
+    [p setLineWidth:0.0f];
+    [p addLineToPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMaxX(self.bounds), CGRectGetMaxY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMinX(self.bounds), CGRectGetMaxY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))];
+    [p stroke];
+    cusLayer.path=p.CGPath;
+    self.layer.mask=cusLayer;
+}
 @end

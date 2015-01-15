@@ -16,4 +16,5 @@
 - (void) drawTriangleSignIn;
 - (void) drawTriangleToolKit;
 - (void) drawTrianDownToolkit;
+- (void) drawTrianUp;
 @end

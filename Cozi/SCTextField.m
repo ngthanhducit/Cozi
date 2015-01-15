@@ -76,7 +76,7 @@
     [self setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
     
     self.leftViewMode = UITextFieldViewModeAlways;
-    
+
     UIView *_tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, 30, 30)];
     imageView.image = self.icon;
