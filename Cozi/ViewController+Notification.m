@@ -44,7 +44,7 @@
 }
 
 - (void) ResignActiveNotification:(NSNotification*)notification{
-    NSLog(@"ResignActiveNotification");
+//    NSLog(@"ResignActiveNotification");
 }
 
 - (void) EnterBackgroundNotification:(NSNotification*)notification{
@@ -53,7 +53,7 @@
 }
 
 - (void) WillEnterForegroundNotification:(NSNotification*)notification{
-    NSLog(@"WillEnterForegroundNotification");
+//    NSLog(@"WillEnterForegroundNotification");
 }
 
 - (void) BecomeActiveNotification:(NSNotification*)notification{
@@ -145,15 +145,13 @@
             break;
             
         case ReachableViaWWAN:
-            NSLog(@"WWAN");
+//            NSLog(@"WWAN");
             break;
             
         default:
             break;
     }
 }
-
-
 
 - (void) loadAssetsComplete:(NSNotification*)notification{
     
@@ -162,7 +160,6 @@
 }
 
 - (void) loadUserComplete:(NSNotification*)notification{
-    NSLog(@"load user complete");
     [self initLeftMenu];
     
     [self initRightMenu];
@@ -170,13 +167,10 @@
 }
 
 - (void) loadFriendComplete:(NSNotification*)notification{
-    NSLog(@"load user complete");
     [self.homePageV6.scCollection reloadData];
 }
 
 - (void) loadWallComplete:(NSNotification*)notification{
-    
-    NSLog(@"load wall complete");
     
     [self.wallPageV8 reloadData];
     [self.noisePageV6.scCollection reloadData];

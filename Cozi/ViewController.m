@@ -22,6 +22,7 @@ static NSString         *dataNetwork;
 
 @synthesize lblNickName;
 @synthesize wallPageV7;
+@synthesize shareMenu;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -326,57 +327,11 @@ static NSString         *dataNetwork;
     [self.lblNickName setFont:[self.helperIns getFontLight:15.0f]];
     [scrollHeader addSubview:self.lblNickName];
     
-    UIView *viewChat = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, 0, self.view.bounds.size.width, heightHeader)];
+    [self initHeaderRecents];
     
-    UIImage *imgContact = [self.helperIns getImageFromSVGName:@"icon-openMenu.svg"];
-    UIImageView *imgContactSearch = [[UIImageView alloc] initWithImage:imgContact];
-    [imgContactSearch setUserInteractionEnabled:YES];
-    [imgContactSearch setFrame:CGRectMake(0, 0, 40, 40)];
-    [imgContactSearch setContentMode:UIViewContentModeCenter];
-    [viewChat addSubview:imgContactSearch];
     
-    UITapGestureRecognizer *tapContactSearch = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenLeftMenu)];
-    [tapContactSearch setNumberOfTapsRequired:1];
-    [tapContactSearch setNumberOfTouchesRequired:1];
-    [imgContactSearch addGestureRecognizer:tapContactSearch];
-
-    
-    UILabel *lblChat = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, heightHeader)];
-    [lblChat setText:@"CHAT"];
-    [lblChat setTextAlignment:NSTextAlignmentCenter];
-    [lblChat setTextColor:[UIColor whiteColor]];
-    [lblChat setFont:[self.helperIns getFontLight:15.0f]];
-    [viewChat addSubview:lblChat];
-    
-    UIImage *imgOpenMenu = [self.helperIns getImageFromSVGName:@"icon-contactSearch.svg"];
-    UIImageView *imgViewOpenMenu = [[UIImageView alloc] initWithImage:imgOpenMenu];
-    [imgViewOpenMenu setUserInteractionEnabled:YES];
-    [imgViewOpenMenu setContentMode:UIViewContentModeCenter];
-    [imgViewOpenMenu setFrame:CGRectMake(40 + lblChat.bounds.size.width, 0, 40, 40)];
-    [viewChat addSubview:imgViewOpenMenu];
-    
-    UITapGestureRecognizer *tapOpenMenu = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenRightMenu)];
-    [tapOpenMenu setNumberOfTapsRequired:1];
-    [tapOpenMenu setNumberOfTouchesRequired:1];
-    [imgViewOpenMenu addGestureRecognizer:tapOpenMenu];
-    
-    [scrollHeader addSubview:viewChat];
-    
-    //===========================
-    
-    UILabel *lblWall = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 2, 0, self.view.bounds.size.width, heightHeader)];
-    [lblWall setText:@"WALL"];
-    [lblWall setTextAlignment:NSTextAlignmentCenter];
-    [lblWall setTextColor:[UIColor whiteColor]];
-    [lblWall setFont:[self.helperIns getFontLight:15.0f]];
-    [lblWall setUserInteractionEnabled:YES];
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showAddPost)];
-    [tap setNumberOfTapsRequired:1];
-    [tap  setNumberOfTouchesRequired:1];
-    [lblWall addGestureRecognizer:tap];
-    
-    [scrollHeader addSubview:lblWall];
+    //===========================WALL HEADER
+    [self initHeaderWall];
     
     UILabel *lblNoise = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 3, 0, self.view.bounds.size.width, heightHeader)];
     [lblNoise setText:@"NOISE"];
@@ -473,7 +428,105 @@ static NSString         *dataNetwork;
     UIImage *imgFirstSelect = [SVGKImage imageNamed:[NSString stringWithFormat:@"header-%i", 2]].UIImage;
     UIImageView *imgViewFirst = (UIImageView*)[self.view viewWithTag:101];
     [imgViewFirst setImage:imgFirstSelect];
+    
+    //init Share Menu
+    self.shareMenu = [[SCShareMenu alloc] initWithFrame:CGRectMake(0, -60, self.view.bounds.size.width, self.view.bounds.size.width / 4)];
+    [self.shareMenu setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:0.4]];
+    [self.shareMenu setHidden:YES];
+    [self.view addSubview:self.shareMenu];
+    
+    [self.shareMenu.btnCamera addTarget:self action:@selector(showAddPost) forControlEvents:UIControlEventTouchUpInside];
+    [self.shareMenu.btnPhoto addTarget:self action:@selector(showAddPostPhoto:) forControlEvents:UIControlEventTouchUpInside];
+    [self.shareMenu.btnLocation addTarget:self action:@selector(showAddPostLocation:) forControlEvents:UIControlEventTouchUpInside];
+    
+    vBlurShareMenu = [[UIView alloc] initWithFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+    [vBlurShareMenu setBackgroundColor:[UIColor blackColor]];
+    [vBlurShareMenu setHidden:YES];
+    [vBlurShareMenu setAlpha:0.0];
+    [self.view addSubview:vBlurShareMenu];
 }
+
+- (void) initHeaderRecents{
+    UIView *viewChat = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, 0, self.view.bounds.size.width, heightHeader)];
+    
+    UIImage *imgContact = [self.helperIns getImageFromSVGName:@"icon-openMenu.svg"];
+    UIImageView *imgContactSearch = [[UIImageView alloc] initWithImage:imgContact];
+    [imgContactSearch setUserInteractionEnabled:YES];
+    [imgContactSearch setFrame:CGRectMake(0, 0, 40, 40)];
+    [imgContactSearch setContentMode:UIViewContentModeCenter];
+    [viewChat addSubview:imgContactSearch];
+    
+    UITapGestureRecognizer *tapContactSearch = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenLeftMenu)];
+    [tapContactSearch setNumberOfTapsRequired:1];
+    [tapContactSearch setNumberOfTouchesRequired:1];
+    [imgContactSearch addGestureRecognizer:tapContactSearch];
+    
+    UILabel *lblChat = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, heightHeader)];
+    [lblChat setText:@"CHAT"];
+    [lblChat setTextAlignment:NSTextAlignmentCenter];
+    [lblChat setTextColor:[UIColor whiteColor]];
+    [lblChat setFont:[self.helperIns getFontLight:15.0f]];
+    [viewChat addSubview:lblChat];
+    
+    UIImage *imgOpenMenu = [self.helperIns getImageFromSVGName:@"icon-contactSearch.svg"];
+    UIImageView *imgViewOpenMenu = [[UIImageView alloc] initWithImage:imgOpenMenu];
+    [imgViewOpenMenu setUserInteractionEnabled:YES];
+    [imgViewOpenMenu setContentMode:UIViewContentModeCenter];
+    [imgViewOpenMenu setFrame:CGRectMake(40 + lblChat.bounds.size.width, 0, 40, 40)];
+    [viewChat addSubview:imgViewOpenMenu];
+    
+    UITapGestureRecognizer *tapOpenMenu = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenRightMenu)];
+    [tapOpenMenu setNumberOfTapsRequired:1];
+    [tapOpenMenu setNumberOfTouchesRequired:1];
+    [imgViewOpenMenu addGestureRecognizer:tapOpenMenu];
+    
+    [scrollHeader addSubview:viewChat];
+}
+
+- (void) initHeaderWall{
+    UIView *viewWall = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 2, 0, self.view.bounds.size.width, heightHeader)];
+    
+    UIImageView *imgLeftMenuWall = [[UIImageView alloc] initWithImage:[self.helperIns getImageFromSVGName:@"icon-openMenu.svg"]];
+    [imgLeftMenuWall setUserInteractionEnabled:YES];
+    [imgLeftMenuWall setFrame:CGRectMake(0, 0, 40, 40)];
+    [imgLeftMenuWall setContentMode:UIViewContentModeCenter];
+    [viewWall addSubview:imgLeftMenuWall];
+    
+    UITapGestureRecognizer *tapLeftMenuWall = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenLeftMenu)];
+    [tapLeftMenuWall setNumberOfTapsRequired:1];
+    [tapLeftMenuWall setNumberOfTouchesRequired:1];
+    [imgLeftMenuWall addGestureRecognizer:tapLeftMenuWall];
+    
+    UILabel *lblWall = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, heightHeader)];
+    [lblWall setText:@"WALL"];
+    [lblWall setTextAlignment:NSTextAlignmentCenter];
+    [lblWall setTextColor:[UIColor whiteColor]];
+    [lblWall setFont:[self.helperIns getFontLight:15.0f]];
+    [lblWall setUserInteractionEnabled:YES];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showAddPost)];
+    [tap setNumberOfTapsRequired:1];
+    [tap  setNumberOfTouchesRequired:1];
+    [lblWall addGestureRecognizer:tap];
+    
+    [viewWall addSubview:lblWall];
+    
+    UIImageView *imgAddPost = [[UIImageView alloc] initWithImage:[self.helperIns getImageFromSVGName:@"icon-contactSearch.svg"]];
+    [imgAddPost setUserInteractionEnabled:YES];
+    [imgAddPost setContentMode:UIViewContentModeCenter];
+    [imgAddPost setFrame:CGRectMake(40 + lblWall.bounds.size.width, 0, 40, 40)];
+    [viewWall addSubview:imgAddPost];
+    
+    UITapGestureRecognizer *tapAddPost = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showShareMenu)];
+    [tapAddPost setNumberOfTapsRequired:1];
+    [tapAddPost setNumberOfTouchesRequired:1];
+    [imgAddPost addGestureRecognizer:tapAddPost];
+    
+    [viewWall addSubview:imgAddPost];
+    
+    [scrollHeader addSubview:viewWall];
+}
+
 
 /**
  *  Init Left Menu
@@ -1236,7 +1289,7 @@ static NSString         *dataNetwork;
 
 #pragma -mark UIScrollView Delegate
 - (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    NSLog(@"BEGIN DRAGGING");
+//    NSLog(@"BEGIN DRAGGING");
     beginScroll = scrollView.contentOffset;
 }
 
@@ -1269,10 +1322,7 @@ static NSString         *dataNetwork;
                     
                     CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
                     CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
-                    
-                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
 
-                    
                     [self.homePageV6 setAlpha:(self.homePageV6.alpha - deltaAlpha)];
                     
                     
@@ -1289,15 +1339,11 @@ static NSString         *dataNetwork;
                     CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
                     CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
                     
-                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
-                    
                     if (beginScroll.x < scrollView.contentOffset.x) {
                         //move right
-                        NSLog(@"move right");
                         self.wallPageV8.alpha -= (deltaAlpha);
                     }else{
                         //move left;
-                        NSLog(@"move left");
                         self.wallPageV8.alpha += (deltaAlpha);
                     }
                     
@@ -1314,15 +1360,11 @@ static NSString         *dataNetwork;
                     CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
                     CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
                     
-                    NSLog(@"delta Alpha: %f - delta move: %f", deltaAlpha, deltaMove);
-                    
                     if (beginScroll.x < scrollView.contentOffset.x) {
                         //move right
-                        NSLog(@"move right");
                         self.noisePageV6.alpha -= (deltaAlpha);
                     }else{
                         //move left;
-                        NSLog(@"move left");
                         self.noisePageV6.alpha += (deltaAlpha);
                     }
                     
@@ -1378,7 +1420,7 @@ static NSString         *dataNetwork;
 - (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     
     int _temp = mainScroll.contentOffset.x / self.view.bounds.size.width;
-    NSLog(@"end animation %i", _temp);
+
     if (scrollView == mainScroll) {
         
 //        if (scrollView.contentOffset.x < self.view.bounds.size.width || page == 0) {
@@ -1615,7 +1657,8 @@ static NSString         *dataNetwork;
             
             [self.networkIns sendData:cmdLogin];
         }else{
-            NSLog(@"Invalid email address");
+
+
         }
     }
 }
@@ -1823,13 +1866,79 @@ static NSString         *dataNetwork;
 
 - (void) showAddPost{
 
-    postWall = [[PostViewController alloc] init];
-    [postWall setup];
-    UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:postWall];
-    [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
-    [naviController setDelegate:self];
+    [self.view bringSubviewToFront:scrollHeader];
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.shareMenu setFrame:CGRectMake(0, -70, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+        [vBlurShareMenu setAlpha:0.0];
+    } completion:^(BOOL finished) {
+        [self.shareMenu setHidden:YES];
+        [vBlurShareMenu setHidden:YES];
+        isShow = NO;
+        inShowShareMenu = NO;
+        
+        SCPostViewController *post = [[SCPostViewController alloc] init];
+        
+        UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
+        
+        [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [naviController setDelegate:self];
+        
+        [self presentViewController:naviController animated:YES completion:^{
+            
+        }];
+
+    }];
     
-    [self presentViewController:naviController animated:YES completion:^{
+}
+
+- (void) showAddPostPhoto:(id)sender{
+    
+    [self.view bringSubviewToFront:scrollHeader];
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.shareMenu setFrame:CGRectMake(0, -70, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+        [vBlurShareMenu setAlpha:0.0];
+    } completion:^(BOOL finished) {
+        [self.shareMenu setHidden:YES];
+        [vBlurShareMenu setHidden:YES];
+        isShow = NO;
+        inShowShareMenu = NO;
+        
+        SCPostPhotoViewController *post = [[SCPostPhotoViewController alloc] init];
+        
+        UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
+        
+        [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [naviController setDelegate:self];
+        
+        [self presentViewController:naviController animated:YES completion:^{
+            
+        }];
+        
+    }];
+    
+}
+
+- (void) showAddPostLocation:(id)sender{
+    [self.view bringSubviewToFront:scrollHeader];
+    [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.shareMenu setFrame:CGRectMake(0, -70, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+        [vBlurShareMenu setAlpha:0.0];
+    } completion:^(BOOL finished) {
+        [self.shareMenu setHidden:YES];
+        [vBlurShareMenu setHidden:YES];
+        isShow = NO;
+        inShowShareMenu = NO;
+        
+        SCPostLocationViewController *post = [[SCPostLocationViewController alloc] init];
+        
+        UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
+        
+        [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [naviController setDelegate:self];
+        
+        [self presentViewController:naviController animated:YES completion:^{
+            
+        }];
         
     }];
 }

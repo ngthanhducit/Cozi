@@ -21,4 +21,5 @@
 - (void) logout;
 - (void) showStatusConnected:(int)_isConnected;
 - (void) hiddenMenu;
+- (void) showShareMenu;
 @end

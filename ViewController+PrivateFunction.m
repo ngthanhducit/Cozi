@@ -150,6 +150,41 @@
     }];
 }
 
+- (void) showShareMenu{
+    
+    if (inShowShareMenu) {
+        return;
+    }
+    
+    inShowShareMenu = YES;
+    
+    if (!isShow) {
+        [self.view bringSubviewToFront:scrollHeader];
+        [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+            [self.shareMenu setHidden:NO];
+            [self.shareMenu setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+            
+            [vBlurShareMenu setHidden:NO];
+            [vBlurShareMenu setAlpha:0.8];
+        } completion:^(BOOL finished) {
+            [self.view bringSubviewToFront:self.shareMenu];
+            isShow = YES;
+            inShowShareMenu = NO;
+        }];
+    }else{
+        [self.view bringSubviewToFront:scrollHeader];
+        [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+            [self.shareMenu setFrame:CGRectMake(0, -70, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+            [vBlurShareMenu setAlpha:0.0];
+        } completion:^(BOOL finished) {
+            [self.shareMenu setHidden:YES];
+            [vBlurShareMenu setHidden:YES];
+            isShow = NO;
+            inShowShareMenu = NO;
+        }];
+    }
+}
+
 - (void) logout{
     
     [mainScroll removeFromSuperview];

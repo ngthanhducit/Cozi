@@ -36,10 +36,15 @@
 #import "GPUImageGrayscaleFilter.h"
 #import "DataWall.h"
 #import "SCSearchBar.h"
-#import "PostViewController.h"
 #import "SCWallTableView.h"
 #import "SCWallTableViewV2.h"
 #import "NoisesPage.h"
+#import "NetworkController.h"
+#import "SCShareMenu.h"
+#import "SCPostViewController.h"
+#import "SCPostPhotoViewController.h"
+#import "SCPostLocationViewController.h"
+#import "AmazonInfoPost.h"
 
 @interface ViewController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate>
 {
@@ -133,9 +138,11 @@
     BOOL                        isFirstLoadWall;
     BOOL                        isFirstLoadNoise;
     
+    BOOL                        isShowShareMenu;
+    BOOL                        inShowShareMenu;
+    UIView                      *vBlurShareMenu;
+    
     CGFloat                     alphatView;
-
-    PostViewController          *postWall;
 }
 
 @property (nonatomic, strong) UILabel              *lblNickName;
@@ -153,6 +160,7 @@
 @property (nonatomic, strong) NoisesPage               *noisePageV6;
 @property (nonatomic, strong) ChatView             *chatViewPage;
 @property (nonatomic, strong) MainPageV7           *homePageV6;
+@property (nonatomic, strong) SCShareMenu           *shareMenu;
 
 - (void) setup;
 - (void) initializeGestures;

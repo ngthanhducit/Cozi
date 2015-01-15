@@ -16,6 +16,16 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hsX-j5-8gn">
+                                <rect key="frame" x="242" y="110" width="139" height="51"/>
+                                <inset key="titleEdgeInsets" minX="0.0" minY="18" maxX="0.0" maxY="0.0"/>
+                                <inset key="imageEdgeInsets" minX="54" minY="-20" maxX="0.0" maxY="0.0"/>
+                                <state key="normal" title="Button" image="like.png">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                 </viewController>
@@ -23,4 +33,7 @@
             </objects>
         </scene>
     </scenes>
+    <resources>
+        <image name="like.png" width="24" height="24"/>
+    </resources>
 </document>

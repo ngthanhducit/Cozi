@@ -79,7 +79,13 @@ static NSString         *dataNetwork;
                         [self.chatViewPage initLibraryImage];
                         
                         //Get wall
-                        [self.networkIns sendData:@"GETWALL{<EOF>"];
+                        NSString *firstCall = @"-1";
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+                        
+                        
+                        
+                        NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
                         
                         dataNet = nil;
                     }
@@ -96,37 +102,42 @@ static NSString         *dataNetwork;
                 //Reconnect To Server
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"RECONNECT"]) {
                     
-                    [self.dataMapIns mapReconnect:dataNetwork];
-                    
-                    NSTimer *_timerTick = [[NSTimer alloc] initWithFireDate:self.storeIns.timeServer interval:1.0f target:self selector:@selector(onTick:) userInfo:nil repeats:YES];
-                    NSRunLoop *runner = [NSRunLoop currentRunLoop];
-                    [runner addTimer:_timerTick forMode:NSDefaultRunLoopMode];
-                    
-                    if (!isEnterBackground) {
-                        //add home page
-                        [self.loginPage setHidden:YES];
-                        [self.homePageV6 setHidden:NO];
+                    if (![[subCommand objectAtIndex:1] isEqualToString:@"-1"]) {
+                        [self.dataMapIns mapReconnect:dataNetwork];
                         
-                        //            CGSize sizeCollection = self.homePageV6.scCollection.collectionViewLayout.collectionViewContentSize;
+                        NSTimer *_timerTick = [[NSTimer alloc] initWithFireDate:self.storeIns.timeServer interval:1.0f target:self selector:@selector(onTick:) userInfo:nil repeats:YES];
+                        NSRunLoop *runner = [NSRunLoop currentRunLoop];
+                        [runner addTimer:_timerTick forMode:NSDefaultRunLoopMode];
                         
-                        [self.homePageV6.scCollection reloadData];
+                        if (!isEnterBackground) {
+                            //add home page
+                            [self.loginPage setHidden:YES];
+                            [self.homePageV6 setHidden:NO];
+                            
+                            //            CGSize sizeCollection = self.homePageV6.scCollection.collectionViewLayout.collectionViewContentSize;
+                            
+                            [self.homePageV6.scCollection reloadData];
+                            
+                            //            [self.homePageV6 setContentSizeContent:sizeCollection];
+                            
+                            [self.view bringSubviewToFront:self.homePageV6];
+                        }
                         
-                        //            [self.homePageV6 setContentSizeContent:sizeCollection];
+                        [self.storeIns sortMessengerFriend];
                         
-                        [self.view bringSubviewToFront:self.homePageV6];
+                        [self.chatViewPage.tbView reloadData];
+                        
+                        //Get wall
+                        //        [self.networkIns sendData:@"GETWALL{10}-1<EOF>"];
+                        NSString *firstCall = @"-1";
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+                        
+                        NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
+                    }else{
+                        [self logout];
                     }
                     
-                    [self.storeIns sortMessengerFriend];
-                    
-                    [self.chatViewPage.tbView reloadData];
-                    
-                    //Get wall
-                    //        [self.networkIns sendData:@"GETWALL{10}-1<EOF>"];
-                    NSString *firstCall = @"-1";
-                    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
-                    
-                    NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
-                    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"SENDMESSAGE"]) {
@@ -806,10 +817,10 @@ static NSString         *dataNetwork;
                     if (isFirstLoadWall) {
                         
                         self.storeIns.walls = [NSMutableArray new];
-                        NSMutableArray *dataWall = [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
+                        [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                         isFirstLoadWall = NO;
                     }else{
-                        NSMutableArray *dataWall = [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
+                        [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                     }
                     
 //                    [self.wallPageV8 reloadData];
@@ -822,13 +833,13 @@ static NSString         *dataNetwork;
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETNOISE"]) {
-                    
                     if (isFirstLoadNoise) {
                         self.storeIns.noises = [NSMutableArray new];
-                        NSMutableArray *dataNoise = [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:1];
+                        [self.dataMapIns mapDataNoises:[subCommand objectAtIndex:1]];
+//                        [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:1];
                         isFirstLoadNoise = NO;
                     }else{
-                        NSMutableArray *dataNoise = [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:1];
+                        [self.dataMapIns mapDataNoises:[subCommand objectAtIndex:1]];
                     }
                     
                     [self.noisePageV6.scCollection reloadData];
@@ -836,32 +847,42 @@ static NSString         *dataNetwork;
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADPOSTURL"]) {
-                    AmazonInfo *_amazonInfo = [self.dataMapIns mapAmazonUploadAvatar:[subCommand objectAtIndex:1]];
-                    
-                    [postWall setAmazoneUpload:_amazonInfo];
+                    AmazonInfoPost *_amazonInfo = [self.dataMapIns mapAmazonUploadPost:[subCommand objectAtIndex:1]];
+                    NSString *key = @"GETUPLOADPOSTURL";
+                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_amazonInfo forKey:key];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setAmazoneUpload" object:nil userInfo:dictionary];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"RESULTUPLOADPOSTIMAGE"]) {
-                    
-                    int resultCode = [[subCommand objectAtIndex:1] intValue];
-                    [postWall setResultUpload:resultCode];
+
+                    NSNumber *resultCode = [NSNumber numberWithInt:[[subCommand objectAtIndex:1] intValue]];
+                    NSString *key = @"RESULTUPLOADPOSTIMAGE";
+                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[subCommand objectAtIndex:1] forKey:key];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setResultUpload" object:nil userInfo:dictionary];
                     
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDPOST"]) {
+
+                    NSString *key = @"ADDPOST";
+                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[subCommand objectAtIndex:1] forKey:key];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setResultAddWall" object:nil userInfo:dictionary];
                     
-                    DataWall *_dataWall = [postWall getWall];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDPOSTLIKE"]) {
+                
+                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
+                    NSString *decodeClientKey = [self.helperIns decode:[subParameter objectAtIndex:1]];
                     
-                    NSData *dataImg = UIImageJPEGRepresentation([_dataWall.images lastObject], 1);
-                    NSData *wallData = UIImageJPEGRepresentation(self.storeIns.user.thumbnail, 1);
+                    int userPost = [[subParameter objectAtIndex:2] intValue];
+                    DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
+                    [_wall setTimeLike:[subParameter objectAtIndex:0]];
+                    [_wall setIsLike:YES];
                     
-                    _dataWall.fullName = self.storeIns.user.nickName;
-                    [self.wallPage addWallItem:_dataWall avatar:dataImg];
-                    //
-                    //        [self.wallPage insertWallItem:dataImg avatar:wallData withFullName:self.storeIns.user.nickName itemId:self.storeIns.user.userID];
+                    [self.storeIns updateWall:decodeClientKey withUserPost:(int)[subParameter objectAtIndex:2] withData:_wall];
                     
-                    [postWall setResultAddWall:[subCommand objectAtIndex:1]];
-                    
+                    [self.wallPageV8 stopLoadWall:NO];
                 }
                 
             }

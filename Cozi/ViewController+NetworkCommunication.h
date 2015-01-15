@@ -8,7 +8,6 @@
 
 #import "ViewController.h"
 #import "ViewController+PrivateFunction.h"
-
 @interface ViewController (NetworkCommunication) <NetworkCommunicationDelegate>
 {
     
