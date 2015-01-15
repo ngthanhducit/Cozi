@@ -398,12 +398,30 @@
                     self.storeIns.timeServer = [self.helperIns convertStringToDate:[subValue objectAtIndex:0]];
                 }
                 
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+                
+                NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+                
+                NSDateComponents *todayComps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:[NSDate date]];
+                
+                NSDateComponents *comps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:[dateFormatter dateFromString:[subValue objectAtIndex:0]]];
+                
+                comps.minute = todayComps.minute;
+                comps.second = todayComps.second;
+
+                NSDate *date = [calendar dateFromComponents:comps];
+                NSLog(@"current date: %@ - server date: %@", [dateFormatter stringFromDate:[NSDate date]], [dateFormatter stringFromDate:date]);
+                
                 //Map list message offline
                 if ([[subValue objectAtIndex:1] length] > 1) {
                     NSArray *subParameter = [[subValue objectAtIndex:1] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
+                        
                         NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:self.storeIns.timeServer];
+                        
                         for (int i = 0; i < count; i++) {
                             NSArray *subMessageOffline = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subMessageOffline count] > 1) {
@@ -906,8 +924,28 @@
         result.url = [self.helperIns decode:[subParameter objectAtIndex:4]];
     }
 
+    return result;
+}
+
+- (AmazonInfoPost*) mapAmazonUploadPost:(NSString *)str{
+    AmazonInfoPost *result = [[AmazonInfoPost alloc] init];
+    
+    NSArray *subParameter = [str componentsSeparatedByString:@"}"];
+    if ([subParameter count] > 1) {
+        result.keyThumb = [self.helperIns decode:[subParameter objectAtIndex:0]];
+        result.policyThumb = [self.helperIns decode:[subParameter objectAtIndex:1]];
+        result.signatureThumb = [self.helperIns decode:[subParameter objectAtIndex:2]];
+        result.accessKeyThumb = [self.helperIns decode:[subParameter objectAtIndex:3]];
+        
+        result.key = [self.helperIns decode:[subParameter objectAtIndex:4]];
+        result.policy = [self.helperIns decode:[subParameter objectAtIndex:5]];
+        result.signature = [self.helperIns decode:[subParameter objectAtIndex:6]];
+        result.accessKey = [self.helperIns decode:[subParameter objectAtIndex:7]];
+        result.url = [self.helperIns decode:[subParameter objectAtIndex:8]];
+    }
     
     return result;
+
 }
 
 - (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage{
@@ -977,37 +1015,43 @@
                     __block int indexImage = 0;
                     newDataWall.typePost = 0;
                     NSArray *subImage = [[subCommand objectAtIndex:2] componentsSeparatedByString:@"$"];
+                    
                     if ([subImage count] > 0) {
+                        
                         int countImage = (int)[subImage count];
                         for (int j = 0; j < countImage; j++) {
-                            if (![[subImage objectAtIndex:j] isEqualToString:@""]) {
+                            
+                        }
+                        
+                        if (![[subImage lastObject] isEqualToString:@""]) {
+                            
+                            NSString *url = [self.helperIns decode:[subImage lastObject]];
+                            newDataWall.urlFull = url;
+                            
+                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:SDWebImageDownloaderLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                                 
-                                NSString *url = [self.helperIns decode:[subImage objectAtIndex:j]];
+                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                                 
-                                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:SDWebImageDownloaderLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                                    
-                                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-  
-//                                    UIImage *tempImage = [self.helperIns scaleUIImage:image scaledToSize:CGSizeMake(100, 100)];
-                                    if (image && finished) {
-                                        if (newDataWall.images == nil) {
-                                            newDataWall.images = [NSMutableArray new];
-                                        }
-                                        
-                                        [newDataWall.images addObject:image];
-                                        
-                                        if (indexImage >= countImage - 2 && indexPost >= count - 1) {
-//                                            Notification load wall image complete
-                                            [[NSNotificationCenter defaultCenter] postNotificationName:@"loadWallComplete" object:nil];
-                                        }
+                                if (image && finished) {
+                                    if (newDataWall.images == nil) {
+                                        newDataWall.images = [NSMutableArray new];
                                     }
                                     
-                                    indexImage++;
-                                    indexPost++;
-                                }];
+                                    [newDataWall.images addObject:image];
+                                    
+                                    if (indexPost >= count - 1) {
+//                                                                            if (indexImage >= countImage - 2 && indexPost >= count - 1) 
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"loadWallComplete" object:nil];
+                                    }
+                                }
+                                
+                                indexImage++;
+                                indexPost++;
+                                
+                            }];
                             
-                            }
                         }
+                    
                     }
                 }else{
                     newDataWall.typePost = 1;
@@ -1025,6 +1069,7 @@
                 }
                 
                 [newDataWall setTime:[subCommand objectAtIndex:5]];
+//                [newDataWall setTime: [self.helperIns convertNSDateToString:[NSDate date]]];
                 [newDataWall setClientKey:[self.helperIns decode:[subCommand objectAtIndex:6]]];
                 [newDataWall setFirstName:[self.helperIns decode:[subCommand objectAtIndex:7]]];
                 [newDataWall setLastName: [self.helperIns decode:[subCommand objectAtIndex:8]]];
@@ -1079,6 +1124,12 @@
                     }
                 }
                 
+                if ([[subCommand objectAtIndex:11] isEqualToString:@"0"]) {
+                    [newDataWall setIsLike:NO];
+                }else{
+                    [newDataWall setIsLike:YES];
+                }
+                
                 if (type == 0) {
                     [self.storeIns addWallData:newDataWall];
                 }else{
@@ -1087,6 +1138,170 @@
                 
             }
         
+        }
+    }
+    
+    return result;
+}
+
+/**
+ *  <#Description#>
+ *
+ *  @param _str <#_str description#>
+ *  @param type <#type description#>
+ *
+ *  @return <#return value description#>
+ */
+- (NSMutableArray*) mapDataNoises:(NSString*)_str{
+    NSMutableArray *result = [NSMutableArray new];
+    
+    NSArray *subData = [_str componentsSeparatedByString:@"~"];
+    if ([subData count] > 0) {
+        int count = (int)[subData count];
+        __block int indexPost = 0;
+        
+        for (int i = 0; i < count; i++) {
+            DataWall *newDataWall = [DataWall new];
+            
+            NSArray *subCommand = [[subData objectAtIndex:i] componentsSeparatedByString:@"}"];
+            if ([subCommand count] > 1) {
+                [newDataWall setUserPostID:[[subCommand objectAtIndex:0] intValue]];
+                [newDataWall setContent: [self.helperIns decode:[subCommand objectAtIndex:1]]];
+                
+                if ([newDataWall.content isEqualToString:@""]) {
+                    [newDataWall setContent:@"Hình ảnh chi mang tính chất minh hoạ. Không phải hình thật ^tt^@Duy Anh^tt^ - Hình ảnh chi mang tính chất minh hoạ. Không phải hình thật ^tt^@Thiên Phú^tt^"];
+                }
+                
+                Friend *_friend = [self.storeIns getFriendByID:newDataWall.userPostID];
+                if (_friend != nil) {
+                    newDataWall.fullName = _friend.nickName;
+                }else{
+                    newDataWall.fullName = self.storeIns.user.nickName;
+                }
+                
+                //process image
+                newDataWall.images = [NSMutableArray new];
+                if (![[subCommand objectAtIndex:2] isEqualToString:@""]) {
+                    
+                    __block int indexImage = 0;
+                    newDataWall.typePost = 0;
+                    NSArray *subImage = [[subCommand objectAtIndex:2] componentsSeparatedByString:@"$"];
+                    
+                    if ([subImage count] > 0) {
+                        
+                        int countImage = (int)[subImage count];
+                        for (int j = 0; j < countImage; j++) {
+                            
+                        }
+                        
+                        if (![[subImage firstObject] isEqualToString:@""]) {
+                            
+                            NSString *url = [self.helperIns decode:[subImage firstObject]];
+                            newDataWall.urlThumb = url;
+                            
+                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:SDWebImageDownloaderLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                
+                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                
+                                if (image && finished) {
+                                    if (newDataWall.images == nil) {
+                                        newDataWall.images = [NSMutableArray new];
+                                    }
+                                    
+                                    [newDataWall setThumb:image];
+                                    
+                                    if (indexPost >= count - 1) {
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"loadWallComplete" object:nil];
+                                    }
+                                }
+                                
+                                indexImage++;
+                                indexPost++;
+                                
+                            }];
+                            
+                        }
+                        
+                    }
+                }else{
+                    newDataWall.typePost = 1;
+                }
+                
+                newDataWall.video = [self.helperIns decode:[subCommand objectAtIndex:3]];
+                
+                //process location
+                if (![[subCommand objectAtIndex:4] isEqualToString:@""]) {
+                    NSArray *subLocation = [[subCommand objectAtIndex:4] componentsSeparatedByString:@"|"];
+                    if ([subLocation count] == 2) {
+                        [newDataWall setLongitude:[subLocation objectAtIndex:0]];
+                        [newDataWall setLatitude:[subLocation objectAtIndex:1]];
+                    }
+                }
+                
+                [newDataWall setTime:[subCommand objectAtIndex:5]];
+                //                [newDataWall setTime: [self.helperIns convertNSDateToString:[NSDate date]]];
+                [newDataWall setClientKey:[self.helperIns decode:[subCommand objectAtIndex:6]]];
+                [newDataWall setFirstName:[self.helperIns decode:[subCommand objectAtIndex:7]]];
+                [newDataWall setLastName: [self.helperIns decode:[subCommand objectAtIndex:8]]];
+                
+                newDataWall.comments = [NSMutableArray new];
+                newDataWall.likes = [NSMutableArray new];
+                
+                //list comment
+                if (![[subCommand objectAtIndex:9] isEqualToString:@"0"]) {
+                    NSArray *subListComment = [[subCommand objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    if ([subListComment count] > 0) {
+                        int countComment = (int)[subListComment count];
+                        for (int i = 0; i < countComment; i++) {
+                            
+                            NSArray *subData = [[subListComment objectAtIndex:i] componentsSeparatedByString:@"]"];
+                            if ([subData count] > 1) {
+                                PostComment *_newComment = [[PostComment alloc] init];
+                                _newComment.dateComment = [self.helperIns convertStringToDate:[subData objectAtIndex:0]];
+                                _newComment.userCommentId = [[subData objectAtIndex:1] integerValue];
+                                _newComment.firstName = [self.helperIns decode:[subData objectAtIndex:2]];
+                                _newComment.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
+                                _newComment.contentComment = [self.helperIns decode:[subData objectAtIndex:4]];
+                                _newComment.urlImageComment = [self.helperIns decode:[subData objectAtIndex:5]];
+                                _newComment.commentLikes = [NSMutableArray new];
+                                
+                                //Map list like comment
+                                [newDataWall.comments addObject:_newComment];
+                            }
+                            
+                        }
+                    }
+                }
+                
+                if (![[subCommand objectAtIndex:10] isEqualToString:@"0"]) {
+                    //list like
+                    
+                    NSArray *subListLike = [[subCommand objectAtIndex:10] componentsSeparatedByString:@"$"];
+                    if ([subListLike count] > 0) {
+                        int count = (int)[subListLike count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subData = [[subListLike objectAtIndex:i] componentsSeparatedByString:@"&"];
+                            PostLike *_newLike = [PostLike new];
+                            _newLike.dateLike = [self.helperIns convertStringToDate:[subData objectAtIndex:0]];
+                            _newLike.userLikeId = [[subData objectAtIndex:1] integerValue];
+                            _newLike.firstName = [self.helperIns decode:[subData objectAtIndex:2]];
+                            _newLike.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
+                            
+                            [newDataWall.likes addObject:_newLike];
+                        }
+                    }
+                }
+                
+                if ([[subCommand objectAtIndex:11] isEqualToString:@"0"]) {
+                    [newDataWall setIsLike:NO];
+                }else{
+                    [newDataWall setIsLike:YES];
+                }
+                
+                [self.storeIns addNoisesData:newDataWall];
+                
+            }
+            
         }
     }
     

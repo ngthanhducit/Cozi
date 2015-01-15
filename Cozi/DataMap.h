@@ -19,6 +19,7 @@
 #import "DataWall.h"
 #import "PostComment.h" 
 #import "PostLike.h"
+#import "AmazonInfoPost.h"
 
 @interface DataMap : NSObject
 {
@@ -59,6 +60,8 @@
 
 - (AmazonInfo*) mapAmazonInfo:(NSString*)str;
 - (AmazonInfo*) mapAmazonUploadAvatar:(NSString *)str;
+- (AmazonInfoPost*) mapAmazonUploadPost:(NSString *)str;
+
 - (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage;
 - (NSString *) commandSendPhoto:(int)userReceive withKey:(NSString*)key withKeyMessage:(NSInteger)_keyMessage withTimeout:(int)_timeOut;
 
@@ -67,4 +70,5 @@
 
 //Wall Noise
 - (NSMutableArray*) mapDataWall:(NSString*)_str withType:(int)type;
+- (NSMutableArray*) mapDataNoises:(NSString*)_str;
 @end

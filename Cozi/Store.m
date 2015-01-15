@@ -15,6 +15,7 @@
 @synthesize friendsRequest;
 @synthesize sendAmazon;
 @synthesize recent;
+@synthesize keyGoogleMaps;
 
 + (id) shareInstance{
     static Store   *shareIns = nil;
@@ -59,6 +60,8 @@
     
     _longitude = [[NSUserDefaults standardUserDefaults] stringForKey:@"Longitude"];
     _latitude = [[NSUserDefaults standardUserDefaults] stringForKey:@"Latitude"];
+    
+    self.keyGoogleMaps = @"AIzaSyDMAeGF4cEXZKjs9MEsXY6vHci3jIjpfaw";
 }
 
 - (void) initLocation{
@@ -77,7 +80,11 @@
             }
             
             [locationManager startUpdatingLocation];
+        }else{
+            //Show warning
         }
+    }else{
+        //Show warning
     }
 }
 
@@ -1101,6 +1108,23 @@
     return _url;
 }
 
+- (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID{
+    DataWall *result = nil;
+    if (self.walls != nil) {
+        int count = (int)[self.walls count];
+        for (int i = 0; i < count; i++) {
+            
+            if ([[[self.walls objectAtIndex:i] clientKey] isEqualToString:_clientKey] && [[self.walls objectAtIndex:i] userPostID] == _userPostID) {
+                
+                result = [self.walls objectAtIndex:i];
+                break;
+            }
+        }
+    }
+    
+    return result;
+}
+
 - (void) addWallData:(DataWall *)_dataWall{
     if (self.walls != nil) {
         int count = (int)[self.walls count];
@@ -1135,6 +1159,36 @@
         
         if (!isExits) {
             [self.noises addObject:_dataWall];
+        }
+    }
+}
+
+- (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall *)_wall{
+    
+    if (self.walls != nil) {
+        int count = (int)[self.walls count];
+        for (int i = 0; i < count; i++) {
+            if ([[[self.walls objectAtIndex:i] clientKey] isEqualToString:_clientKey] && [[self.walls objectAtIndex:i] userPostID] == _userPostID) {
+                
+                [[self.walls objectAtIndex:i] setUserPostID:_wall.userPostID];
+                [[self.walls objectAtIndex:i] setContent:_wall.content];
+                [[self.walls objectAtIndex:i] setImages:_wall.images];
+                [[self.walls objectAtIndex:i] setVideo:_wall.video];
+                [[self.walls objectAtIndex:i] setLongitude:_wall.longitude];
+                [[self.walls objectAtIndex:i] setLatitude:_wall.latitude];
+                [[self.walls objectAtIndex:i] setTime:_wall.time];
+                [[self.walls objectAtIndex:i] setClientKey:_wall.clientKey];
+                [[self.walls objectAtIndex:i] setFirstName:_wall.firstName];
+                [[self.walls objectAtIndex:i] setLastName:_wall.lastName];
+                [[self.walls objectAtIndex:i] setComments:_wall.comments];
+                [[self.walls objectAtIndex:i] setLikes:_wall.likes];
+                [[self.walls objectAtIndex:i] setTypePost:_wall.typePost];
+                [[self.walls objectAtIndex:i] setIsLike:_wall.isLike];
+                [[self.walls objectAtIndex:i] setTimeLike:_wall.timeLike];
+                
+                break;
+                
+            }
         }
     }
 }

@@ -47,6 +47,7 @@
     BOOL                        inReceiveLocation;
     NSMutableData               *dataLocation;
     CoziCoreData                *coziCoreDataIns;
+    NSString                    *_keyGoogleMaps;
 }
 
 @property (nonatomic, weak) id <StoreDelegate> delegate;
@@ -60,6 +61,7 @@
 @property (nonatomic, strong) UIImage           *imgDemo;
 @property (nonatomic, strong) NSMutableArray        *receiveLocation;
 @property (nonatomic, strong)    NSDate             *timeServer;
+@property (nonatomic, strong) NSString                  *keyGoogleMaps;
 
 + (id) shareInstance;
 
@@ -103,4 +105,6 @@
 
 - (void) addWallData:(DataWall *)_dataWall;
 - (void) addNoisesData:(DataWall *)_dataWall;
+- (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
+- (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID;
 @end
