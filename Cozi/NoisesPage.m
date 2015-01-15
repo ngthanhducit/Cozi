@@ -34,6 +34,7 @@
 }
 
 - (void) setupUI{
+    
     CGFloat columns = self.bounds.size.width / (self.itemSize.width + self.itemInsets.left + self.interItemSpacingY);
     CGFloat _columnFlood = floor(columns);
     CGFloat _columnMinus = columns - _columnFlood;
