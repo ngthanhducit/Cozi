@@ -234,6 +234,131 @@ const NSString                  *_cKey = @"PTCSYC22";
     return orginalImage;
 }
 
+-(UIImage*) cropImage:(UIImage *)image withFrame:(CGRect)_frameImage { //process captured image, crop, resize and rotate
+    
+    _frameImage = CGRectMake(_frameImage.origin.x*image.scale,
+                      _frameImage.origin.y*image.scale,
+                      _frameImage.size.width*image.scale,
+                      _frameImage.size.height*image.scale);
+    
+    CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], _frameImage);
+    UIImage *result = [UIImage imageWithCGImage:imageRef
+                                          scale:image.scale
+                                    orientation:image.imageOrientation];
+    CGImageRelease(imageRef);
+    return result;
+}
+
+- (UIImage *)squareImageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize {
+    double ratio;
+    double delta;
+    CGPoint offset;
+    
+    //make a new square size, that is the resized imaged width
+    CGSize sz = CGSizeMake(newSize.width, newSize.width);
+    
+    //figure out if the picture is landscape or portrait, then
+    //calculate scale factor and offset
+    if (image.size.width > image.size.height) {
+        ratio = newSize.width / image.size.width;
+        delta = (ratio*image.size.width - ratio*image.size.height);
+        offset = CGPointMake(delta/2, 0);
+    } else {
+        ratio = newSize.width / image.size.height;
+        delta = (ratio*image.size.height - ratio*image.size.width);
+        offset = CGPointMake(0, delta/2);
+    }
+    //CGImageCreateImageInRect
+    //make the final clipping rect based on the calculated values
+    CGRect clipRect = CGRectMake(-offset.x, -offset.y / 2,
+                                 (ratio * image.size.width) + delta,
+                                 (ratio * image.size.height) + delta);
+    
+    
+    //start a new context, with scale factor 0.0 so retina displays get
+    //high quality image
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+        UIGraphicsBeginImageContextWithOptions(sz, YES, 0.0);
+    } else {
+        UIGraphicsBeginImageContext(sz);
+    }
+    
+    UIRectClip(clipRect);
+    [image drawInRect:clipRect];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
+- (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize
+{
+    UIImage *sourceImage = _img;
+    UIImage *newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = targetSize.width;
+    CGFloat targetHeight = targetSize.height;
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+    
+    if (CGSizeEqualToSize(imageSize, targetSize) == NO)
+    {
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        
+        if (widthFactor > heightFactor)
+        {
+            scaleFactor = widthFactor; // scale to fit height
+        }
+        else
+        {
+            scaleFactor = heightFactor; // scale to fit width
+        }
+        
+        scaledWidth  = width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        
+        // center the image
+        if (widthFactor > heightFactor)
+        {
+            thumbnailPoint.y = ((targetHeight - scaledHeight) * 0.5) / 2;
+//            thumbnailPoint.y = 0;
+        }
+        else
+        {
+            if (widthFactor < heightFactor)
+            {
+                thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+            }
+        }
+    }
+    
+    UIGraphicsBeginImageContext(targetSize); // this will crop
+    
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width  = scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    if(newImage == nil)
+    {
+        NSLog(@"could not scale image");
+    }
+    
+    //pop the context to get back to the default
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
 - (NSData *) compressionImage:(UIImage *)img{
     CGFloat compression = 0.7f;
     CGFloat maxCompression = 0.1f;
@@ -393,6 +518,16 @@ const NSString                  *_cKey = @"PTCSYC22";
 - (NSDate*) convertStringToDate:(NSString*)_strDate{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    NSDate *dateFromString = [[NSDate alloc] init];
+    dateFromString = [dateFormatter dateFromString:_strDate];
+    
+    return dateFromString;
+}
+
+- (NSDate*) convertNSStringToDate:(NSString*)_strDate withFormat:(NSString*)_strFormat{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:_strFormat];
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
     NSDate *dateFromString = [[NSDate alloc] init];
     dateFromString = [dateFormatter dateFromString:_strDate];

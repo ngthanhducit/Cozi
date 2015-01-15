@@ -53,8 +53,8 @@
     //    [_gcdSocket connectToHost:@"192.168.1.202" onPort:1411 error:nil];
     NSError *error = nil;
     //    [self.gcdSocket connectToHost:@"202.150.222.220" onPort:1411 withTimeout:30 error:&error];
-    [self.gcdSocket connectToHost:@"202.150.222.220" onPort:1411 error:&error];
-//        [self.gcdSocket connectToHost:@"192.168.1.125" onPort:1411 error:&error];
+    [self.gcdSocket connectToHost:@"202.150.222.220" onPort:1412 error:&error];
+//        [self.gcdSocket connectToHost:@"192.168.1.104" onPort:1411 error:&error];
     //    [_gcdSocket connectToHost:@"115.79.48.26" onPort:1411 error:nil];
     
 }

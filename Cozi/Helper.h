@@ -58,10 +58,14 @@
 - (NSString*) convertNSDateToString:(NSDate*)_date;
 - (NSString*) convertNSDateToString:(NSDate*)_date withFormat:(NSString*)_strFormat;
 - (NSDate*) convertNSStringToDate:(NSString*)_strDate;
+- (NSDate*) convertNSStringToDate:(NSString*)_strDate withFormat:(NSString*)_strFormat;
 - (NSDate*) convertStringToDate:(NSString*)_strDate;
 - (UIImage *)takeSnapshotOfView:(UIView *)view;
 - (UIImage *) getImageFromSVGName:(NSString*)svgName;
 - (UIImage *)maskImage:(UIImage *)originalImage toPath:(UIBezierPath *)path ;
+- (UIImage*) cropImage:(UIImage *)image withFrame:(CGRect)_frameImage;
+- (UIImage *)squareImageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
+- (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize;
 
 - (NSString *) getDateFormatMessage:(NSDate *)_time;
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
