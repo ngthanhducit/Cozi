@@ -360,7 +360,6 @@
         [captureImage setImage:[UIImage imageWithCGImage:imageRef]];
         
         CGImageRelease(imageRef);
-        
     }
     
     NSLog(@"size image width: %f- height: %f", captureImage.image.size.width, captureImage.image.size.height);
@@ -369,8 +368,9 @@
 }
 
 -(void)switchCamera: (BOOL) _isFrontCamera{
-        isFrontCamera = _isFrontCamera;
-        [self initializeCamera];
+
+    isFrontCamera = _isFrontCamera;
+    [self initializeCamera];
 }
 
 -(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
