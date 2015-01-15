@@ -56,12 +56,20 @@ static NSString * const reuseIdentifier = @"Cell";
     
     DataWall *_noise = [storeIns.noises objectAtIndex:indexPath.section];
     
-    [scCell.imgView setImage:[_noise.images lastObject]];
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//        __block UIImage *img = [[UIImage alloc] initWithData:_noise.imgData];
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [scCell.imgView setImage:img];
+//            img = nil;
+//        });
+//    });
+    
     [scCell.imgView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.imgView setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
     [scCell.imgView setContentMode:UIViewContentModeScaleAspectFill];
     [scCell.imgView setAutoresizingMask:UIViewAutoresizingNone];
     [scCell.imgView setClipsToBounds:YES];
+    [scCell.imgView setImage:_noise.thumb];
     
     [scCell.shadowImage setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.shadowImage setBackgroundColor:[UIColor whiteColor]];
@@ -75,7 +83,7 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
     SCNoiseCollectionViewCell *scCell = (SCNoiseCollectionViewCell*)[self cellForItemAtIndexPath:indexPath];
-
+    
 }
 
 - (void) stopLoadNoise{
