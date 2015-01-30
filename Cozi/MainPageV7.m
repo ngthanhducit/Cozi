@@ -69,10 +69,7 @@
 //    UIView *temp = [[UIView alloc] initWithFrame:self.scCollection.bounds];
 //    [temp setBackgroundColor:[UIColor colorWithRed:45/255.0f green:45/255.0f blue:45/255.0f alpha:1.0]];
     
-    UIImageView *imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cozi.jpg"]];
-//    [self.scCollection setBackgroundView:imgView];
-    
-    [self.scCollection initWithData:[self.storeIns recent] withType:0];
+    [self.scCollection initWithData:nil withType:0];
     [self.scCollection setShowsHorizontalScrollIndicator:NO];
     [self.scCollection setShowsVerticalScrollIndicator:NO];
     [self.scCollection setBackgroundColor:[UIColor clearColor]];

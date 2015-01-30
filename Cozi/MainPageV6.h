@@ -9,19 +9,35 @@
 #import <UIKit/UIKit.h>
 #import "SwapView.h"
 #import "SCCollectionViewLayout.h"
-#import "SCCollectionViewController.h"
+#import "SCNoiseCollectionView.h"
 #import "Store.h"
+#import "TriangleView.h"
+#import "Profile.h"
+#import "User.h"
 
 @interface MainPageV6 : SwapView <UIScrollViewDelegate>
 {
     int _top,_avartaH,_searchH;
     UIScrollView *_mScroll;
     UIImageView *_avarta;
-    UIView *_searchView;
+    UIView *_followInfo;
     UIView *friendView;
+    
+    UIView          *vAddFollow;
+    UIView          *vFollowers;
+    UIView          *vFollowing;
+    UIView          *vPosts;
+    
+    UILabel         *lblFollowers;
+    UILabel         *lblFollowing;
+    UILabel         *lblPosts;
+    
+    Profile         *profile;
+    User            *user;
+    NSMutableArray          *items;
 }
 
-@property (nonatomic, strong) SCCollectionViewController *scCollection;
+@property (nonatomic, strong) SCNoiseCollectionView *scCollection;
 
 @property (nonatomic) UIEdgeInsets              itemInsets;
 @property (nonatomic) CGSize                    itemSize;
@@ -33,9 +49,16 @@
 @property (nonatomic, strong) UILabel                   *lblLocationInfo;
 @property (nonatomic, strong) User                      *userIns;
 @property (nonatomic, strong) Store                     *storeIns;
+@property (nonatomic, strong) UIButton                  *btnEditProfile;
+@property (nonatomic, strong) UIButton                  *btnFollow;
 //@property (nonatomic, strong) UIScrollView              *mScroll;
+@property (nonatomic, strong) UIView                  *vFollowingUser;
+
+- (void) initFriend:(Profile*)_profile;
+- (void) initUser:(User*)_user;
+- (void) setNoisesHistory:(NSMutableArray*)_items;
 
 - (void) initMyInfo:(User*)_myUser;
--(void) drawAvatar;
+-(void) drawAvatar:(UIImage*)_imgAvatar;
 - (void) setContentSizeContent:(CGSize)contentSize;
 @end
