@@ -26,6 +26,7 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -70,11 +71,17 @@
     ALAssetsLibrary *assetsLibrary = [[ALAssetsLibrary alloc] init];
     [assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
         
-        ALAssetRepresentation *representation = [asset defaultRepresentation];
+        ALAssetRepresentation *rep = [asset defaultRepresentation];
+        Byte *buffer = (Byte*)malloc(rep.size);
+        NSUInteger buffered = [rep getBytes:buffer fromOffset:0.0 length:rep.size error:nil];
+        NSData *data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];//this is NSData may be what you want
+        UIImage *img = [UIImage imageWithData:data];
         
-        CGImageRef imgRef = [representation fullScreenImage];
-        
-        UIImage *img = [UIImage imageWithCGImage:imgRef];
+//        ALAssetRepresentation *representation = [asset defaultRepresentation];
+//        
+//        CGImageRef imgRef = [representation fullScreenImage];
+//        
+//        UIImage *img = [UIImage imageWithCGImage:imgRef];
         
         SCPreviewPhotoViewController *post = [[SCPreviewPhotoViewController alloc] initWithNibName:nil bundle:nil];
         //set image to post
@@ -84,7 +91,8 @@
         [self.navigationController setNavigationBarHidden:YES animated:YES];
         [self.navigationController pushViewController:post animated:YES];
         
-        imgRef = nil;
+        img = nil;
+//        imgRef = nil;
     } failureBlock:^(NSError *error) {
         
     }];

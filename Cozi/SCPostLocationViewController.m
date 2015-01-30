@@ -35,11 +35,13 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (void) setupNotification{
     self.nearItems = [NSMutableArray new];
+    networkControllerIns = [NetworkController shareInstance];
     
     lastLocation = [[CLLocation alloc] initWithLatitude:[[storeIns getlatitude] floatValue] longitude:[[storeIns getLongitude] floatValue]];
     
@@ -48,11 +50,13 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectNearLocation:) name:@"SelectNearLocation" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultAddWall:) name:@"setResultAddWall" object:nil];
 }
 
 - (void) setupUI{
     vSearch = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, hHeader)];
-    [vSearch setBackgroundColor:[UIColor purpleColor]];
+    [vSearch setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:vSearch];
 
     SCSearchBarV2 *searchBar = [[SCSearchBarV2 alloc] initWithFrame:CGRectMake(0, 0, vSearch.bounds.size.width, vSearch.bounds.size.height)];
@@ -70,15 +74,9 @@
     [mapView setShowsUserLocation:YES];
 
     [mapView setDelegate:self];
-//    [mapView setUserTrackingMode:RMUserTrackingModeNone];
     CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
     [mapView setCenterCoordinate:center];
-
     mapView.zoom = 15;
-    
-    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didDragMap:)];
-    [pan setDelegate:self];
-    [mapView addGestureRecognizer:pan];
     
     [self.vMaps addSubview:mapView];
     
@@ -102,7 +100,7 @@
     hNear = self.view.bounds.size.height - (hHeader + vSearch.bounds.size.height + self.vMaps.bounds.size.height);
     
     self.vNear = [[UIView alloc] initWithFrame:CGRectMake(0, yNear, self.view.bounds.size.width, hNear)];
-    [self.vNear setBackgroundColor:[UIColor orangeColor]];
+    [self.vNear setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.vNear];
     
     vNearTitle = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.vNear.bounds.size.width, 30)];
@@ -122,7 +120,7 @@
     
 //    self.tbNearLocation = [[SCNearTableView alloc] initWithFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height)];
     self.tbNearLocation = [[SCNearTableView alloc] initWithFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height) style:UITableViewStylePlain];
-    [self.tbNearLocation setBackgroundColor:[UIColor purpleColor]];
+    [self.tbNearLocation setBackgroundColor:[UIColor clearColor]];
     [self.vNear addSubview:self.tbNearLocation];
     
     self.waiting = [[UIActivityIndicatorView alloc] initWithFrame:self.tbNearLocation.bounds];
@@ -161,7 +159,7 @@
 
     [self.vButton addSubview:self.btnPostLocation];
     
-    [self downloadLocation:[storeIns getlatitude] withLongitude:[storeIns getLongitude]];
+//    [self downloadLocation:[storeIns getlatitude] withLongitude:[storeIns getLongitude]];
 }
 
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar{
@@ -203,7 +201,7 @@
                     }
                 }
                 
-                [self.tbNearLocation setNearItems:self.nearItems];
+                [self.tbNearLocation setData:self.nearItems];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tbNearLocation reloadData];
@@ -229,6 +227,7 @@
     NSURL *url = [NSURL URLWithString:strUrl];
     [self downloadDataFromURL:url withCompletionHandler:^(NSData *data) {
         if (data != nil) {
+            
             // Convert the returned data into a dictionary.
             NSError *error;
             NSMutableDictionary *returnedDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
@@ -246,6 +245,11 @@
                         NearLocation *_near = [NearLocation new];
                         _near.nearName = [data objectForKey:@"name"];
                         _near.vicinity = [data objectForKey:@"vicinity"];
+                        NSDictionary *subGeometry = [data objectForKey:@"geometry"];
+                        NSDictionary *subLocation = [subGeometry objectForKey:@"location"];
+                        
+                        _near.lat = [subLocation objectForKey:@"lat"];
+                        _near.lng = [subLocation objectForKey:@"lng"];
                         
                         [self.nearItems addObject:_near];
                     }
@@ -253,7 +257,7 @@
                 
                 NSString *nextToken = [returnedDict objectForKey:@"next_page_token"];
                 
-                [self.tbNearLocation setNearItems:self.nearItems];
+                [self.tbNearLocation setData:self.nearItems];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tbNearLocation reloadData];
                     [self.waiting setHidden:YES];
@@ -300,7 +304,8 @@
                 
                 NSString *nextToken = [returnedDict objectForKey:@""];
 
-                [self.tbNearLocation setNearItems:self.nearItems];
+                [self.tbNearLocation addData:self.nearItems];
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tbNearLocation reloadData];
                     
@@ -378,10 +383,9 @@
 
 #pragma -mark RMMapView Delegate
 - (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
-//    RMUserLocation *r = [[RMUserLocation alloc] init];
     CLLocationCoordinate2D l = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
     
-    [mapView setCenterCoordinate:l animated:YES];
+//    [mapView setCenterCoordinate:l animated:YES];
 }
 
 - (void) beforeMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
@@ -409,10 +413,10 @@
     NSString *strLa = [NSString stringWithFormat:@"%g", center.latitude];
     NSString *strLo = [NSString stringWithFormat:@"%g", center.longitude];
     
-    CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:center.latitude longitude:center.longitude];
+//    CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:center.latitude longitude:center.longitude];
     
-    CLLocationDistance dis = [lastLocation distanceFromLocation:newLocation];
-    NSLog(@"%d", dis);
+//    CLLocationDistance dis = [lastLocation distanceFromLocation:newLocation];
+
     [self downloadLocation:strLa withLongitude:strLo];
 }
 
@@ -421,24 +425,10 @@
 
 }
 
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    return YES;
-}
-
-- (void)didDragMap:(UIGestureRecognizer*)gestureRecognizer {
-    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        
-        
-    }
-    
-
-    if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        
-    }
-}
-
 - (void) selectNearLocation:(NSNotification*)_notification{
+    NSDictionary *userInfo = [_notification userInfo];
+    NSNumber *index = (NSNumber*)[userInfo objectForKey:@"NearLocationIndex"];
+    indexNear = index.intValue;
     
     [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         
@@ -453,6 +443,50 @@
 }
 
 - (void) btnSendLocation:(id)sender{
+    NearLocation *near = [self.nearItems objectAtIndex:indexNear];
+    
+    if (near) {
+        
+        _clientKeyID = [storeIns randomKeyMessenger];
+        NSString *tempClientKey = [helperIns encodedBase64:[[NSString stringWithFormat:@"%i", (int)_clientKeyID] dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        NSString *location = [NSString stringWithFormat:@"%@|%@", near.lng, near.lat];
+        
+        [networkControllerIns addPost:@"" withImage:@"" withImageThumb: @"" withVideo:@"" withLocation:location withClientKey:tempClientKey withCode:2];
+    }
+}
+
+- (void) setResultAddWall:(NSNotification*)notification{
+    NSDictionary *userInfo = [notification userInfo];
+    NSString *_strResult = (NSString*)[userInfo objectForKey:@"ADDPOST"];
+    
+    NSArray *subCommand = [_strResult componentsSeparatedByString:@"}"];
+    if ([subCommand count] == 2) {
+        NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
+        if (key > 0) {
+            NearLocation *near = [self.nearItems objectAtIndex:indexNear];
+            DataWall *_newWall = [DataWall new];
+            _newWall.userPostID = storeIns.user.userID;
+            _newWall.content = @"";
+            _newWall.images = [NSMutableArray new];
+            _newWall.video = @"";
+            _newWall.longitude = near.lng;
+            _newWall.latitude = near.lat;
+            _newWall.time = [subCommand objectAtIndex:0];
+            _newWall.typePost = 2;
+            _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
+            
+            [storeIns insertWallData:_newWall];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
+        }else{
+            //Error add post
+        }
+    }
+    
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
     
 }
 

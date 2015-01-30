@@ -20,12 +20,12 @@
     UIScrollView            *scrollImageLibrary;
 }
 
-@property (nonatomic) UIEdgeInsets              itemInsets;
-@property (nonatomic) CGSize                    itemSize;
-@property (nonatomic) CGFloat                   interItemSpacingY;
-@property (nonatomic) NSInteger                 numberOfColumns;
+@property (nonatomic        ) UIEdgeInsets          itemInsets;
+@property (nonatomic        ) CGSize                itemSize;
+@property (nonatomic        ) CGFloat               interItemSpacingY;
+@property (nonatomic        ) NSInteger             numberOfColumns;
 
-@property (nonatomic, strong) UIView                    *vLibrary;
+@property (nonatomic, strong) UIView                *vLibrary;
 
-@property (nonatomic, strong) SCPhotoCollectionView     *scPhotoCollectionView;
+@property (nonatomic, strong) SCPhotoCollectionView *scPhotoCollectionView;
 @end

@@ -20,6 +20,7 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -113,7 +114,7 @@
 
 - (void) setImagePreview:(UIImage*)_imagePreview{
     imgSelect = _imagePreview;
-    [self.vPreviewPhoto setImageCycle:_imagePreview];
+    [self.vPreviewPhoto setImageCycle:imgSelect];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -122,6 +123,7 @@
 }
 
 - (void) btnCloseTap:(id)sender{
+    imgSelect = nil;
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 

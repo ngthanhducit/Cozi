@@ -27,20 +27,17 @@
     UIImageView         *imgSelectFB;
     BOOL                isSelectFB;
     AmazonInfoPost                  *amazonInfomation;
-    NSInteger                   _clientKeyID;
+    NSString                   *_clientKeyID;
     SCActivityIndicatorView         *vLoading;
 }
 
-@property (nonatomic, strong) UIView            *vHeader;
-@property (nonatomic, strong) UIButton          *btnClose;
-
-@property (nonatomic, strong) UIImageView       *imgPost;
-
-@property (nonatomic, strong) SCPhotoDetailsView        *vCaption;
-
-@property (nonatomic, strong) UIView                    *vAddFacebook;
-@property (nonatomic, strong) HPGrowingTextView         *txtCaption;
-@property (nonatomic, strong) UIButton                  *btnPostPhoto;
+@property (nonatomic, strong) UIView             *vHeader;
+@property (nonatomic, strong) UIButton           *btnClose;
+@property (nonatomic, strong) UIImageView        *imgPost;
+@property (nonatomic, strong) SCPhotoDetailsView *vCaption;
+@property (nonatomic, strong) UIView             *vAddFacebook;
+@property (nonatomic, strong) HPGrowingTextView  *txtCaption;
+@property (nonatomic, strong) UIButton           *btnPostPhoto;
 
 - (void) setImagePost:(UIImage*)_imagePost;
 //- (void) setAmazoneUpload:(AmazonInfo*)_amazon;

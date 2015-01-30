@@ -1,22 +1,25 @@
 //
-//  SCPostParentViewController.m
+//  SCSinglePostViewController.m
 //  Cozi
 //
-//  Created by Nguyen Thanh Duc on 1/13/15.
+//  Created by Nguyen Thanh Duc on 1/16/15.
 //  Copyright (c) 2015 ChjpCoj. All rights reserved.
 //
 
-#import "SCPostParentViewController.h"
+#import "SCSinglePostViewController.h"
 
-@interface SCPostParentViewController ()
+@interface SCSinglePostViewController ()
 
 @end
 
-@implementation SCPostParentViewController
+@implementation SCSinglePostViewController
 
-@synthesize lblTitle;
-@synthesize btnClose;
-@synthesize vHeader;
+@synthesize singleWall;
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+}
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -24,12 +27,11 @@
         
         [self initVariable];
         [self setup];
-        
+        [self setupUI];
     }
     
     return self;
 }
-
 
 - (void) initVariable{
     hHeader = 40;
@@ -66,11 +68,30 @@
     [self.view addSubview:self.vHeader];
 }
 
+
+- (void) setupUI{
+    items = [NSMutableArray new];
+    
+    self.singleWall = [[SCWallTableViewV2 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader) style:UITableViewStylePlain];
+    self.singleWall.tableFooterView = nil;
+    [self.view addSubview:self.singleWall];
+}
+
+- (void) setData:(NSMutableArray *)data{
+    items = data;
+    
+    [self.singleWall initWithData:items withType:1];
+    [self.singleWall reloadData];
+}
+
 - (void) btnCloseTap:(id)sender{
-    [self.navigationController popToRootViewControllerAnimated:YES];
-    [self dismissViewControllerAnimated:YES completion:^{
-        
-    }];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.lblTitle setText:@"SINGLE WALL"];
 }
 
 - (void)didReceiveMemoryWarning {

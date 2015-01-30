@@ -15,12 +15,10 @@
 #import "NearLocation.h"
 #import "TriangleView.h"
 #import "Mapbox.h"
+#import "NetworkController.h"
 
-@interface SCPostLocationViewController : SCPostParentViewController <UISearchDisplayDelegate, UISearchBarDelegate, UITextFieldDelegate, RMMapViewDelegate, UIGestureRecognizerDelegate>
+@interface SCPostLocationViewController : SCPostParentViewController <UISearchDisplayDelegate, UISearchBarDelegate, UITextFieldDelegate, RMMapViewDelegate>
 {
-//    CGFloat                 hHeader;
-//    Helper                  *helperIns;
-//    Store                   *storeIns;
     UISearchDisplayController	*searchDisplayController;
     RMMapView                   *mapView;
     CLLocation                  *lastLocation;
@@ -28,10 +26,13 @@
     UIView *vNearTitle;
     CGFloat         yNear;
     CGFloat         hNear;
+    int             indexNear;
+    NSString               *_clientKeyID;
+    NetworkController       *networkControllerIns;
 }
 
 @property (nonatomic, strong) UIActivityIndicatorView   *waiting;
-@property (nonatomic, strong) UISearchDisplayController	*searchDisplayController;
+@property (nonatomic, strong) UISearchDisplayController *searchDisplayController;
 @property (nonatomic, strong) UIView                    *vBlur;
 @property (nonatomic, strong) UIView                    *vMaps;
 @property (nonatomic, strong) UIView                    *vNear;
@@ -41,6 +42,4 @@
 @property (nonatomic, strong) NSMutableArray            *nearItems;
 @property (nonatomic, strong) UIView                    *vMarket;
 @property (nonatomic, strong) UIImageView               *imgMarket;
-//@property (nonatomic, strong) UIButton                  *btnClose;
-//@property (nonatomic, strong) UIView                    *vHeader;
 @end

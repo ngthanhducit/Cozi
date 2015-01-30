@@ -1,22 +1,24 @@
 //
-//  SCPostParentViewController.m
+//  SCProfileViewController.m
 //  Cozi
 //
-//  Created by Nguyen Thanh Duc on 1/13/15.
+//  Created by Nguyen Thanh Duc on 1/15/15.
 //  Copyright (c) 2015 ChjpCoj. All rights reserved.
 //
 
-#import "SCPostParentViewController.h"
+#import "SCProfileViewController.h"
 
-@interface SCPostParentViewController ()
+@interface SCProfileViewController ()
 
 @end
 
-@implementation SCPostParentViewController
+@implementation SCProfileViewController
 
-@synthesize lblTitle;
-@synthesize btnClose;
-@synthesize vHeader;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+
+}
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -24,15 +26,17 @@
         
         [self initVariable];
         [self setup];
-        
+        [self setupUI];
     }
     
     return self;
 }
 
-
 - (void) initVariable{
     hHeader = 40;
+    netIns = [NetworkController shareInstance];
+    [netIns addListener:self];
+    
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
 }
@@ -66,16 +70,52 @@
     [self.view addSubview:self.vHeader];
 }
 
+- (void) setupUI{
+    mainPage = [[MainPageV6 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    [self.view addSubview:mainPage];
+}
+
+- (void) setProfile:(User*)_myProfile{
+    my = _myProfile;
+    [mainPage initUser:my];
+    [mainPage setNoisesHistory:storeIns.walls];
+}
+
+- (void) selectMyNoise:(NSNotification*)notification{
+    NSDictionary *userInfo = [notification userInfo];
+    DataWall *_noise = [userInfo objectForKey:@"selectMyNoise"];
+    
+    NSMutableArray *items = [NSMutableArray new];
+    [items addObject:_noise];
+    SCSinglePostViewController *post = [[SCSinglePostViewController alloc] initWithNibName:nil bundle:nil];
+    //set image to post
+    [post setData:items];
+    
+    //call show
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"selectMyNoiseNotification" object:nil];
+}
+
+- (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.lblTitle setText:[my.nickName uppercaseString]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectMyNoise:) name:@"selectMyNoiseNotification" object:nil];
+}
+
 - (void) btnCloseTap:(id)sender{
-    [self.navigationController popToRootViewControllerAnimated:YES];
-    [self dismissViewControllerAnimated:YES completion:^{
-        
-    }];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) setResult:(NSString *)_strResult{
+    
 }
 
 /*

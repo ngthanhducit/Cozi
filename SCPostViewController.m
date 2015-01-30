@@ -30,6 +30,7 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -59,8 +60,8 @@
     [self.view setBackgroundColor:[UIColor clearColor]];
     [self.navigationController setNavigationBarHidden:YES];
     
-    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
-    [self.view addSubview:cameraCapture];
+//    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+//    [self.view addSubview:cameraCapture];
     
     self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
     [self.vHeader setBackgroundColor:[UIColor blackColor]];
@@ -223,8 +224,7 @@
 //    UIImage *_newImage1 = [helperIns cropImage:img withFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width)];
 //    UIImage *_newImage2 = [helperIns resizeImage:img resizeSize:CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.width)];
     UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
-    NSData *_dataCompress = [helperIns compressionImage:_newImage];
-    UIImage *_compressImage = [UIImage imageWithData:_dataCompress];
+//    NSData *_dataCompress = [helperIns compressionImage:_newImage];
     
     SCPostDetailsViewController *post = [[SCPostDetailsViewController alloc] initWithNibName:nil bundle:nil];
     //set image to post

@@ -17,7 +17,7 @@
     Store                   *storeIns;
 }
 
-@property (nonatomic, strong) UILabel                   *lblTitle;
-@property (nonatomic, strong) UIButton                  *btnClose;
-@property (nonatomic, strong) UIView                    *vHeader;
+@property (nonatomic, strong) UILabel  *lblTitle;
+@property (nonatomic, strong) UIButton *btnClose;
+@property (nonatomic, strong) UIView   *vHeader;
 @end

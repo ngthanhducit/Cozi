@@ -23,12 +23,12 @@
     UIImage                 *imgSelect;
 }
 
-@property (nonatomic, strong) UIButton                  *btnSelect;
-@property (nonatomic, strong) SCGridView                *vGridLine;
-@property (nonatomic, strong) SCPhotoPreview             *vPreviewPhoto;
-@property (nonatomic, strong) UIButton                  *btnClose;
-@property (nonatomic, strong) UIView                    *vHeader;
-@property (nonatomic, strong) UIView                    *vTool;
+@property (nonatomic, strong) UIButton       *btnSelect;
+@property (nonatomic, strong) SCGridView     *vGridLine;
+@property (nonatomic, strong) SCPhotoPreview *vPreviewPhoto;
+@property (nonatomic, strong) UIButton       *btnClose;
+@property (nonatomic, strong) UIView         *vHeader;
+@property (nonatomic, strong) UIView         *vTool;
 
 - (void) setImagePreview:(UIImage*)_imagePreview;
 @end
