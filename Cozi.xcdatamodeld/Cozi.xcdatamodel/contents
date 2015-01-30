@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C78c" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C106a" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Follower" representedClassName="Follower" syncable="YES">
+        <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="parent_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="url_avatar" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
     <entity name="MessengerFriend" representedClassName="Messengers" syncable="YES">
         <attribute name="amazon_key" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="friend_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="is_timeout" optional="YES" attributeType="Boolean" syncable="YES"/>
-        <attribute name="key_send_message" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="key_send_message" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="latitude" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sender_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
@@ -57,6 +64,7 @@
         <relationship name="relationship" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserFriend" syncable="YES"/>
     </entity>
     <elements>
+        <element name="Follower" positionX="-207" positionY="207" width="128" height="118"/>
         <element name="MessengerFriend" positionX="-36" positionY="54" width="128" height="285"/>
         <element name="UserFriend" positionX="-216" positionY="54" width="128" height="270"/>
         <element name="UserLogin" positionX="-387" positionY="53" width="128" height="330"/>
