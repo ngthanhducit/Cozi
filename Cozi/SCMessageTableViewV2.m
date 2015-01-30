@@ -7,10 +7,9 @@
 //
 
 #import "SCMessageTableViewV2.h"
+#import "ChatView.h"
 
 @implementation SCMessageTableViewV2
-
-@synthesize friendIns;
 
 /*
 // Only override drawRect: if you perform custom drawing.
@@ -37,6 +36,7 @@ const CGFloat wViewMainPadding = 20.0f;
 - (void) setup{
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
+    clearData = NO;
     
     padding = 20.0f;
     wMax = self.bounds.size.width - 110;
@@ -46,10 +46,24 @@ const CGFloat wViewMainPadding = 20.0f;
     [self setDelegate:self];
     [self setDataSource:self];
     [self setBackgroundColor:[UIColor clearColor]];
+    
+    UIView *loadView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width - 80, 160)];
+    [loadView setBackgroundColor:[UIColor lightGrayColor]];
+    [loadView setAlpha:0.8f];
+    
+//    defaultImage = [helperIns imageWithView:loadView];
 }
 
 - (void) setData:(NSMutableArray *)_data{
-    items = _data;
+//    items = _data;
+}
+
+- (void) setFriendIns:(Friend *)_friend{
+    friendIns = _friend;
+}
+
+- (Friend*) getFrinedIns{
+    return friendIns;
 }
 
 #pragma -mark UITableView Delegate
@@ -58,12 +72,18 @@ const CGFloat wViewMainPadding = 20.0f;
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [self.friendIns.friendMessage count];
+    if (clearData) {
+        return 0;
+    }else{
+        return [friendIns.friendMessage count];
+//        return [items count];
+    }
+
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    Messenger *_message = [self.friendIns.friendMessage objectAtIndex:indexPath.row];
+    Messenger *_message = [friendIns.friendMessage objectAtIndex:indexPath.row];
     
     if (_message.typeMessage == 0) {
      
@@ -88,38 +108,41 @@ const CGFloat wViewMainPadding = 20.0f;
     static NSString *CellIdentifier = @"CellMessenger";
     SCMessageTableViewCellV2 *scCell = nil;
     
-    Messenger *_message = [self.friendIns.friendMessage objectAtIndex:indexPath.row];
+    Messenger *_message = [friendIns.friendMessage objectAtIndex:indexPath.row];
     Messenger *_lastMessage = nil;
     
     NSIndexPath* lastIndexPath = [NSIndexPath indexPathForRow:indexPath.row - 1 inSection:indexPath.section];
     
     if (lastIndexPath.row >= 0) {
-        _lastMessage = [self.friendIns.friendMessage objectAtIndex:lastIndexPath.row];
+        _lastMessage = [friendIns.friendMessage objectAtIndex:lastIndexPath.row];
     }
     
     scCell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (scCell == nil) {
         scCell = [[SCMessageTableViewCellV2 alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        
+        UILongPressGestureRecognizer *recognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
+        [scCell addGestureRecognizer:recognizer];
+        
+        UITapGestureRecognizer *tapImage = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapImage:)];
+        [tapImage setNumberOfTapsRequired:1];
+        [tapImage setNumberOfTouchesRequired:1];
+        [scCell.viewImage addGestureRecognizer:tapImage];
+        
+        [scCell.btnDownloadImage addTarget:self action:@selector(btnDownloadImage:) forControlEvents:UIControlEventTouchUpInside];
     }
     
     [scCell setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
-    if (indexPath.row % 2 == 0) {
-//        [scCell setBackgroundColor:[UIColor purpleColor]];
-    }else{
-//        [scCell setBackgroundColor:[UIColor orangeColor]];
-    }
     
-    UIImage *imgAvatarFriend = self.friendIns.thumbnail;
+    UIImage *imgAvatarFriend = friendIns.thumbnail;
     UIImage *imgAvatarMe = storeIns.user.thumbnail;
     
     [scCell.iconFriend setImage: imgAvatarFriend];
-    [scCell.iconFriend setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor2"]]];
     [scCell.iconImage setImage:imgAvatarMe];
-    [scCell.iconImage setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor2"]]];
     
     int _senderID = _message.senderID;
-    int _friendID = self.friendIns.friendID;
+    int _friendID = friendIns.friendID;
     
     NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
     [DateFormatter setDateFormat:@"hh:mm a"];
@@ -135,11 +158,11 @@ const CGFloat wViewMainPadding = 20.0f;
             
             if (_lastMessage != nil && _lastMessage.senderID == _message.senderID && _lastMessage.typeMessage == _message.typeMessage) {
             
-                [self renderCellFriend:scCell withMessenger:_message withAvatar:NO];
+                [self renderCellFriend:scCell withMessenger:_message withAvatar:NO withIndexPath:indexPath];
                 
             }else{
                 
-                [self renderCellFriend:scCell withMessenger:_message withAvatar:YES];
+                [self renderCellFriend:scCell withMessenger:_message withAvatar:YES withIndexPath:indexPath];
                 
             }
             
@@ -150,25 +173,33 @@ const CGFloat wViewMainPadding = 20.0f;
             
             if (_lastMessage != nil && _lastMessage.senderID == _message.senderID && _lastMessage.typeMessage == _message.typeMessage) {
                 
-                [self renderCell:scCell withMessenger:_message withAvatar:NO];
+                [self renderCell:scCell withMessenger:_message withAvatar:NO withIndexPaths:indexPath];
+                
             }else{
-                [self renderCell:scCell withMessenger:_message withAvatar:YES];
+                
+                [self renderCell:scCell withMessenger:_message withAvatar:YES withIndexPaths:indexPath];
+                
             }
+            
         }
     }
     
-    if (_message.typeMessage == 1) {
+    if (_message.typeMessage == 1 || _message.typeMessage == 2) {
         if (_senderID == _friendID) {//friend
-            [self renderImageCellFriend:scCell withMessenger:_message];
+            
+            [self renderImageCellFriend:scCell withMessenger:_message withIndex:indexPath];
+            
         }else{
-            [self renderImageCell:scCell withMessenger:_message];
+            
+            [self renderImageCell:scCell withMessenger:_message withIndexPath:indexPath];
+            
         }
     }
     
     return scCell;
 }
 
-- (void) renderCell:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withAvatar:(BOOL)_enableAvatar{
+- (void) renderCell:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withAvatar:(BOOL)_enableAvatar withIndexPaths:(NSIndexPath*)_indexPath{
     CGSize textSize = { wMax, CGFLOAT_MAX };
     
     //hidden my avatar
@@ -178,6 +209,9 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.viewMain setHidden:NO];
     [scCell.vTriangle setHidden:YES];
     [scCell.blackTriangle setHidden:NO];
+    
+    [scCell.lblTimeMessengerImage setHidden:YES];
+    [scCell.imgStatusMessengerImage setHidden:YES];
     
     [scCell.viewImage setHidden:YES];
     [scCell.vMessengerImage setHidden:YES];
@@ -192,8 +226,15 @@ const CGFloat wViewMainPadding = 20.0f;
         [scCell.blackTriangle setHidden:YES];
     }
     
-    CGSize sizeMessage = [[_message.strMessage stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    CGSize sizeMessage;
+    if ([_message.strMessage isEqualToString:@"(Ping)"]) {
+        sizeMessage = [@"YOU PINGED" sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+        
+    }else{
+        sizeMessage = [[_message.strMessage stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    }
     
+//    CGSize sizeTime = { 44.2202148, 14.5073242 };
     CGSize sizeTime = [_message.timeMessage sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
     CGSize size = sizeMessage;
@@ -213,58 +254,59 @@ const CGFloat wViewMainPadding = 20.0f;
     
     [scCell.viewMain setFrame:CGRectMake(xViewMain, topSpacing / 2, wView + (wViewMainPadding), hView)];
     [scCell.viewMain setBackgroundColor:[UIColor blackColor]];
-//    scCell.viewMain.layer.shadowColor = [UIColor lightGrayColor].CGColor;
-//    scCell.viewMain.layer.shadowOffset = CGSizeMake(1, 1);
-//    scCell.viewMain.layer.shadowOpacity = 1;
-//    scCell.viewMain.layer.shadowRadius = 1.0;
 
     CGFloat yMessage = (hView / 2) - (sizeMessage.height / 2 + sizeTime.height / 2);
-    scCell.txtMessageContent.text = _message.strMessage;
-    [scCell.txtMessageContent setBackgroundColor:[UIColor clearColor]];
-    [scCell.txtMessageContent setTextColor:[UIColor whiteColor]];
-    [scCell.txtMessageContent setTextAlignment:NSTextAlignmentLeft];
-    [scCell.txtMessageContent setFont:[helperIns getFontLight:15.0f]];
-    [scCell.txtMessageContent setTextContainerInset:UIEdgeInsetsMake(-4, -4, 0, 0)];
-//    [scCell.txtMessageContent sizeToFit];
-//    [scCell.txtMessageContent sizeThatFits:sizeMessage];
-//    scCell.txtMessageContent.textContainer.lineFragmentPadding = 0 ;
-//    [scCell.txtMessageContent setTextContainerInset:UIEdgeInsetsZero];
-    [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+    if ([_message.strMessage isEqualToString:@"(Ping)"]) {
+        scCell.txtMessageContent.text = @"YOU PINGED";
+        [scCell.txtMessageContent setTextColor:[UIColor whiteColor]];
+        [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+        
+    }else{
+        scCell.txtMessageContent.text = _message.strMessage;
+        [scCell.txtMessageContent setTextColor:[UIColor whiteColor]];
+        [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+    }
 
     [scCell.lblTime setText:_message.timeMessage];
-    [scCell.lblTime setBackgroundColor:[UIColor clearColor]];
     [scCell.lblTime setNumberOfLines:0];
-    CGSize sizeTimeLabel = [scCell.lblTime.text sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     [scCell.lblTime setTextAlignment:NSTextAlignmentLeft];
     [scCell.lblTime setTextColor:[UIColor whiteColor]];
     [scCell.lblTime setFont:[helperIns getFontLight:11.0f]];
-    [scCell.lblTime setFrame:CGRectMake(padding / 2, scCell.txtMessageContent.frame.origin.y + sizeMessage.height, sizeTimeLabel.width, sizeTimeLabel.height)];
+    [scCell.lblTime setFrame:CGRectMake(padding / 2, scCell.txtMessageContent.frame.origin.y + sizeMessage.height, sizeTime.width, sizeTime.height)];
 
-    CGFloat xIcon = self.bounds.size.width - (leftSpacing + sizeIcon.width);
-    [scCell.iconImage setFrame:CGRectMake(xIcon, topSpacing / 2, sizeIcon.width, sizeIcon.height)];
-    [scCell.iconImage setContentMode:UIViewContentModeScaleAspectFill];
-    [scCell.iconImage setAutoresizingMask:UIViewAutoresizingNone];
-    scCell.iconImage.layer.borderWidth = 0.0f;
-    [scCell.iconImage setClipsToBounds:YES];
-    scCell.iconImage.layer.cornerRadius = CGRectGetHeight(scCell.iconImage.frame) / 2;
-    
-//    [scCell.vTriangle setBackgroundColor:[UIColor blackColor]];
-//    [scCell.vTriangle drawTrianMessageBlack];
     [scCell.blackTriangle setFrame:CGRectMake(xViewMain + scCell.viewMain.bounds.size.width, topSpacing + (sizeIcon.height / 2) - 5, 10, 10)];
-//    scCell.vTriangle.layer.shadowColor = [UIColor blackColor].CGColor;
-//    scCell.vTriangle.layer.shadowOffset = CGSizeMake(10, 10);
-//    scCell.vTriangle.layer.shadowOpacity = 3;
-//    scCell.vTriangle.layer.shadowRadius = 3.0;
-//    [scCell.vTriangle.layer setMasksToBounds:NO];
-    
 
-//    UIImage *imgStatus = [helperIns getImageFromSVGName:@"icon-EyeGrey.svg"];
+    //Set Status Image
+    int _senderID = _message.senderID;
+    int _friendID = friendIns.friendID;
+    
+    if (_message.statusMessage == 0) {
+
+    }
+    
+    if (_message.statusMessage == 1) {
+        if (_senderID == _friendID) {
+            if (self.scMessageTableViewDelegate && [self.scMessageTableViewDelegate respondsToSelector:@selector(sendIsReadMessage:withKeyMessage:withTypeMessage:)]) {
+                [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
+            }
+//            strStatus = @"Read";
+            
+            [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
+            [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
+        }else{
+//            strStatus = @"Recive";
+        }
+    }
+    
+    if (_message.statusMessage == 2) {
+//        strStatus = @"Read";
+    }
+
     [scCell.imgStatusMessage setFrame:CGRectMake(scCell.lblTime.frame.origin.x + scCell.lblTime.bounds.size.width, scCell.lblTime.frame.origin.y, scCell.lblTime.bounds.size.height, scCell.lblTime.bounds.size.height)];
-//    [scCell.imgStatusMessage setImage:imgStatus];
-//    [scCell.imgStatusMessage setBackgroundColor:[UIColor orangeColor]];
+
 }
 
-- (void) renderCellFriend:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withAvatar:(BOOL)_enableAvatar{
+- (void) renderCellFriend:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withAvatar:(BOOL)_enableAvatar withIndexPath:(NSIndexPath*)_indexPath{
     CGSize textSize = { wMax, CGFLOAT_MAX };
     
     //hidden my avatar
@@ -274,6 +316,9 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.viewMain setHidden:NO];
     [scCell.vTriangle setHidden:NO];
     [scCell.blackTriangle setHidden:YES];
+    
+    [scCell.lblTimeMessengerImage setHidden:YES];
+    [scCell.imgStatusMessengerImage setHidden:YES];
     
     [scCell.viewImage setHidden:YES];
     [scCell.vMessengerImage setHidden:YES];
@@ -287,8 +332,14 @@ const CGFloat wViewMainPadding = 20.0f;
         [scCell.vTriangle setHidden:YES];
     }
 
-    CGSize sizeMessage = [[_message.strMessage stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    CGSize sizeMessage;
+    if ([_message.strMessage isEqualToString:@"(Ping)"]) {
+        sizeMessage = [@"PINGED" sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    }else{
+        sizeMessage = [[_message.strMessage stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    }
     
+//    CGSize sizeTime = { 44.2202148, 14.5073242 };
     CGSize sizeTime = [_message.timeMessage sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
     CGSize size = sizeMessage;
@@ -310,46 +361,63 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.viewMain setBackgroundColor:[UIColor whiteColor]];
     
     CGFloat yMessage = (hView / 2) - (sizeMessage.height / 2 + sizeTime.height / 2);
-    scCell.txtMessageContent.text = _message.strMessage;
-    [scCell.txtMessageContent setBackgroundColor:[UIColor clearColor]];
-    //            [scCell.txtMessageContent setTextContainerInset:UIEdgeInsetsMake(0, 0, 0, 0)];
-    [scCell.txtMessageContent setTextColor:[UIColor lightGrayColor]];
-    [scCell.txtMessageContent setTextAlignment:NSTextAlignmentLeft];
-    [scCell.txtMessageContent setFont:[helperIns getFontLight:15.0f]];
-    [scCell.txtMessageContent setTextContainerInset:UIEdgeInsetsMake(-4, -4, 0, 0)];
-//    scCell.txtMessageContent.textContainer.lineFragmentPadding = 0 ;
-//    [scCell.txtMessageContent setTextContainerInset:UIEdgeInsetsZero];
-    [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+    if ([_message.strMessage isEqualToString:@"(Ping)"]) {
+        scCell.txtMessageContent.text = @"PINGED";
+        [scCell.txtMessageContent setTextColor:[UIColor lightGrayColor]];
+        [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+    }else{
+        scCell.txtMessageContent.text = _message.strMessage;
+        [scCell.txtMessageContent setTextColor:[UIColor lightGrayColor]];
+        [scCell.txtMessageContent setFrame:CGRectMake(padding / 2, yMessage, scCell.viewMain.bounds.size.width - padding, sizeMessage.height)];
+    }
     
     [scCell.lblTime setText:_message.timeMessage];
-    [scCell.lblTime setBackgroundColor:[UIColor clearColor]];
     [scCell.lblTime setNumberOfLines:0];
-    CGSize sizeTimeLabel = [scCell.lblTime.text sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     [scCell.lblTime setTextAlignment:NSTextAlignmentLeft];
     [scCell.lblTime setTextColor:[UIColor lightGrayColor]];
     [scCell.lblTime setFont:[helperIns getFontLight:11.0f]];
-    [scCell.lblTime setFrame:CGRectMake(padding / 2, scCell.txtMessageContent.frame.origin.y + scCell.txtMessageContent.bounds.size.height, sizeTimeLabel.width, sizeTimeLabel.height)];
+    [scCell.lblTime setFrame:CGRectMake(padding / 2, scCell.txtMessageContent.frame.origin.y + scCell.txtMessageContent.bounds.size.height, sizeTime.width, sizeTime.height)];
     
-    [scCell.iconFriend setFrame:CGRectMake(leftSpacing, topSpacing / 2, sizeIcon.width, sizeIcon.height)];
-    [scCell.iconFriend setContentMode:UIViewContentModeScaleAspectFill];
-    [scCell.iconFriend setAutoresizingMask:UIViewAutoresizingNone];
-    scCell.iconFriend.layer.borderWidth = 0.0f;
-    [scCell.iconFriend setClipsToBounds:YES];
-    scCell.iconFriend.layer.cornerRadius = CGRectGetHeight(scCell.iconFriend.frame)/2;
-    
-//    [scCell.vTriangle setBackgroundColor:[UIColor whiteColor]];
-//    [scCell.vTriangle drawTrianMessage];
     [scCell.vTriangle setFrame:CGRectMake(xViewMain - 10, topSpacing + (sizeIcon.height / 2) - 5, 10, 10)];
     
-//    UIImage *imgStatus = [helperIns getImageFromSVGName:@"icon-EyeGrey.svg"];
+    //Set Status Image
+    int _senderID = _message.senderID;
+    int _friendID = friendIns.friendID;
+    
+    if (_message.statusMessage == 0) {
+        
+    }
+    
+    if (_message.statusMessage == 1) {
+        if (_senderID == _friendID) {
+            if (self.scMessageTableViewDelegate && [self.scMessageTableViewDelegate respondsToSelector:@selector(sendIsReadMessage:withKeyMessage:withTypeMessage:)]) {
+                [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
+            }
+            //            strStatus = @"Read";
+            
+            [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
+            [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
+        }else{
+            //            strStatus = @"Recive";
+        }
+    }
+    
+    if (_message.statusMessage == 2) {
+        //        strStatus = @"Read";
+    }
+
+    
     [scCell.imgStatusMessage setFrame:CGRectMake(scCell.lblTime.frame.origin.x + scCell.lblTime.bounds.size.width, scCell.lblTime.frame.origin.y, scCell.lblTime.bounds.size.height, scCell.lblTime.bounds.size.height)];
-//    [scCell.imgStatusMessage setImage:imgStatus];
-//    [scCell.imgStatusMessage setBackgroundColor:[UIColor grayColor]];
 }
 
-- (void) renderImageCell:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message{
+- (void) renderImageCell:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withIndexPath:(NSIndexPath*)_indexPath{
+    
+    CGSize textSize = { wMax, CGFLOAT_MAX };
     [scCell.iconFriend setHidden:YES];
     [scCell.iconImage setHidden:NO];
+    
+    [scCell.lblTimeMessengerImage setHidden:NO];
+    [scCell.imgStatusMessengerImage setHidden:NO];
     
     [scCell.viewMain setHidden:YES];
     [scCell.vTriangle setHidden:YES];
@@ -358,14 +426,10 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.vMessengerImage setHidden:NO];
     [scCell.vMessengerImageShadow setHidden:NO];
     [scCell.vMessengerImageFriend setHidden:YES];
+    [scCell.btnDownloadImage setHidden:YES];
     
-    CGFloat xIcon = self.bounds.size.width - (leftSpacing + sizeIcon.width);
-    [scCell.iconImage setFrame:CGRectMake(xIcon, topSpacing / 2, sizeIcon.width, sizeIcon.height)];
-    [scCell.iconImage setContentMode:UIViewContentModeScaleAspectFill];
-    [scCell.iconImage setAutoresizingMask:UIViewAutoresizingNone];
-    scCell.iconImage.layer.borderWidth = 0.0f;
-    [scCell.iconImage setClipsToBounds:YES];
-    scCell.iconImage.layer.cornerRadius = CGRectGetHeight(scCell.iconImage.frame) / 2;
+//    CGSize sizeTime = { 44.2202148, 14.5073242 };//font Light size 11
+    CGSize sizeTime = [_message.timeMessage sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
     CGFloat wViewMessenger = self.bounds.size.width - (leftSpacing + sizeIcon.width + leftSpacing + leftSpacing + leftSpacing / 2);
     CGFloat xViewMessenger = self.bounds.size.width - (leftSpacing + sizeIcon.width + leftSpacing / 2 + wViewMessenger);
@@ -373,51 +437,128 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.vMessengerImageShadow setFrame:CGRectMake(xViewMessenger, topSpacing / 2, scCell.vMessengerImageShadow.bounds.size.width, scCell.vMessengerImageShadow.bounds.size.height)];
     
     [scCell.vMessengerImage setFrame:CGRectMake(xViewMessenger, topSpacing / 2, wViewMessenger, 160)];
-//    [scCell.vMessengerImage drawRight:CGRectMake(xViewMessenger, topSpacing / 2, wViewMessenger, 160)];
-//    [scCell.vMessengerImage setBackgroundColor:[UIColor purpleColor]];
-//    [scCell.vMessengerImage setImage:_message.thumnail withBlur:YES];
 
-    if (_message.thumnailBlur) {
-        [scCell.vMessengerImage setImage:_message.thumnailBlur];
+    if (_message.thumnail !=nil) {
+        scCell.vMessengerImage.imgView.image = _message.thumnail;
+        
     }else{
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            UIImage *imgBlur = [self blurWithImageEffectsRestore:_message.thumnail withRadius:40];
-            _message.thumnailBlur = imgBlur;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self reloadData];
-            });
+        
+        scCell.vMessengerImage.imgView.image = defaultImage;
 
-        });
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            
+        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+            
+            if (image && finished) {
+
+                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 2, image.size.height / 2)];
+                _message.thumnail = newImageSize;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    scCell.vMessengerImage.imgView.image = _message.thumnail;
+                });
+
+            }
+        }];
     }
     
     [scCell.viewImage setFrame:CGRectMake(xViewMessenger, topSpacing / 2, scCell.viewImage.bounds.size.width, scCell.viewImage.bounds.size.height)];
-    [scCell.viewImage setBackgroundColor:[UIColor clearColor]];
-    scCell.viewImage.layer.zPosition = 10;
-    
-//    UIView *circleView = [[UIView alloc] initWithFrame:CGRectMake((scCell.viewImage.bounds.size.width / 2) - 25, (scCell.viewImage.bounds.size.height / 2) - 25, 50, 50)];
-//    [circleView setClipsToBounds:YES];
-//    [circleView setContentMode:UIViewContentModeScaleAspectFill];
-//    [circleView setAutoresizingMask:UIViewAutoresizingNone];
-//    circleView.layer.cornerRadius = circleView.bounds.size.width / 2;
-//    circleView.layer.borderColor = [UIColor whiteColor].CGColor;
-//    circleView.layer.borderWidth = 2.0f;
-//    [scCell.viewImage addSubview:circleView];
+
+    [scCell.lblTimeMessengerImage setText:_message.timeMessage];
+    [scCell.lblTimeMessengerImage setFrame:CGRectMake(scCell.vMessengerImage.frame.origin.x + 10, scCell.vMessengerImage.bounds.size.height - sizeTime.height, sizeTime.width, sizeTime.height)];
+
+    [scCell.imgStatusMessengerImage setFrame:CGRectMake(scCell.lblTimeMessengerImage.frame.origin.x + sizeTime.width, scCell.lblTimeMessengerImage.frame.origin.y, sizeTime.height, sizeTime.height)];
 }
 
-- (void) renderImageCellFriend:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message{
+- (void) renderImageCellFriend:(SCMessageTableViewCellV2*)scCell withMessenger:(Messenger*)_message withIndex:(NSIndexPath*)_indexPath{
+    
+    CGSize textSize = { wMax, CGFLOAT_MAX };
+    
     [scCell.iconFriend setHidden:NO];
     [scCell.iconImage setHidden:YES];
+    
+    [scCell.lblTimeMessengerImage setHidden:NO];
+    [scCell.imgStatusMessengerImage setHidden:NO];
     
     [scCell.viewMain setHidden:YES];
     [scCell.vTriangle setHidden:YES];
     [scCell.blackTriangle setHidden:YES];
+    [scCell.viewImage setHidden:NO];
     [scCell.vMessengerImage setHidden:YES];
+    [scCell.vMessengerImageShadow setHidden:NO];
     [scCell.vMessengerImageFriend setHidden:NO];
+    [scCell.btnDownloadImage setHidden:NO];
     
-//    CGFloat xViewMessenger = leftSpacing + sizeIcon.width + leftSpacing;
-//    CGFloat wViewMessenger = self.bounds.size.width - (leftSpacing + sizeIcon.width + leftSpacing + leftSpacing);
+//    CGSize sizeTime = { 44.2202148, 14.5073242 };
+    CGSize sizeTime = [_message.timeMessage sizeWithFont:[helperIns getFontLight:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
+    CGFloat wViewMessenger = self.bounds.size.width - (leftSpacing + sizeIcon.width + leftSpacing + leftSpacing + leftSpacing / 2);
+    CGFloat xViewImageShadow = leftSpacing + sizeIcon.width + leftSpacing;
+    [scCell.vMessengerImageShadow setFrame:CGRectMake(xViewImageShadow, topSpacing / 2, scCell.vMessengerImageShadow.bounds.size.width, scCell.vMessengerImageShadow.bounds.size.height)];
     
+    [scCell.vMessengerImageFriend setFrame:CGRectMake(leftSpacing + sizeIcon.width + leftSpacing / 2, topSpacing / 2, wViewMessenger, 160)];
+
+    //Comment
+    if (_message.thumnail !=nil) {
+        scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
+        
+    }else{
+        
+        scCell.vMessengerImageFriend.imgView.image = defaultImage;
+        
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            
+        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+
+            if (image && finished) {
+                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 4, image.size.height / 4)];
+                UIImage *imgBlur = [newImageSize applyLightEffect];
+                _message.thumnail = imgBlur;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
+                });
+            }
+            
+        }];
+    }
+    
+    [scCell.viewImage setFrame:CGRectMake(xViewImageShadow, topSpacing / 2, scCell.viewImage.bounds.size.width, scCell.viewImage.bounds.size.height)];
+    scCell.viewImage.layer.zPosition = 10;
+    
+    [scCell.lblTimeMessengerImage setText:_message.timeMessage];
+    [scCell.lblTimeMessengerImage setFrame:CGRectMake(scCell.vMessengerImageFriend.frame.origin.x + 10, scCell.vMessengerImageFriend.bounds.size.height - sizeTime.height, sizeTime.width, sizeTime.height)];
+    
+    //Image Friend send is location then hidden button download
+    if (_message.typeMessage == 2) {
+        [scCell.btnDownloadImage setHidden:YES];
+    }
+    
+    //Set Status Image
+    int _senderID = _message.senderID;
+    int _friendID = friendIns.friendID;
+    
+    if (_message.statusMessage == 0) {
+        
+    }
+    
+    if (_message.statusMessage == 1) {
+        if (_senderID == _friendID) {
+            if (self.scMessageTableViewDelegate && [self.scMessageTableViewDelegate respondsToSelector:@selector(sendIsReadMessage:withKeyMessage:withTypeMessage:)]) {
+                [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
+            }
+            //            strStatus = @"Read";
+            
+            [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
+            [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
+        }else{
+            //            strStatus = @"Recive";
+        }
+    }
+    
+    if (_message.statusMessage == 2) {
+        //        strStatus = @"Read";
+    }
+    
+    [scCell.imgStatusMessengerImage setFrame:CGRectMake(scCell.lblTimeMessengerImage.frame.origin.x + sizeTime.width, scCell.lblTimeMessengerImage.frame.origin.y, sizeTime.height, sizeTime.height)];
 }
 
 - (void) setClearData:(BOOL)_isClear{
@@ -425,23 +566,153 @@ const CGFloat wViewMainPadding = 20.0f;
 }
 
 - (void) reloadTableView{
+    CGFloat y = self.contentSize.height - self.bounds.size.height;
+    if (self.contentOffset.y >= (lroundf(y * 100) / 100)) {
+        if (inScroll == NO) {
+            [self reloadData];
+            //scroll to bottom
+            double y = self.contentSize.height - self.bounds.size.height;
+            CGPoint bottomOffset = CGPointMake(0, y);
+            
+            if (y > -self.contentInset.top)
+                [self setContentOffset:bottomOffset animated:NO];
+        }
+    }
+}
+
+#pragma mark- UIScrollView Delegate
+- (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView{
+    inScroll = YES;
+}
+
+- (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    inScroll = NO;
+//    [self reloadData];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"endDeceleration" object:self];
     
 }
 
-- (UIImage *)blurWithImageEffectsRestore:(UIImage *)image withRadius:(CGFloat)_radius{
+- (void) scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+    inScroll = YES;
+}
+
+- (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
+    inScroll = NO;
+//    [self reloadData];
+}
+
+- (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
+    inScroll = NO;
+//    [self reloadData];
+}
+
+#pragma mark- Touch View
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"touchTableView" object:self];
+}
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"touchEndTableView" object:self];
+}
+
+#pragma -mark UILongPressGestureRecognizer
+- (void)longPress:(UILongPressGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        SCMessageTableViewCellV2 *cell = (SCMessageTableViewCellV2 *)recognizer.view;
+        [cell becomeFirstResponder];
+        rowAction = [self indexPathForCell:cell];
+        
+        //        UIMenuItem *flag = [[UIMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:)];
+        //        UIMenuItem *approve = [[UIMenuItem alloc] initWithTitle:@"Delete" action:@selector(delete:)];
+        UIMenuItem *deny = [[UIMenuItem alloc] initWithTitle:@"Forward" action:@selector(forward:)];
+        
+        UIMenuController *menu = [UIMenuController sharedMenuController];
+        [menu setMenuItems:[NSArray arrayWithObjects:deny, nil]];
+        [menu setTargetRect:cell.frame inView:cell.superview];
+        [menu setArrowDirection:UIMenuControllerArrowDown];
+        [menu setMenuVisible:YES animated:YES];
+    }
+}
+
+- (void)copy:(id)sender {
+    NSLog(@"Cell was copy");
+}
+
+- (void)delete:(id)sender {
+    NSLog(@"Cell was delete");
     
-    return [image applyBlurWithRadius:_radius tintColor:nil saturationDeltaFactor:1.0 maskImage:nil];
+    NSString *actionSheetTitle = @"Please Select Action"; //Action Sheet Title
+    NSString *destructiveTitle = @"Delete"; //Action Sheet Button Titles
+    NSString *cancelTitle = @"Cancel";
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                                  initWithTitle:actionSheetTitle
+                                  delegate:self
+                                  cancelButtonTitle:cancelTitle
+                                  destructiveButtonTitle:destructiveTitle
+                                  otherButtonTitles:nil, nil];
+    
+    [actionSheet showInView:self];
     
 }
 
-- (UIImage *)takeSnapshotOfView:(UIView *)view
+- (void) tapImage:(UITapGestureRecognizer*)recognizer{
+    CGPoint tapLocation = [recognizer locationInView:self];
+    NSIndexPath *tapIndexPath = [self indexPathForRowAtPoint:tapLocation];
+    
+    ChatView *parent = (ChatView*)[self superview];
+    
+    Messenger *_messenger = [friendIns.friendMessage objectAtIndex:tapIndexPath.row];
+    if (_messenger.typeMessage == 1) {
+        ImageFullView *_fullImage = [[ImageFullView alloc] initWithFrame:[[self superview] bounds]];
+        [_fullImage initWithUrl:[NSURL URLWithString:_messenger.urlImage]];
+        [[self superview] addSubview:_fullImage];
+    }else{
+        AppleMapView *newAppleView = [[AppleMapView alloc] initWithFrame:CGRectMake(0, [parent getHeaderHeight], self.bounds.size.width, parent.bounds.size.height - [parent getHeaderHeight])];
+        [newAppleView setTag:200000];
+        if (_messenger.senderID > 0) {
+            [newAppleView addAnnotation:[_messenger.latitude floatValue] withLongitude:[_messenger.longitude floatValue] withFriend:friendIns];
+        }
+        
+        [newAppleView addAnnotation:[_messenger.latitude floatValue] withLongitude:[_messenger.longitude floatValue] withFriend:friendIns];
+        
+        [[self superview] addSubview:newAppleView];
+    }
+}
+
+- (void) btnDownloadImage:(id)sender{
+    NSLog(@"tap download");
+}
+
+- (void)forward:(id)sender {
+    NSLog(@"Cell was forward");
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
-    CGFloat reductionFactor = 1;
-    UIGraphicsBeginImageContext(CGSizeMake(view.frame.size.width/reductionFactor, view.frame.size.height/reductionFactor));
-    [view drawViewHierarchyInRect:CGRectMake(0, 0, view.frame.size.width/reductionFactor, view.frame.size.height/reductionFactor) afterScreenUpdates:YES];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return image;
+    // These are selector(s) that we mentioned in UIMenuItem action
+    if (action == @selector(copy:) || action == @selector(delete:) || action == @selector(forward:)) {
+        return YES;
+    }
+    return NO;
 }
+
+#pragma -mark UIActionSheet Delegate
+- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+    switch (buttonIndex) {
+        case 0:{
+            NSLog(@"button index: %i", (int)buttonIndex);
+            Messenger *_messenger = [friendIns.friendMessage objectAtIndex:rowAction.row];
+            
+            if (self.scMessageTableViewDelegate && [self.scMessageTableViewDelegate respondsToSelector:@selector(notifyDeleteMessage:)]){
+                [self.scMessageTableViewDelegate notifyDeleteMessage:_messenger];
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 @end

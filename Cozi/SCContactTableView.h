@@ -11,8 +11,7 @@
 #import "Store.h"
 #import "SCContactTableViewCell.h"
 #import "PersonContact.h"
-#import "SDWebImageDownloader.h"
-#import "AsyncImageDownloader.h"
+#import "UIImageView+WebCache.h"
 
 @interface SCContactTableView : UITableView <UITableViewDataSource, UITableViewDelegate>
 {
@@ -24,7 +23,12 @@
     
     NSMutableArray          *contactList;
     NSMutableArray                 *contactIndex;
+    
+    NSMutableArray              *selectList;
+    NSMutableArray              *selectCell;
 }
 
+- (void) resetCell;
+- (NSMutableArray*) getSelectList;
 - (void) initData:(NSMutableArray *)_contactList;
 @end

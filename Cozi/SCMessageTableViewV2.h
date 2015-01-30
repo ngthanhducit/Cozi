@@ -13,30 +13,39 @@
 #import "Messenger.h"
 #import "Store.h"   
 #import "UIImage+ImageEffects.h"
+#import "ImageFullView.h"
+#import "UIImageView+WebCache.h"
+#import "AppleMapView.h"
 
 @protocol SCMessageTableViewDelegate <NSObject>
 
 @required
-- (void) sendIsReadMessage:(int)_friendID withKeyMessage:(NSInteger)_keyMessage withTypeMessage:(int)_typeMessage;
+- (void) sendIsReadMessage:(int)_friendID withKeyMessage:(NSString*)_keyMessage withTypeMessage:(int)_typeMessage;
 - (void) notifyDeleteMessage:(Messenger *)_messenger;
 @end
 
 
-@interface SCMessageTableViewV2 : UITableView <UITableViewDataSource, UITableViewDelegate>
+@interface SCMessageTableViewV2 : UITableView <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, UIScrollViewDelegate, UIActionSheetDelegate>
 {
     Helper              *helperIns;
     Store               *storeIns;
-    NSMutableArray      *items;
+//    NSMutableArray      *items;
     
     CGFloat             padding;
     CGFloat             wMax;
     BOOL                clearData;
+    
+    BOOL                inScroll;
+    NSIndexPath                             *rowAction;
+    UIImage             *defaultImage;
+    Friend              *friendIns;
 }
 @property (nonatomic, strong) id<SCMessageTableViewDelegate> scMessageTableViewDelegate;
-@property (nonatomic, strong) Friend                     *friendIns;
+//@property (nonatomic, strong) Friend                     *friendIns;
 
+- (Friend*) getFrinedIns;
+- (void) setFriendIns:(Friend*)_friend;
 - (void) setData:(NSMutableArray*)_data;
-
 - (void) reloadTableView;
 - (void) setClearData:(BOOL)_isClear;
 @end

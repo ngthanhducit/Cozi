@@ -14,6 +14,7 @@
     
 }
 
+@property (nonatomic, strong) UIImageView               *imgViewCheck;
 @property (nonatomic, strong) UIImageView               *iconContact;
 @property (nonatomic, strong) UILabel                   *lblFullName;
 @end

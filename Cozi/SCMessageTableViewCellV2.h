@@ -19,17 +19,18 @@
 @property (nonatomic, strong) TriangleView                    *vTriangle;
 @property (nonatomic, strong) TriangleView              *blackTriangle;
 @property (nonatomic, strong) UIView                    *viewMain;
-@property (nonatomic, strong) UIView                    *viewCircle;
 @property (nonatomic, strong) UIView                    *viewImage;
 @property (nonatomic, strong) UIView                    *vMessengerImageShadow;
 @property (nonatomic, strong) SCMessageImageView        *vMessengerImage;
 @property (nonatomic, strong) SCMessageImageView        *vMessengerImageFriend;
 @property (nonatomic, strong) UIImageView               *smsImage;
 @property (nonatomic, strong) UILabel                   *lblTime;
+@property (nonatomic, strong) UILabel                   *lblTimeMessengerImage;
 
 @property (nonatomic, strong) UITextView                *txtMessageContent;
-
+@property (nonatomic, strong) UIButton                  *btnDownloadImage;
 @property (nonatomic, strong) UIImageView               *iconImage;
 @property (nonatomic, strong) UIImageView               *iconFriend;
 @property (nonatomic, strong) UIImageView               *imgStatusMessage;
+@property (nonatomic, strong) UIImageView               *imgStatusMessengerImage;
 @end

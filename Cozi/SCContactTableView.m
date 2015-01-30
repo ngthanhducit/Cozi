@@ -10,8 +10,6 @@
 
 @implementation SCContactTableView
 
-const CGSize        sizeIconContact = { 35 , 35};
-
 /*
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
@@ -39,8 +37,8 @@ const CGSize        sizeIconContact = { 35 , 35};
     storeIns = [Store shareInstance];
     
     contacts = [[NSMutableDictionary alloc] init];
-    
-    [self setBackgroundColor:[UIColor blackColor]];
+    selectList = [[NSMutableArray alloc] init];
+    selectCell = [[NSMutableArray alloc] init];
     
     [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setUserInteractionEnabled:YES];
@@ -69,8 +67,10 @@ const CGSize        sizeIconContact = { 35 , 35};
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 1, tableView.frame.size.width, 17)];
     [label setFont:[helperIns getFontLight:12.0f]];
     [label setTextAlignment:NSTextAlignmentCenter];
-    [label setTextColor:[UIColor whiteColor]];
-    [label setBackgroundColor:[UIColor blackColor]];
+    [label setTextColor:[UIColor grayColor]];
+    [label setBackgroundColor:[UIColor whiteColor]];
+//    [label setTextColor:[UIColor lightGrayColor]];
+//    [label setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
     
     NSString *string =[contactIndex objectAtIndex:section];
     /* Section header is in 0th index... */
@@ -78,17 +78,17 @@ const CGSize        sizeIconContact = { 35 , 35};
     [label setText:string];
     
     [view addSubview:label];
-    [view setBackgroundColor:[UIColor blackColor]];
+    [view setBackgroundColor:[UIColor whiteColor]];
     
-    CALayer *topTitle = [CALayer layer];
-    [topTitle setFrame:CGRectMake(0.0f, 0, tableView.frame.size.width, 0.5f)];
-    [topTitle setBackgroundColor:[UIColor whiteColor].CGColor];
-    [view.layer addSublayer:topTitle];
-
-    CALayer *bottomTitle = [CALayer layer];
-    [bottomTitle setFrame:CGRectMake(0.0f, 18, tableView.frame.size.width, 0.5f)];
-    [bottomTitle setBackgroundColor:[UIColor whiteColor].CGColor];
-    [view.layer addSublayer:bottomTitle];
+//    CALayer *topTitle = [CALayer layer];
+//    [topTitle setFrame:CGRectMake(0.0f, 0, tableView.frame.size.width, 0.5f)];
+//    [topTitle setBackgroundColor:[UIColor whiteColor].CGColor];
+//    [view.layer addSublayer:topTitle];
+//
+//    CALayer *bottomTitle = [CALayer layer];
+//    [bottomTitle setFrame:CGRectMake(0.0f, 18, tableView.frame.size.width, 0.5f)];
+//    [bottomTitle setBackgroundColor:[UIColor whiteColor].CGColor];
+//    [view.layer addSublayer:bottomTitle];
     
     return view;
 }
@@ -108,42 +108,37 @@ const CGSize        sizeIconContact = { 35 , 35};
     cell = (SCContactTableViewCell*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (cell == nil) {
-        cell = [[SCContactTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        cell = [[SCContactTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-    
-    [cell setBackgroundColor:[UIColor blackColor]];
+
+//    [cell setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
+    [cell setBackgroundColor:[UIColor lightGrayColor]];
     
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
-    Friend *_friend = [sectionContacts objectAtIndex:indexPath.row];
+    __weak Friend *_friend = [sectionContacts objectAtIndex:indexPath.row];
 
-    if (_friend.statusFriend == 0) {
-        [cell.iconContact setImage:_friend.thumbnailOffline];
-    }else{
-        [cell.iconContact setImage:_friend.thumbnail];
-    }
+//    if (_friend.statusFriend == 0) {
+//        [cell.iconContact setImage:_friend.thumbnailOffline];
+//    }else{
+//        [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:[UIImage imageNamed:@"placeholder"]];
+//    }
     
-    [cell.iconContact setFrame:CGRectMake(10, (cell.bounds.size.height / 2) - (sizeIconContact.height / 2), sizeIconContact.width, sizeIconContact.height)];
-    [cell.iconContact setBackgroundColor:[UIColor grayColor]];
-    [cell.iconContact setContentMode:UIViewContentModeScaleAspectFill];
-    [cell.iconContact setAutoresizingMask:UIViewAutoresizingNone];
-    cell.iconContact.layer.borderWidth = 0.0f;
-    [cell.iconContact setClipsToBounds:YES];
-    cell.iconContact.layer.cornerRadius = cell.iconContact.bounds.size.height / 2;
+    if (![_friend.urlThumbnail isEqualToString:@""]) {
+        [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail]];
+    }else{
+        
+    }
 
     [cell.lblFullName setText:_friend.nickName];
-    [cell.lblFullName setBackgroundColor:[UIColor blackColor]];
-    [cell.lblFullName setFont:[helperIns getFontLight:13.0f]];
-    [cell.lblFullName setTextColor:[UIColor whiteColor]];
-    [cell.lblFullName setFrame:CGRectMake(60, 0, cell.bounds.size.width - 60, cell.bounds.size.height)];
     
     return cell;
 }
 
 
-- (NSArray *) sectionIndexTitlesForTableView:(UITableView *)tableView{
-    return contactIndex;
-}
+//- (NSArray *) sectionIndexTitlesForTableView:(UITableView *)tableView{
+//    return contactIndex;
+//}
 
 - (void)setCellColor:(UIColor *)color ForCell:(SCContactTableViewCell *)cell {
     cell.contentView.backgroundColor = color;
@@ -166,16 +161,41 @@ const CGSize        sizeIconContact = { 35 , 35};
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    
+
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
     Friend *_friend = [sectionContacts objectAtIndex:indexPath.row];
     
-//    NSString *dictObj = [NSString stringWithFormat:@"%d", (int)indexPath.row];
-    NSString *key = @"tapCellIndex";
-    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"postTapCellIndex" object:nil userInfo:dictionary];
-
+    BOOL isExists = NO;
+    if ([selectList count] > 0) {
+        int count = (int)[selectList count];
+        for (int i = 0; i < count; i++) {
+            Friend *temp = (Friend*)[selectList objectAtIndex:i];
+            if (temp.friendID == _friend.friendID) {
+                [selectList removeObjectAtIndex:i];
+                [selectCell removeObjectAtIndex:i];
+                isExists= YES;
+                break;
+            }
+        }
+    }
+    
+    SCContactTableViewCell *cell = (SCContactTableViewCell*)[self cellForRowAtIndexPath:indexPath];
+    if (!isExists) {
+        [selectList addObject:_friend];
+        [selectCell addObject:cell];
+        [self setCellColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] ForCell:cell];
+        [cell.imgViewCheck setHidden:NO];
+        [cell.lblFullName setTextColor:[UIColor whiteColor]];
+    }else{
+        [self setCellColor:[UIColor lightGrayColor] ForCell:cell];
+        [cell.imgViewCheck setHidden:YES];
+        [cell.lblFullName setTextColor:[UIColor purpleColor]];
+    }
+    
+    NSString *key = @"countSelect";
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:(int)[selectList count]] forKey:key];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationCountSelect" object:nil userInfo:dictionary];
 }
 
 -(BOOL)stringPrefix:(NSString *)prefix isInArray:(NSArray *)array {
@@ -184,7 +204,7 @@ const CGSize        sizeIconContact = { 35 , 35};
     NSMutableArray *temp = [[NSMutableArray alloc] init];
     
     for (Friend *str in array) {
-        NSString *_strTemp = [str.nickName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        __weak NSString *_strTemp = [str.nickName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 
         NSRange prefixRange = [_strTemp rangeOfString:prefix options:(NSAnchoredSearch | NSCaseInsensitiveSearch)];
         if (prefixRange.location != NSNotFound) {
@@ -212,4 +232,21 @@ const CGSize        sizeIconContact = { 35 , 35};
     return result;
 }
 
+- (NSMutableArray*) getSelectList{
+    return selectList;
+}
+
+- (void) resetCell{
+    if ([selectCell count] > 0) {
+        int count = (int)[selectCell count];
+        for (int i = 0; i < count; i++) {
+            SCContactTableViewCell *cell = (SCContactTableViewCell*)[selectCell objectAtIndex:i];
+            [self setCellColor:[UIColor lightGrayColor] ForCell:cell];
+            [cell.imgViewCheck setHidden:YES];
+            [cell.lblFullName setTextColor:[UIColor purpleColor]];
+        }
+    }
+    
+    [selectList removeAllObjects];
+}
 @end

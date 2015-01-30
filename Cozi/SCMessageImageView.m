@@ -11,6 +11,7 @@
 @implementation SCMessageImageView
 
 @synthesize img;
+@synthesize imgView;
 
 /*
 // Only override drawRect: if you perform custom drawing.
@@ -32,12 +33,12 @@
 - (void) initVariable{
     helperIns = [Helper shareInstance];
     
-    imgView = [[UIImageView alloc] initWithFrame:self.bounds];
-    [imgView setClipsToBounds:YES];
-    [imgView setContentMode:UIViewContentModeScaleAspectFill];
-    [imgView setAutoresizingMask:UIViewAutoresizingNone];
+    self.imgView = [[UIImageView alloc] initWithFrame:self.bounds];
+    [self.imgView setClipsToBounds:YES];
+    [self.imgView setContentMode:UIViewContentModeScaleAspectFill];
+    [self.imgView setAutoresizingMask:UIViewAutoresizingNone];
     
-    [self addSubview:imgView];
+    [self addSubview:self.imgView];
 
 }
 
@@ -66,7 +67,7 @@
 // An empty implementation adversely affects performance during animation.
 - (void)drawRight:(CGRect)rect {
     // Drawing code
-    [self.layer setBackgroundColor:[UIColor redColor].CGColor];
+    [self.layer setBackgroundColor:[UIColor lightGrayColor].CGColor];
     CAShapeLayer *cusLayer=[CAShapeLayer layer];
     UIBezierPath *p=[UIBezierPath bezierPath];
     [p moveToPoint:CGPointMake(0, 0)];
@@ -88,11 +89,24 @@
     self.layer.mask=cusLayer;
 }
 
-- (void) setImage:(UIImage*)_imgMessenger{
+//- (void) setImage:(UIImage*)_imgMessenger{
+//    
+////    [imgView setHidden:NO];
+//    
+////    self.img = _imgMessenger;
+//    [imgView setImage:_imgMessenger];
+//    
+//    
+//}
 
-    self.img = _imgMessenger;
-    [imgView setImage:self.img];
-    
+- (void) removeImage{
+    self.img = nil;
+    imgView.image = nil;
+}
+
+- (void) setDefault{
+    [self setBackgroundColor:[UIColor lightGrayColor]];
+    [imgView setHidden:YES];
 }
 
 - (UIImage*)getBlurImage{

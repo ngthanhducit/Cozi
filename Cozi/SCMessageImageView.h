@@ -14,15 +14,17 @@
 {
     Helper              *helperIns;
     void (^successCallback)(BOOL    isComplete);
-    UIImageView                 *imgView;
 }
 
 @property (nonatomic, strong) UIImage           *img;
+@property (nonatomic, retain) UIImageView                 *imgView;
 
 - (void)drawLeft:(CGRect)rect;
 - (void)drawRight:(CGRect)rect;
-- (void) setImage:(UIImage*)_imgMessenger withBlur:(BOOL)_isBlur successBlock:(void(^)(BOOL isComplete))success;
-- (void) setImage:(UIImage*)_imgMessenger;
+//- (void) setImage:(UIImage*)_imgMessenger withBlur:(BOOL)_isBlur successBlock:(void(^)(BOOL isComplete))success;
+//- (void) setImage:(UIImage*)_imgMessenger;
+- (void) removeImage;
 - (void) addBlurView;
 - (UIImage*)getBlurImage;
+- (void) setDefault;
 @end

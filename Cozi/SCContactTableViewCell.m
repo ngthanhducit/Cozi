@@ -12,6 +12,9 @@
 
 @synthesize iconContact;
 @synthesize lblFullName;
+@synthesize imgViewCheck;
+
+const CGSize        sizeIconContact = { 35 , 35};
 
 - (void)awakeFromNib {
     // Initialization code
@@ -20,19 +23,37 @@
 - (id) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+        [self setBackgroundColor:[UIColor blackColor]];
         
         Helper *hp = [Helper shareInstance];
         
-        self.selectionStyle = UITableViewCellSelectionStyleDefault;
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        UIView *selectionColor = [[UIView alloc] init];
-        [selectionColor setBackgroundColor:[hp colorWithHex:[hp getHexIntColorWithKey:@"GreenColor"]]];
-        self.selectedBackgroundView = selectionColor;
+        CGRect boundMain = [[UIScreen mainScreen] bounds];
+        CGFloat wContact = (boundMain.size.width / 4) * 3;
+        
+        UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickGrey.svg"];
+        self.imgViewCheck = [[UIImageView alloc] initWithImage:img];
+        [self.imgViewCheck setFrame:CGRectMake(wContact - 40, 5, 40, 40)];
+        [self.imgViewCheck setContentMode:UIViewContentModeCenter];
+        [self.imgViewCheck setHidden:YES];
+        [self.contentView addSubview:self.imgViewCheck];
         
         self.iconContact = [[UIImageView alloc] initWithFrame:CGRectZero];
+        [self.iconContact setFrame:CGRectMake(10, (self.bounds.size.height / 2) - (sizeIconContact.height / 2), sizeIconContact.width, sizeIconContact.height)];
+        [self.iconContact setBackgroundColor:[UIColor lightGrayColor]];
+        [self.iconContact setContentMode:UIViewContentModeScaleAspectFill];
+        [self.iconContact setAutoresizingMask:UIViewAutoresizingNone];
+        self.iconContact.layer.borderWidth = 0.0f;
+        [self.iconContact setClipsToBounds:YES];
+        self.iconContact.layer.cornerRadius = self.iconContact.bounds.size.height / 2;
         [self.contentView addSubview:self.iconContact];
         
         self.lblFullName = [[UILabel alloc] initWithFrame:CGRectZero];
+        [self.lblFullName setBackgroundColor:[UIColor clearColor]];
+        [self.lblFullName setFont:[hp getFontLight:13.0f]];
+        [self.lblFullName setTextColor:[UIColor purpleColor]];
+        [self.lblFullName setFrame:CGRectMake(60, 0, wContact - 100, self.bounds.size.height)];
         [self.contentView addSubview:self.lblFullName];
     }
     
