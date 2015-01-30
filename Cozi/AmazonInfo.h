@@ -13,12 +13,12 @@
     
 }
 
-@property (nonatomic, strong) NSString              *key;
-@property (nonatomic, strong) NSString              *policy;
-@property (nonatomic, strong) NSString              *signature;
-@property (nonatomic, strong) NSString              *accessKey;
-@property (nonatomic, strong) NSString              *url;
-@property (nonatomic ) int                          userReceiveID;
-@property (nonatomic) int                           keyMessage;
-@property (nonatomic, strong) NSData                *imgDataSend;
+@property (nonatomic, copy  ) NSString *key;
+@property (nonatomic, copy  ) NSString *policy;
+@property (nonatomic, copy  ) NSString *signature;
+@property (nonatomic, copy  ) NSString *accessKey;
+@property (nonatomic, copy  ) NSString *url;
+@property (nonatomic        ) int      userReceiveID;
+@property (nonatomic, copy  ) NSString *keyMessage;
+@property (nonatomic, strong) NSData   *imgDataSend;
 @end

@@ -16,11 +16,10 @@
 #import "NetworkCommunication.h"
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
-#import "SDWebImageDownloader.h"
-#import "AsyncImageDownloader.h"
 #import "ImageRender.h"
 #import "GPUImageGrayscaleFilter.h"
 #import "DataWall.h"
+#import "FollowerUser.h"
 
 @protocol StoreDelegate <NSObject>
 
@@ -34,7 +33,6 @@
     NSMutableArray              *urlAssetsImage;
     NSMutableArray              *assetsThumbnail;
     Helper                      *helperIns;
-//    NSInteger                   keyMessage;
     BOOL                        inSendImage;
     
     NSString                    *_longitude;
@@ -48,40 +46,47 @@
     NSMutableData               *dataLocation;
     CoziCoreData                *coziCoreDataIns;
     NSString                    *_keyGoogleMaps;
+    NSMutableDictionary           *staticImageDictionary;
 }
 
-@property (nonatomic, weak) id <StoreDelegate> delegate;
+@property (nonatomic, weak  ) id <StoreDelegate  > delegate;
 @property (nonatomic, strong) User           *user;
-@property (nonatomic, strong) NSMutableArray        *recent;
+@property (nonatomic, strong) NSMutableArray *recent;
 @property (nonatomic, strong) NSMutableArray *walls;
 @property (nonatomic, strong) NSMutableArray *noises;
+@property (nonatomic, strong) NSMutableArray *listFollower;
+@property (nonatomic, strong) NSMutableArray *listFollowing;
+@property (nonatomic, strong) NSMutableArray *listFollowRequest;
 @property (nonatomic, strong) NSMutableArray *friends;
 @property (nonatomic, strong) NSMutableArray *friendsRequest;
 @property (nonatomic, strong) NSMutableArray *sendAmazon;
-@property (nonatomic, strong) UIImage           *imgDemo;
-@property (nonatomic, strong) NSMutableArray        *receiveLocation;
-@property (nonatomic, strong)    NSDate             *timeServer;
-@property (nonatomic, strong) NSString                  *keyGoogleMaps;
+@property (nonatomic, strong) NSMutableArray *receiveLocation;
+@property (nonatomic, strong) NSDate         *timeServer;
+@property (nonatomic, copy  ) NSString       *keyGoogleMaps;
+
 
 + (id) shareInstance;
 
-- (NSInteger) getKeyMessage;
-- (NSInteger) incrementKeyMessage:(int)friendID;
-
+- (NSString*) randomKeyMessenger;
 - (void) setup;
 - (Friend *) getFriendByID:(int)friendID;
 - (void) updateMessageFriend:(Messenger *)_newMessage withFriendID:(int)_friendID;
 - (void) updateStatusMessageFriend:(int)friendID withStatus:(int)_statusID;
-- (void) updateStatusMessageFriend:(int)friendID withKeyMessage:(NSInteger)_keyMessage withStatus:(int)_statusID withTime:(NSString*)_timeServer;
-- (void) updateStatusMessageFriendWithKey:(int)friendID withMessageID:(NSInteger)_keyMessage withStatus:(int)_statusID;
+- (void) updateStatusMessageFriend:(int)friendID withKeyMessage:(NSString*)_keyMessage withStatus:(int)_statusID withTime:(NSString*)_time;
+- (void) updateStatusMessageFriendWithKey:(int)friendID withMessageID:(NSString*)_keyMessage withStatus:(int)_statusID;
 - (void) updateStatusFriend:(int)friendID withStatus:(int)_statusFriend;
-- (void) updateKeyAmazone:(int)userReceiveID withKeyMessage:(NSInteger)_keyMessage withKeyAmazon:(NSString*)_keyAmazon;
-- (Messenger *) getMessageFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage;
-- (BOOL) deleteMessenger:(int)friendID withKeyMessenger:(NSInteger)_keyMessenger;
+- (void) updateKeyAmazone:(int)userReceiveID withKeyMessage:(NSString*)_keyMessage withKeyAmazon:(NSString*)_keyAmazon withUrl:(NSString*)_urlImage;
+- (Messenger *) getMessageFriendID:(int)_friendID withKeyMessage:(NSString*)_keyMessage;
+- (BOOL) deleteMessenger:(int)friendID withKeyMessenger:(NSString*)_keyMessenger;
 
 - (NSMutableArray*) getAssetsLibrary;
 - (NSMutableArray*) getAssetsThumbnail;
 - (void) processSaveData;
+
+//Core Data Follower
+- (BOOL) addNewFollower:(FollowerUser*)_follower;
+- (void) loadFollower:(int)_userID;
+- (BOOL) checkFollowerExists:(int)_userID;
 
 //Core Data
 - (void) loadUser:(int)_userID;
@@ -89,7 +94,6 @@
 - (void) loadMessenger;
 - (void) processSaveCoreData;
 
-- (void) saveMessengerToCoreData:(Messenger*)_messenger;
 - (void) fillAmazonInfomation:(AmazonInfo *)_amazon;
 - (void) updateStatusSendImage;
 
@@ -103,6 +107,7 @@
 - (void) sortMessengerFriend;
 - (NSString*) geturlThumbnailFriend:(NSString*)_phoneNumber;
 
+- (void) insertWallData:(DataWall*)_dataWall;
 - (void) addWallData:(DataWall *)_dataWall;
 - (void) addNoisesData:(DataWall *)_dataWall;
 - (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;

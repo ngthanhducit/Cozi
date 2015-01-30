@@ -13,10 +13,10 @@
     
 }
 
-@property (nonatomic, strong) NSURLRequest              *request;
-@property (nonatomic) NSInteger                 keySendMessage;
-@property (nonatomic, strong) NSString          *longitude;
-@property (nonatomic, strong) NSString          *latitude;
-@property (nonatomic) int                       senderID;
-@property (nonatomic) int                       friendID;
+@property (nonatomic, strong      ) NSURLRequest *request;
+@property (nonatomic, copy        ) NSString     *keySendMessage;
+@property (nonatomic, copy        ) NSString     *longitude;
+@property (nonatomic, copy        ) NSString     *latitude;
+@property (nonatomic              ) int          senderID;
+@property (nonatomic              ) int          friendID;
 @end

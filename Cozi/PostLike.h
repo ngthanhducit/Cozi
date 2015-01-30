@@ -10,9 +10,9 @@
 
 @interface PostLike : NSObject
 
-@property (nonatomic, strong) NSDate                *dateLike;
-@property (nonatomic) NSInteger             userLikeId;
-@property (nonatomic, strong) NSString              *userNameLike;
-@property (nonatomic, strong) NSString              *firstName;
-@property (nonatomic, strong) NSString              *lastName;
+@property (nonatomic, strong) NSDate    *dateLike;
+@property (nonatomic        ) NSInteger userLikeId;
+@property (nonatomic, copy  ) NSString  *userNameLike;
+@property (nonatomic, copy  ) NSString  *firstName;
+@property (nonatomic, copy  ) NSString  *lastName;
 @end

@@ -13,15 +13,15 @@
     
 }
 
-@property (nonatomic, strong) NSString              *lng;
-@property (nonatomic, strong) NSString              *lat;
-@property (nonatomic, strong) NSString              *icon;
-@property (nonatomic, strong) NSString              *idNear;
-@property (nonatomic, strong) NSString              *placeId;
-@property (nonatomic, strong) NSString              *nearName;
-@property (nonatomic, strong) NSString              *reference;
-@property (nonatomic, strong) NSString              *scope;
-@property (nonatomic, strong) NSString              *types;
-@property (nonatomic, strong) NSString              *vicinity;
+@property (nonatomic, copy) NSString *lng;
+@property (nonatomic, copy) NSString *lat;
+@property (nonatomic, copy) NSString *icon;
+@property (nonatomic, copy) NSString *idNear;
+@property (nonatomic, copy) NSString *placeId;
+@property (nonatomic, copy) NSString *nearName;
+@property (nonatomic, copy) NSString *reference;
+@property (nonatomic, copy) NSString *scope;
+@property (nonatomic, copy) NSString *types;
+@property (nonatomic, copy) NSString *vicinity;
 
 @end

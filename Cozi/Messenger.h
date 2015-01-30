@@ -12,23 +12,23 @@
 
 @interface Messenger : NSObject
 
-@property (nonatomic        ) int          senderID;
-@property (nonatomic        ) NSInteger    keySendMessage;//client render key
-@property (nonatomic, strong) NSString     *strMessage;
-@property (nonatomic, strong) NSString      *strImage;
-@property (nonatomic        ) int          typeMessage;//0: text - 1: image - 2: Location
-@property (nonatomic        ) int          statusMessage;//0: da gui - 1: server da nhan - 2: da xem - 3: error
-@property (nonatomic, strong) NSString     *timeMessage;
-@property (nonatomic, strong) NSDate     *timeServerMessage;//Send Success
-@property (nonatomic, strong) NSData       *dataImage;
-@property (nonatomic, strong) UIImage      *thumnail;
-@property (nonatomic, strong) UIImage      *thumnailBlur;
-@property (nonatomic        ) int          friendID;
-@property (nonatomic)           int         userID;
-@property (nonatomic, strong) NSString     *amazonKey;
-@property (nonatomic, strong) NSString     *longitude;
-@property (nonatomic, strong) NSString     *latitude;
-@property (nonatomic, strong) NSString      *urlImage;
-@property (nonatomic) int           timeOutMessenger;
-@property (nonatomic) BOOL              isTimeOut;
+@property (nonatomic        ) int       senderID;
+@property (nonatomic, copy  ) NSString  *keySendMessage;//client render key
+@property (nonatomic, copy  ) NSString  *strMessage;
+@property (nonatomic, copy  ) NSString  *strImage;
+@property (nonatomic        ) int       typeMessage;//0: text - 1: image - 2: Location
+@property (nonatomic        ) int       statusMessage;//0: da gui - 1: server da nhan - 2: da xem - 3: error
+@property (nonatomic, copy  ) NSString  *timeMessage;
+@property (nonatomic, strong) NSDate    *timeServerMessage;//Send Success
+@property (nonatomic, strong) NSData    *dataImage;
+@property (nonatomic, strong) UIImage   *thumnail;
+@property (nonatomic, strong) UIImage   *thumnailBlur;
+@property (nonatomic        ) int       friendID;
+@property (nonatomic        ) int       userID;
+@property (nonatomic, copy  ) NSString  *amazonKey;
+@property (nonatomic, copy  ) NSString  *longitude;
+@property (nonatomic, copy  ) NSString  *latitude;
+@property (nonatomic, copy  ) NSString  *urlImage;
+@property (nonatomic        ) int       timeOutMessenger;
+@property (nonatomic        ) BOOL      isTimeOut;
 @end

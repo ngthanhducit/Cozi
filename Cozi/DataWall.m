@@ -10,19 +10,21 @@
 
 @implementation DataWall
 
-@synthesize userPostID;
-@synthesize content;
-@synthesize images;
-@synthesize video;
-@synthesize longitude;
-@synthesize latitude;
-@synthesize time;
-@synthesize clientKey;
-@synthesize typePost;
-@synthesize isLike;
-@synthesize timeLike;
-@synthesize thumb;
-@synthesize urlFull;
-@synthesize urlThumb;
+//@synthesize userPostID = _userPostID;
+//@synthesize content = _content;
+//@synthesize images = _images;
+//@synthesize video = _video;
+//@synthesize longitude = _longitude;
+//@synthesize latitude = _latitude;
+//@synthesize time = _time;
+//@synthesize clientKey = _clientKey;
+//@synthesize typePost = _typePost;
+//@synthesize isLike = _isLike;
+//@synthesize timeLike = _timeLike;
+//@synthesize thumb = _thumb;
+//@synthesize urlFull = _urlFull;
+//@synthesize urlThumb = _urlThumb;
+//@synthesize imgMaps = _imgMaps;
+//@synthesize codeType = _codeType;
 
 @end

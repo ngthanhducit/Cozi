@@ -10,12 +10,13 @@
 
 @interface PostComment : NSObject
 
-@property (nonatomic, strong) NSDate                    *dateComment;
-@property (nonatomic) NSInteger                 userCommentId;
-@property (nonatomic, strong) NSString                  *userNameComment;
-@property (nonatomic, strong) NSString                  *firstName;
-@property (nonatomic, strong) NSString                  *lastName;
-@property (nonatomic, strong) NSString                  *contentComment;
-@property (nonatomic, strong) NSString                  *urlImageComment;
-@property (nonatomic, strong) NSMutableArray            *commentLikes;
+@property (nonatomic, strong) NSDate         *dateComment;
+@property (nonatomic        ) NSInteger      userCommentId;
+@property (nonatomic, copy  ) NSString       *userNameComment;
+@property (nonatomic, copy  ) NSString       *firstName;
+@property (nonatomic, copy  ) NSString       *lastName;
+@property (nonatomic, copy  ) NSString       *contentComment;
+@property (nonatomic, copy  ) NSString       *urlImageComment;
+@property (nonatomic, strong) NSMutableArray *commentLikes;
+
 @end

@@ -14,10 +14,10 @@
     
 }
 
-@property (nonatomic, strong) NSString              *firstName;
-@property (nonatomic, strong) NSString              *lastName;
-@property (nonatomic, strong) NSString              *midName;
-@property (nonatomic, strong) NSString              *fullName;
-@property (nonatomic, strong) NSString              *phone;
-@property (nonatomic, strong) UIImage               *imgThumbnail;
+@property (nonatomic, copy  ) NSString *firstName;
+@property (nonatomic, copy  ) NSString *lastName;
+@property (nonatomic, copy  ) NSString *midName;
+@property (nonatomic, copy  ) NSString *fullName;
+@property (nonatomic, copy  ) NSString *phone;
+@property (nonatomic, strong) UIImage  *imgThumbnail;
 @end

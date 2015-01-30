@@ -16,7 +16,6 @@
 @synthesize lastName;
 @synthesize gender;
 @synthesize avatar;
-@synthesize dataAvatar;
 @synthesize statusFriend;
 @synthesize leftAvatar;
 @synthesize topAvatar;

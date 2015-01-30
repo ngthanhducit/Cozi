@@ -27,5 +27,6 @@
 @synthesize statusUser;
 @synthesize timeServer;
 @synthesize keySendMessenger;
-
+@synthesize countPosts;
+@synthesize isPublic;
 @end

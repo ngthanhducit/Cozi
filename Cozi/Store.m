@@ -7,6 +7,7 @@
 //
 
 #import "Store.h"
+#import "SDWebImage/SDWebImageDownloader.h"
 
 @implementation Store
 
@@ -46,6 +47,9 @@
     dataLocation = [[NSMutableData alloc] init];
     self.walls = [NSMutableArray new];
     self.noises = [NSMutableArray new];
+    self.listFollower = [NSMutableArray new];
+    self.listFollowing = [NSMutableArray new];
+    self.listFollowRequest = [NSMutableArray new];
     self.receiveLocation = [[NSMutableArray alloc] init];
     self.sendAmazon = [[NSMutableArray alloc] init];
     self.recent = [[NSMutableArray alloc] init];
@@ -130,30 +134,24 @@
     });
 }
 
-- (NSInteger) getKeyMessage{
-    return self.user.keySendMessenger;
-}
+//- (NSInteger) getKeyMessage{
+//    return self.user.keySendMessenger;
+//}
+//
+//- (NSString*) incrementKeyMessage:(int)friendID{
+//    long long timeInterval = (long long)[[NSDate date] timeIntervalSince1970] * 1000.0;
+//    NSString *_key = [NSString stringWithFormat:@"%i%lld", self.user.userID, timeInterval];
+//    
+//    return _key;
+//}
 
-- (NSInteger) incrementKeyMessage:(int)friendID{
-//    keyMessage +=1;
-    self.user.keySendMessenger += 1;
-    int keyUser = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"UserID"];
-//    int random = arc4random_uniform(10000);
-//    NSInteger keySend = [[NSString stringWithFormat:@"%i%i%i", keyUser, (int)keyMessage, random] integerValue];
-    NSInteger keySend = [[NSString stringWithFormat:@"%i%i%i", keyUser, friendID, (int)self.user.keySendMessenger] integerValue];
+- (NSString*) randomKeyMessenger{
     
-    if (keySend >= NSIntegerMax) {
-//        keyMessage = 0;
-        self.user.keySendMessenger =0;
-    }
+    long long timeInterval = (long long)[[NSDate date] timeIntervalSince1970] * 1000.0;
+    NSString *_key = [NSString stringWithFormat:@"%i%lld", self.user.userID, timeInterval];
     
-//    [[NSUserDefaults standardUserDefaults] setInteger:keyMessage forKey:@"keyMessage"];
+    return _key;
     
-//    self.user.keySendMessenger = keyMessage;
-    
-    [coziCoreDataIns updateUser:self.user];
-    
-    return keySend;
 }
 
 - (NSMutableArray*) getAssetsThumbnail{
@@ -174,22 +172,20 @@
                 if (friend.friendMessage != nil) {
                     int countMessage = (int)[friend.friendMessage count];
                     for (int j = 0; j < countMessage; j++) {
-                        if ([[friend.friendMessage objectAtIndex:j] keySendMessage] == _newMessage.keySendMessage) {
+                        if ([((Messenger*)[friend.friendMessage objectAtIndex:j]).keySendMessage isEqualToString: _newMessage.keySendMessage]) {
                             
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setTypeMessage:_newMessage.typeMessage];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setStatusMessage:_newMessage.statusMessage];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setSenderID: _newMessage.senderID];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setFriendID: _newMessage.friendID];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setStrMessage: _newMessage.strMessage];
-                            [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setKeySendMessage:_newMessage.keySendMessage];
+                            [((Messenger*)[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j]) setKeySendMessage:_newMessage.keySendMessage];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setTimeServerMessage: _newMessage.timeServerMessage];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setTimeMessage:_newMessage.timeMessage];
-                            //                            NSURL *imgUrl = [NSURL URLWithString:_newMessage.strMessage];
-                            //                            NSData *imgData = [NSData dataWithContentsOfURL:imgUrl];
-                            //                            UIImage *img = [UIImage imageWithData:imgData];
                             
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setThumnail:_newMessage.thumnail];
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setDataImage:_newMessage.dataImage];
+                            [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setUrlImage:_newMessage.urlImage];
                             
                             break;
                         }
@@ -214,7 +210,7 @@
     }
 }
 
-- (void) updateStatusMessageFriend:(int)friendID withKeyMessage:(NSInteger)_keyMessage withStatus:(int)_statusID withTime:(NSString*)_timeServer{
+- (void) updateStatusMessageFriend:(int)friendID withKeyMessage:(NSString*)_keyMessage withStatus:(int)_statusID withTime:(NSString*)_time{
     if (self.friends != nil) {
         int count = (int)[self.friends count];
         for (int i = 0; i < count; i++) {
@@ -225,10 +221,10 @@
                     int countMessage = (int)[friend.friendMessage count];
                     
                     for (int j = 0; j < countMessage; j++) {
-                        if ([[friend.friendMessage objectAtIndex:j] keySendMessage] == _keyMessage) {
+                        if ([((Messenger*)[friend.friendMessage objectAtIndex:j]).keySendMessage isEqualToString:_keyMessage]) {
                             
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setStatusMessage:_statusID];
-                            [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setTimeServerMessage: [helperIns convertStringToDate:_timeServer]];
+                            [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setTimeServerMessage: [helperIns convertStringToDate:_time]];
                             
                             break;
                         }
@@ -242,7 +238,7 @@
     }
 }
 
-- (Messenger *) getMessageFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage{
+- (Messenger *) getMessageFriendID:(int)_friendID withKeyMessage:(NSString*)_keyMessage{
     Messenger *result = nil;
     
     if (self.friends != nil) {
@@ -254,7 +250,7 @@
                 if (friend.friendMessage != nil) {
                     int countMessage = (int)[friend.friendMessage count];
                     for (int j = 0; j < countMessage; j++) {
-                        if ([[friend.friendMessage objectAtIndex:j] keySendMessage] == _keyMessage) {
+                        if ([((Messenger*)[friend.friendMessage objectAtIndex:j]).keySendMessage isEqualToString: _keyMessage]) {
                             
                             result = [friend.friendMessage objectAtIndex:j];
                             
@@ -271,7 +267,7 @@
     return result;
 }
 
-- (BOOL) deleteMessenger:(int)friendID withKeyMessenger:(NSInteger)_keyMessenger{
+- (BOOL) deleteMessenger:(int)friendID withKeyMessenger:(NSString*)_keyMessenger{
     
     BOOL result = NO;
     
@@ -287,7 +283,7 @@
                         
                         Messenger *_messenger = [_friend.friendMessage objectAtIndex:j];
                         
-                        if (_messenger.keySendMessage == _keyMessenger) {
+                        if ([_messenger.keySendMessage isEqualToString:_keyMessenger]) {
                             
                             [[[self.friends objectAtIndex:i] friendMessage] removeObjectAtIndex:j];
                             
@@ -308,7 +304,7 @@
     return result;
 }
 
-- (void) updateStatusMessageFriendWithKey:(int)friendID withMessageID:(NSInteger)_keyMessage withStatus:(int)_statusID{
+- (void) updateStatusMessageFriendWithKey:(int)friendID withMessageID:(NSString*)_keyMessage withStatus:(int)_statusID{
     if (self.friends != nil) {
         int count = (int)[self.friends count];
         for (int i = 0; i < count; i++) {
@@ -318,7 +314,7 @@
                 if (_friend.friendMessage != nil) {
                     int countMessage = (int)[_friend.friendMessage count];
                     for (int j = 0; j < countMessage; j++) {
-                        if ([[_friend.friendMessage objectAtIndex:j] keySendMessage] == _keyMessage) {
+                        if ([((Messenger*)[_friend.friendMessage objectAtIndex:j]).keySendMessage isEqualToString:_keyMessage]) {
                             
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setStatusMessage:_statusID];
                             
@@ -343,7 +339,7 @@
     }
 }
 
-- (void) updateKeyAmazone:(int)userReceiveID withKeyMessage:(NSInteger)_keyMessage withKeyAmazon:(NSString *)_keyAmazon{
+- (void) updateKeyAmazone:(int)userReceiveID withKeyMessage:(NSString*)_keyMessage withKeyAmazon:(NSString *)_keyAmazon withUrl:(NSString *)_urlImage{
     if (self.friends != nil) {
         int count = (int)[self.friends count];
         for (int i = 0; i < count; i++) {
@@ -355,10 +351,13 @@
                     int countMessage = (int)[friend.friendMessage count];
                     for (int j = 0; j < countMessage; j++) {
                         
-                        if ([[friend.friendMessage objectAtIndex:j] keySendMessage] == _keyMessage) {
+                        if ([[[friend.friendMessage objectAtIndex:j] keySendMessage] isEqualToString: _keyMessage]) {
                             
                             [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setAmazonKey:_keyAmazon];
                             
+                            if (![_urlImage isEqualToString:@""]) {
+                                [[[[self.friends objectAtIndex:i] friendMessage] objectAtIndex:j] setUrlImage:_urlImage];
+                            }
                             break;
                         }
                     }
@@ -421,6 +420,40 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"cutAvatarComplete" object:nil];
 }
 
+#pragma mark- Follower Core Data
+
+- (BOOL) addNewFollower:(FollowerUser*)_follower{
+    BOOL isExists = [coziCoreDataIns isExistsFollower:_follower.userID];
+    if (!isExists) {
+        return [coziCoreDataIns saveFollower:_follower];
+    }
+    
+    return FALSE;
+}
+
+- (void) loadFollower:(int)_userID{
+    NSMutableArray *followers = [coziCoreDataIns getFollowerByParentUserID:_userID];
+    
+    if ([followers count] > 0) {
+        int count = (int)[followers count];
+        for (int i = 0; i < count; i++) {
+            NSManagedObject *_follower = (NSManagedObject*)[followers objectAtIndex:i];
+            FollowerUser *_newFollower = [FollowerUser new];
+            [_newFollower setUserID:[[_follower valueForKey:@"user_id"] intValue]];
+            [_newFollower setFirstName:[_follower valueForKey:@"first_name"]];
+            [_newFollower setLastName:[_follower valueForKey:@"last_name"]];
+            [_newFollower setUrlAvatar:[_follower valueForKey:@"url_avatar"]];
+            
+            [self.listFollower addObject:_newFollower];
+        }
+    }
+
+}
+
+- (BOOL) checkFollowerExists:(int)_userID{
+    return [coziCoreDataIns isExistsFollower:_userID];
+}
+
 #pragma -makr Process Data in sqlite
 - (void) processSaveCoreData{
     //Save User Info
@@ -447,7 +480,7 @@
                 
             }else{
                 //Add new Friend;
-                BOOL _isSaveFriend = [coziCoreDataIns saveFriend:_friend];
+                [coziCoreDataIns saveFriend:_friend];
             }
             
             //check Messenger
@@ -460,7 +493,7 @@
                         //Update Messenger
                     }else{
                         //Add new Messenger
-                        BOOL _isSaveMessenger = [coziCoreDataIns saveMessenger:_messenger];
+                        [coziCoreDataIns saveMessenger:_messenger];
                     }
                 }
             }
@@ -486,27 +519,23 @@
         [self.user setUrlAvatar:[_user valueForKey:@"url_avatar"]];
         [self.user setKeySendMessenger:[[_user valueForKey:@"key_send_messenger"] integerValue]];
         
-        [SDWebImageDownloader.sharedDownloader downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            if (image && finished) {
-                [self.user setAvatar:image];
-            }
             
+            [self.user setAvatar:image];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
             });
-
+            
         }];
         
         [self.user setUrlThumbnail:[_user valueForKey:@"url_thumbnail"]];
         
-        [SDWebImageDownloader.sharedDownloader downloadImageWithURL:[NSURL URLWithString:self.user.urlThumbnail] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlThumbnail] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            if (image && finished) {
-                [self.user setThumbnail:image];
-            }
+            [self.user setThumbnail:image];
         }];
         
         [self.user setUserID:[[_user valueForKey:@"user_id"] intValue]];
@@ -519,6 +548,7 @@
     NSMutableArray *_friendsDB = [coziCoreDataIns getFriendsWithUserID:_userID];
     if (_friendsDB != nil) {
         int count = (int)[_friendsDB count];
+        UIImage *imgEmptyAvatar = [helperIns getImageFromSVGName:@"emptyAvatar.svg"];
         for (int i = 0; i < count; i++) {
             NSManagedObject *_friend = (NSManagedObject*)[_friendsDB objectAtIndex:i];
             Friend *_newFriend = [Friend new];
@@ -537,23 +567,26 @@
             [_newFriend setPhoneNumber:[_friend valueForKey:@"phone_number"]];
 
             if (![_newFriend.urlThumbnail isEqualToString:@""]) {
-                [[[AsyncImageDownloader alloc] initWithMediaURL:_newFriend.urlThumbnail successBlock:^(UIImage *image) {
-                    _newFriend.thumbnail = image;
+                
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_newFriend.urlThumbnail] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                     
-                    GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                     
-                    UIImage *grayscaleImage = [grayscaleFilter imageByFilteringImage:image];
+                    if (finished) {
+                        _newFriend.thumbnail = image;
+                    }
                     
-                    [_newFriend setThumbnailOffline:grayscaleImage];
+//                    GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
+//                    
+//                    UIImage *grayscaleImage = [grayscaleFilter imageByFilteringImage:image];
+//                    
+//                    [_newFriend setThumbnailOffline:grayscaleImage];
                     
-                } failBlock:^(NSError *error) {
-                    
-                }] startDownload];
+                }];
+                
             }else{
-                
-                [_newFriend setThumbnail:[helperIns getImageFromSVGName:@"emptyAvatar.svg"]];
-                [_newFriend setThumbnailOffline:[helperIns getImageFromSVGName:@"emptyAvatar.svg"]];
-                
+                [_newFriend setThumbnail:imgEmptyAvatar];
+                [_newFriend setThumbnailOffline:imgEmptyAvatar];
             }
             
             [_newFriend setUserID:[[_friend valueForKey:@"user_id"] intValue]];
@@ -572,7 +605,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -583,15 +616,14 @@
                         [_newMessenger setTypeMessage:[[messengerObj valueForKey:@"type_messenger"] intValue]];
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
-                        NSString *strImage = [messengerObj valueForKey:@"strImage"];
+//                        [_newMessenger setUrlImage:[messengerObj valueForKey:@"str_messenger"]];
                         
-                        NSData *dataImage = [helperIns decodeBase64:strImage];
-                        UIImage *image = [UIImage imageWithData:dataImage];
-                        UIImage *imgThum = [helperIns resizeImage:image resizeSize:CGSizeMake(320, 568)];
-                        [_newMessenger setThumnail:imgThum];
-                        _newMessenger.dataImage = dataImage;
+//                        __weak NSString *strImage = [messengerObj valueForKey:@"strImage"];
+//                        
+//                        __weak NSData *dataImage = [helperIns decodeBase64:strImage];
+//                        _newMessenger.dataImage = dataImage;
                         
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         
@@ -600,7 +632,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -612,16 +644,14 @@
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
                         NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _newMessenger.latitude, _newMessenger.longitude, @"%7c" , _newMessenger.latitude, _newMessenger.longitude];
-
-                        [SDWebImageDownloader.sharedDownloader downloadImageWithURL:[NSURL URLWithString:url] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        
+                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                             
                         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                            if (image && finished) {
-                                _newMessenger.thumnail = image;
-                            }
+                            _newMessenger.thumnail = image;
                         }];
                         
                         [_newFriend.friendMessage addObject:_newMessenger];
@@ -629,7 +659,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -641,7 +671,7 @@
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
                         [_newFriend.friendMessage addObject:_newMessenger];
                     }
@@ -677,7 +707,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -689,7 +719,7 @@
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
                         NSString *strImage = [messengerObj valueForKey:@"strImage"];
                         
@@ -704,7 +734,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -716,16 +746,14 @@
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
                         NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _newMessenger.latitude, _newMessenger.longitude, @"%7c" , _newMessenger.latitude, _newMessenger.longitude];
                         
-                        [SDWebImageDownloader.sharedDownloader downloadImageWithURL:[NSURL URLWithString:url] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                             
                         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                            if (image && finished) {
-                                _newMessenger.thumnail = image;
-                            }
+                            _newMessenger.thumnail = image;
                         }];
                         
                         [_friend.friendMessage addObject:_newMessenger];
@@ -733,7 +761,7 @@
                         Messenger *_newMessenger = [Messenger new];
                         [_newMessenger setAmazonKey:[messengerObj valueForKey:@"amazon_key"]];
                         [_newMessenger setFriendID:[[messengerObj valueForKey:@"friend_id"] intValue]];
-                        [_newMessenger setKeySendMessage:[[messengerObj valueForKey:@"key_send_message"] integerValue]];
+                        [_newMessenger setKeySendMessage:[messengerObj valueForKey:@"key_send_message"]];
                         [_newMessenger setLatitude:[messengerObj valueForKey:@"latitude"]];
                         [_newMessenger setLongitude:[messengerObj valueForKey:@"longitude"]];
                         [_newMessenger setSenderID:[[messengerObj valueForKey:@"sender_id"] intValue]];
@@ -745,7 +773,7 @@
                         [_newMessenger setUrlImage:[messengerObj valueForKey:@"url_image"]];
                         [_newMessenger setUserID:[[messengerObj valueForKey:@"user_id"] intValue]];
                         [_newMessenger setTimeOutMessenger:[[messengerObj valueForKey:@"timeout_messenger"] intValue]];
-                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
+//                        [_newMessenger setIsTimeOut:[messengerObj valueForKey:@"is_timeout"]];
                         
                         [_friend.friendMessage addObject:_newMessenger];
                         
@@ -848,7 +876,7 @@
     if (self.sendAmazon != nil) {
         int count = (int)[self.sendAmazon count];
         for (int i = 0; i < count; i++) {
-            if ([[self.sendAmazon objectAtIndex:i] keyMessage] == _amazon.keyMessage) {
+            if ([[[self.sendAmazon objectAtIndex:i] keyMessage] isEqualToString:_amazon.keyMessage]) {
                 NSLog(@"fill amazon info: %i", (int)[self.sendAmazon count]);
                 [[self.sendAmazon objectAtIndex:i] setKey:_amazon.key];
                 [[self.sendAmazon objectAtIndex:i] setPolicy:_amazon.policy];
@@ -882,9 +910,8 @@
 
 - (void) updateStatusSendImage{
     [self.sendAmazon removeObjectAtIndex:0];
-    NSLog(@"Total update amazon: %i", (int)[self.sendAmazon count]);
+    
     if ([self.sendAmazon count] > 0) {
-        NSLog(@"Begin call send photo to amazon");
         [self sendImageToAmazon];
     }else{
         inSendImage = NO;
@@ -975,7 +1002,7 @@
         
         NetworkCommunication *net = [NetworkCommunication shareInstance];
         
-        NSString *cmd = [NSString stringWithFormat:@"RESULTUPLOADPHOTO{%i}%i}%d<EOF>", code, info.userReceiveID, info.keyMessage];
+        NSString *cmd = [NSString stringWithFormat:@"RESULTUPLOADPHOTO{%i}%i}%@<EOF>", code, info.userReceiveID, info.keyMessage];
         NSLog(@"upload amazone success: %@", cmd);
         //        NSString *cmdSendResultUploadAmazon = [self.dataMapIns sendResultUploadAmazon:code withFriendID:info.userReceiveID withKeyMessage:info.keyMessage];
         [net sendData:cmd];
@@ -993,6 +1020,7 @@
     CLLocation *currentLocation = [locations objectAtIndex:0];
     
     if (currentLocation != nil) {
+        
         _longitude = [NSString stringWithFormat:@"%.8f", currentLocation.coordinate.longitude];
         _latitude = [NSString stringWithFormat:@"%.8f", currentLocation.coordinate.latitude];
 
@@ -1049,11 +1077,11 @@
             ReceiveLocation *_receiveLoca = (ReceiveLocation*)[self.receiveLocation objectAtIndex:0];
             NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _receiveLoca.latitude, _receiveLoca.longitude, @"%7c" , _receiveLoca.latitude, _receiveLoca.longitude];
             
-            [SDWebImageDownloader.sharedDownloader downloadImageWithURL:[NSURL URLWithString:url] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                //process download
+            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:url] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                
             } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                if (image && finished) {
-                    
+                
+                if (finished) {
                     ReceiveLocation *_receiveLoca = [self.receiveLocation objectAtIndex:0];
                     
                     if (_receiveLoca.senderID > 0) {
@@ -1083,11 +1111,11 @@
                         }
                         
                     });
-
                 }else{
                     inReceiveLocation = NO;
                 }
             }];
+            
         }
     }
 }
@@ -1099,8 +1127,9 @@
         for (int i = 0; i < count; i++) {
             
             if ([[[self.friends objectAtIndex:i] phoneNumber] isEqualToString:_phoneNumber]) {
-                NSLog(@"good");
+                
                 _url = [[self.friends objectAtIndex:i] urlThumbnail];
+                
             }
         }
     }
@@ -1123,6 +1152,25 @@
     }
     
     return result;
+}
+
+- (void) insertWallData:(DataWall*)_dataWall{
+    if (self.walls != nil) {
+        int count = (int)[self.walls count];
+        BOOL isExits = NO;
+        for (int i = 0; i < count; i++) {
+            
+            if ([((DataWall*)[self.walls objectAtIndex:i]).clientKey isEqualToString: _dataWall.clientKey ]) {
+                
+                isExits = YES;
+                break;
+            }
+        }
+        
+        if (!isExits) {
+            [self.walls insertObject:_dataWall atIndex:0];
+        }
+    }
 }
 
 - (void) addWallData:(DataWall *)_dataWall{

@@ -11,26 +11,26 @@
 
 @interface User : NSObject
 
-@property (nonatomic        ) int      userID;
-@property (nonatomic        ) int      statusUser;
-@property (nonatomic, strong) NSString *nickName;
-@property (nonatomic, strong) NSString *firstname;
-@property (nonatomic, strong) NSString *lastName;
-@property (nonatomic, strong) NSString *phoneNumber;
-@property (nonatomic, strong) NSString *birthDay;
-@property (nonatomic, strong) NSString *gender;
-@property (nonatomic, strong) NSString *urlThumbnail;
-@property (nonatomic, strong) NSString *urlAvatar;
-@property (nonatomic, strong) UIImage  *avatar;
-@property (nonatomic, strong) UIImage  *thumbnail;;
-@property (nonatomic, strong) NSData   *dataAvatar;
-
-@property (nonatomic, strong) NSString *accessKey;
-@property (nonatomic        ) CGFloat  leftAvatar;
-@property (nonatomic        ) CGFloat  topAvatar;
-@property (nonatomic        ) CGFloat  widthAvatar;
-@property (nonatomic        ) CGFloat  heightAvatar;
-@property (nonatomic        ) CGFloat  scaleAvatar;
-@property (nonatomic, strong) NSString  *timeServer;
-@property (nonatomic) NSInteger         keySendMessenger;
+@property (nonatomic        ) int       userID;
+@property (nonatomic        ) int       statusUser;
+@property (nonatomic, copy  ) NSString  *nickName;
+@property (nonatomic, copy  ) NSString  *firstname;
+@property (nonatomic, copy  ) NSString  *lastName;
+@property (nonatomic, copy  ) NSString  *phoneNumber;
+@property (nonatomic, copy  ) NSString  *birthDay;
+@property (nonatomic, copy  ) NSString  *gender;
+@property (nonatomic, copy  ) NSString  *urlThumbnail;
+@property (nonatomic, copy  ) NSString  *urlAvatar;
+@property (nonatomic, strong) UIImage   *avatar;
+@property (nonatomic, strong) UIImage   *thumbnail;;
+@property (nonatomic, copy  ) NSString  *accessKey;
+@property (nonatomic        ) CGFloat   leftAvatar;
+@property (nonatomic        ) CGFloat   topAvatar;
+@property (nonatomic        ) CGFloat   widthAvatar;
+@property (nonatomic        ) CGFloat   heightAvatar;
+@property (nonatomic        ) CGFloat   scaleAvatar;
+@property (nonatomic, copy  ) NSString  *timeServer;
+@property (nonatomic        ) NSInteger keySendMessenger;
+@property (nonatomic        ) int       countPosts;
+@property (nonatomic        ) int       isPublic;
 @end
