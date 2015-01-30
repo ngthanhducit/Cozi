@@ -27,9 +27,9 @@
     
 //    self.storeIns = [Store shareInstance];
     
-    self.itemInsets = UIEdgeInsetsMake(5.0f, 5.0f, 5.0f, 5.0f);
+    self.itemInsets = UIEdgeInsetsMake(0.0f, 1.0f, 0.0f, 1.0f);
     self.itemSize = CGSizeMake(100.0f, 100.0f);
-    self.interItemSpacingY = 5.0f;
+    self.interItemSpacingY = 0.0f;
     self.numberOfColumns = 3;
 }
 
@@ -45,17 +45,17 @@
         _columnResult = _columnFlood;
     }
     
-    CGFloat widthCell = (self.bounds.size.width / _columnResult) - 25;
+    CGFloat widthCell = (self.bounds.size.width / _columnResult);
     widthCell = widthCell < 100 ? 100 : widthCell;
     
     self.itemSize = CGSizeMake(widthCell, widthCell);
     
-    SCNoiseCollectionViewLayout *layout = [[SCNoiseCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:3];
+    SCNoiseCollectionViewLayout *layout = [[SCNoiseCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:_columnResult];
     
     self.scCollection = [[SCNoiseCollectionView alloc] initWithFrame: CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height) collectionViewLayout:layout];
-    
-    [self.scCollection setShowsHorizontalScrollIndicator:NO];
-    [self.scCollection setShowsVerticalScrollIndicator:NO];
+
+    [self.scCollection setShowsHorizontalScrollIndicator:YES];
+    [self.scCollection setShowsVerticalScrollIndicator:YES];
     [self.scCollection setBackgroundColor:[UIColor clearColor]];
     [self addSubview:self.scCollection];
 }

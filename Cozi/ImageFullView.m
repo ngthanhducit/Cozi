@@ -39,13 +39,53 @@
     imageList = [[NSMutableArray alloc] init];
 }
 
-- (void) initWithData:(UIImage *)_img{
+- (void) initWithUrl:(NSURL *)_urlImage{
+    urlImage = _urlImage;
+    
     self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
     [self.mainScroll setMinimumZoomScale:1.0];
     [self.mainScroll setMaximumZoomScale:5.0];
     [self.mainScroll setContentSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height - 40)];
     [self.mainScroll setDelegate:self];
     
+    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:_urlImage options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        
+    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+        if (image && finished) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.imageView = [[UIImageView alloc] initWithImage:image];
+                
+                [self.imageView setFrame:CGRectMake(0, 0, self.mainScroll.bounds.size.width, image.size.height / 2)];
+                [self.mainScroll addSubview:self.imageView];
+                CGPoint centerPoint = CGPointMake(CGRectGetMidX(self.mainScroll.bounds),
+                                                  CGRectGetMidY(self.mainScroll.bounds));
+                
+                [self view:self.imageView setCenter:centerPoint];
+                
+                [self addSubview:self.mainScroll];
+            });
+        }
+    }];
+    
+    UIButton *btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnClose setTitle:@"CLOSE" forState:UIControlStateNormal];
+    [btnClose.titleLabel setFont:[helperIns getFontLight:15]];
+    [btnClose setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    [btnClose setFrame:CGRectMake(0, self.bounds.size.height - 40, self.bounds.size.width, 40)];
+    
+    [btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+    [btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+    [btnClose addTarget:self action:@selector(closeImage) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self addSubview:btnClose];
+}
+
+- (void) initWithData:(UIImage *)_img{
+    self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
+    [self.mainScroll setMinimumZoomScale:1.0];
+    [self.mainScroll setMaximumZoomScale:5.0];
+    [self.mainScroll setContentSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height - 40)];
+    [self.mainScroll setDelegate:self];
     
     self.imageView = [[UIImageView alloc] initWithImage:_img];
     if (_img.size.width > _img.size.height) {
@@ -75,8 +115,8 @@
     [self addSubview:btnClose];
 }
 
-- (void)view:(UIView*)view setCenter:(CGPoint)centerPoint
-{
+- (void)view:(UIView*)view setCenter:(CGPoint)centerPoint{
+    
     CGRect vf = view.frame;
     CGPoint co = self.mainScroll.contentOffset;
     
@@ -147,6 +187,9 @@
 }
 
 - (void) closeImage{
+    //remove cache image
+    [SDImageCache.sharedImageCache removeImageForKey:[urlImage absoluteString]];
+
     [self removeFromSuperview];
 }
 @end

@@ -44,7 +44,6 @@
     [self.btnMood.titleLabel  setFont:[helperIns getFontLight:12.0f]];
     
     [self centerVerticalWithPading:5.0f withButton:self.btnMood];
-//    [self.btnMood.titleLabel setTextAlignment:NSTextAlignmentCenter];
     
     [self.vMenuShare addSubview:self.btnMood];
 

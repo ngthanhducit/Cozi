@@ -8,18 +8,22 @@
 
 #import <UIKit/UIKit.h>
 #import "Helper.h"
+#import "UIImageView+WebCache.h"
+#import "SDImageCache.h"
 
 @interface ImageFullView : UIView <UIScrollViewDelegate>
 {
     NSMutableArray                  *imageList;
     int                             pageIndex;
     Helper                          *helperIns;
+    NSURL                           *urlImage;
 }
 
 @property (nonatomic, strong) UIScrollView            *mainScroll;
 //@property (nonatomic, weak) UIScrollView            *imgScroll;
 @property (nonatomic, strong) UIImageView             *imageView;
 
+- (void) initWithUrl:(NSURL*)_urlImage;
 - (void) initWithData:(UIImage *)_img;
 - (void) initWithData:(NSMutableArray*)_imgList withIndexSelect:(int)_index;
 @end

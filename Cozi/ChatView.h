@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SCMessageTableView.h"
+#import "SCMessageTableViewV2.h"
 #import "SCTextField.h"
 #import "Store.h"
 #import "NetworkCommunication.h"
@@ -23,8 +23,9 @@
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
 #import "ImageLibraryViewController.h"
+#import "SCChatToolKitView.h"
 
-@interface ChatView : SwapView <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, SCMessageTableViewDelegate, UIScrollViewDelegate, HPGrowingTextViewDelegate,UIGestureRecognizerDelegate>
+@interface ChatView : SwapView <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, SCMessageTableViewDelegate, HPGrowingTextViewDelegate, UITextViewDelegate>
 {
     BOOL                isShowPanel;
     BOOL                isShowKeyboar;
@@ -50,14 +51,15 @@
     UIButton            *btnShowLibrary;
 }
 
+@property (nonatomic, strong) SCChatToolKitView     *chatToolKit;
 @property (nonatomic, strong) Store                *storeIns;
 @property (nonatomic, strong) Helper               *helperIns;
 @property (nonatomic, strong) NetworkCommunication *networkIns;
 @property (nonatomic, strong) DataMap              *dataMapIns;
 @property (nonatomic, strong) Friend               *friendIns;
 
-@property (nonatomic, strong) SCMessageTableView   *tbView;
-@property (nonatomic, strong) UIView               *messageView;
+@property (nonatomic, strong) SCMessageTableViewV2   *tbView;
+//@property (nonatomic, strong) UIView               *messageView;
 //@property (nonatomic, strong) SCTextField          *scTextChat;
 @property (nonatomic, strong) HPGrowingTextView          *hpTextChat;
 @property (nonatomic, strong) UIView               *viewSendMessage;
@@ -65,7 +67,7 @@
 @property (nonatomic, strong) UIButton             *btnTakePhoto;
 @property (nonatomic, strong) UIButton             *btnPhoto;
 @property (nonatomic, strong) UIButton             *btnLocation;
-@property (nonatomic, strong) UIButton             *btnSend;
+//@property (nonatomic, strong) UIButton             *btnSend;
 @property (nonatomic, strong) UIView               *viewToolKit;
 
 @property (nonatomic, strong) UIImageView               *imgViewAvatar;
@@ -77,8 +79,9 @@
 - (NSData*) getImgDataSend;
 - (void) addFriendIns:(Friend*)_friendInstance;
 - (void) reloadFriend;
-- (void) initFriendInfo:(Friend *)_myFriend;
+//- (void) initFriendInfo:(Friend *)_myFriend;
 - (void) autoScrollTbView;
 - (void) initLibraryImage;
 - (void) resetCamera;
+- (void) resetUI;
 @end
