@@ -11,7 +11,7 @@
 #import "Helper.h"
 #import "Store.h"
 #import "DataWall.h"
-
+#import "SDWebImage/UIImageView+WebCache.h"
 
 static NSString * const NoiseCellIdentifier = @"PhotoCell";
 @interface SCNoiseCollectionView : UICollectionView <UICollectionViewDataSource, UICollectionViewDelegate>
@@ -19,7 +19,11 @@ static NSString * const NoiseCellIdentifier = @"PhotoCell";
     Store                       *storeIns;
     Helper                      *helperIns;
     UIRefreshControl            *refresh;
+    NSMutableArray              *items;
+    int                         type;
+    BOOL                        isEndData;
 }
 
-- (void) stopLoadNoise;
+- (void) initData:(NSMutableArray*)_data withType:(int)_type;
+- (void) stopLoadNoise:(BOOL)_isEnd;
 @end

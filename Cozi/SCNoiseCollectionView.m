@@ -25,10 +25,6 @@ static NSString * const reuseIdentifier = @"Cell";
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
     
-    refresh = [[UIRefreshControl alloc] init];
-    [refresh addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
-    [self addSubview:refresh];
-    
     // Register cell classes
     [self registerClass:[SCNoiseCollectionViewCell class] forCellWithReuseIdentifier:NoiseCellIdentifier];
     [self setDelegate:self];
@@ -38,10 +34,25 @@ static NSString * const reuseIdentifier = @"Cell";
     [self setAlwaysBounceVertical:YES];
 }
 
+- (void) initData:(NSMutableArray*)_data withType:(int)_type{
+    if (type == 0) {
+        refresh = [[UIRefreshControl alloc] init];
+        [refresh addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
+        [self addSubview:refresh];
+    }
+    
+    items = _data;
+    type = _type;
+}
+
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return [storeIns.noises count];
+    if (type == 0) {
+        return [storeIns.noises count];
+    }else{
+        return [items count];
+    }
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -53,23 +64,43 @@ static NSString * const reuseIdentifier = @"Cell";
     SCNoiseCollectionViewCell *scCell = [collectionView dequeueReusableCellWithReuseIdentifier:NoiseCellIdentifier
                                                                                   forIndexPath:indexPath];
     [scCell setBackgroundColor:[UIColor grayColor]];
-    
-    DataWall *_noise = [storeIns.noises objectAtIndex:indexPath.section];
-    
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-//        __block UIImage *img = [[UIImage alloc] initWithData:_noise.imgData];
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [scCell.imgView setImage:img];
-//            img = nil;
-//        });
-//    });
+    __weak DataWall *_noise;
+    if (type == 0) {
+        _noise = [storeIns.noises objectAtIndex:indexPath.section];
+        
+        if (indexPath.section == ([storeIns.noises count] - 4)) {
+            NSLog(@"load more noise");
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"loadMoreNoise" object:nil];
+        }
+    }else{
+        _noise = [items objectAtIndex:indexPath.section];
+    }
     
     [scCell.imgView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.imgView setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
     [scCell.imgView setContentMode:UIViewContentModeScaleAspectFill];
     [scCell.imgView setAutoresizingMask:UIViewAutoresizingNone];
     [scCell.imgView setClipsToBounds:YES];
-    [scCell.imgView setImage:_noise.thumb];
+    
+//    if (_noise.thumb) {
+//        
+//        [scCell.imgView setImage:_noise.thumb];
+//        
+//    }else{
+//        
+//        //Set default image
+//        
+//        [[[AsyncImageDownloader alloc] initWithMediaURL:_noise.urlThumb successBlock:^(UIImage *image) {
+//            
+//            [_noise setThumb:image];
+//            [scCell.imgView setImage:image];
+//            
+//        } failBlock:^(NSError *error) {
+//            
+//        }] startDownload];
+//    }
+    
+    [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_noise.urlThumb] placeholderImage:[UIImage imageNamed:@"placeholder"]];
     
     [scCell.shadowImage setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.shadowImage setBackgroundColor:[UIColor whiteColor]];
@@ -82,14 +113,33 @@ static NSString * const reuseIdentifier = @"Cell";
 
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    SCNoiseCollectionViewCell *scCell = (SCNoiseCollectionViewCell*)[self cellForItemAtIndexPath:indexPath];
-    
+    DataWall *_noise;
+    if (type == 0) {
+        _noise = [storeIns.noises objectAtIndex:indexPath.section];
+        
+        NSString *key = @"selectNoise";
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_noise forKey:key];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"selectNoiseNotification" object:nil userInfo:dictionary];
+        
+    }else{
+        _noise = [items objectAtIndex:indexPath.section];
+        
+        NSString *key = @"selectMyNoise";
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_noise forKey:key];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"selectMyNoiseNotification" object:nil userInfo:dictionary];
+
+    }
 }
 
-- (void) stopLoadNoise{
-    
+- (void) stopLoadNoise:(BOOL)_isEnd{
+    isEndData = _isEnd;
     [refresh endRefreshing];
     
+    if (!isEndData) {
+        [self reloadData];
+    }
 }
 
 - (void) handleRefresh:(id)sender{
