@@ -20,6 +20,7 @@
 }
 
 - (void) setupVariable{
+    isOnTick = YES;
     spacing = 10;
     bottomSpacing = 50;
     deltaWithStatus = 60;
@@ -31,21 +32,10 @@
     
     [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setUserInteractionEnabled:YES];
-    [self setShowsHorizontalScrollIndicator:NO];
-    [self setShowsVerticalScrollIndicator:NO];
-//    [self setAllowsSelection:NO];
+//    [self setShowsHorizontalScrollIndicator:NO];
+//    [self setShowsVerticalScrollIndicator:NO];
     [self setDelegate:self];
     [self setDataSource:self];
-    
-    refreshControl = [[UIRefreshControl alloc] init];
-    [refreshControl addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
-    [self addSubview:refreshControl];
-    
-    spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    [spinner stopAnimating];
-    spinner.hidesWhenStopped = NO;
-    spinner.frame = CGRectMake(0, 0, 320, 44);
-    self.tableFooterView = spinner;
     
     self.bounces = YES;
     self.alwaysBounceVertical = YES;
@@ -53,11 +43,38 @@
     NSTimer *_timerTick = [[NSTimer alloc] initWithFireDate:storeIns.timeServer interval:1.0f target:self selector:@selector(onTick:) userInfo:nil repeats:YES];
     NSRunLoop *runner = [NSRunLoop currentRunLoop];
     [runner addTimer:_timerTick forMode:NSDefaultRunLoopMode];
+
+}
+
+- (void) initWithData:(NSMutableArray *)_data withType:(int)_type{
+    if (_type == 1) {
+        self.tableFooterView = nil;
+        self.tableHeaderView = nil;
+    }else{
+        refreshControl = [[UIRefreshControl alloc] init];
+        [refreshControl addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
+        [self addSubview:refreshControl];
+        
+        spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        [spinner stopAnimating];
+        spinner.hidesWhenStopped = NO;
+        spinner.frame = CGRectMake(0, 0, 320, 44);
+        self.tableFooterView = spinner;
+        
+
+    }
+    
+    items = _data;
+    type = _type;
 }
 
 #pragma -mark UITableView Delegate
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
-    return [storeIns.walls count];
+    if (type == 0) {
+        return [storeIns.walls count];
+    }else{
+        return [items count];
+    }
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
@@ -68,157 +85,23 @@
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     
-//    return [storeIns.walls count];
     return 1;
 }
 
 - (UIView *) tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    DataWall *_wall = [storeIns.walls objectAtIndex:section];
+    __weak DataWall *_wall;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:section];
+    }else{
+        _wall = [items objectAtIndex:section];
+    }
+
     SCHeaderFooterView *header = [[SCHeaderFooterView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
     [header initWithData:_wall withSection:section];
-    return header;
     
-//    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
-//    [view setBackgroundColor:[[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:1] colorWithAlphaComponent:0.8]];
-////    [view setBackgroundColor:[UIColor whiteColor]];
-////    [view setAlpha:0.9];
-//    
-////    view.layer.shadowColor = [UIColor blackColor].CGColor;
-////    view.layer.shadowOffset = CGSizeMake(0, 1);
-////    view.layer.shadowOpacity = 1;
-////    view.layer.shadowRadius = 1.0;
-//    
-//    UIImageView *imgAvatar = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, 30, 30)];
-//    [imgAvatar setContentMode:UIViewContentModeScaleAspectFill];
-//    [imgAvatar setAutoresizingMask:UIViewAutoresizingNone];
-//    imgAvatar.layer.borderWidth = 0.0f;
-//    [imgAvatar setClipsToBounds:YES];
-//    imgAvatar.layer.cornerRadius = CGRectGetHeight(imgAvatar.frame)/2;
-//    
-//    [view addSubview:imgAvatar];
-//    
-//    DataWall *_wall = [storeIns.walls objectAtIndex:section];
-//    
-//    Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
-//    if (_friend) {
-//        _wall.fullName = _friend.nickName;
-//        [imgAvatar setImage:_friend.thumbnail];
-//    }else{
-//        
-//        _wall.fullName = storeIns.user.nickName;
-//        [imgAvatar setImage:storeIns.user.thumbnail];
-//    }
-//
-//    //calculation height cell + spacing top and bottom
-//    CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
-//    CGSize sizeFullName = { 0 , 0 };
-//    CGSize sizeLocation = { 0, 0 };
-//    
-//    if (_wall.longitude != 0 || _wall.latitude != 0) {
-//        
-//        /* Create custom view to display section header... */
-//        
-//        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-//        
-//        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
-//        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-//        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-//        [lblFullName setTextColor:[UIColor blackColor]];
-//        [lblFullName setBackgroundColor:[UIColor clearColor]];
-//        
-//        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-//        /* Section header is in 0th index... */
-//        
-//        [lblFullName setText:[string uppercaseString]];
-//        
-//        [view addSubview:lblFullName];
-//
-//        NSString *strLocation = @"LONDON";
-//        sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
-//        
-//        UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
-////        [imgLocation setBackgroundColor:[UIColor redColor]];
-//        [imgLocation setFrame:CGRectMake(50, 25, 10, 10)];
-//        [imgLocation setContentMode:UIViewContentModeScaleAspectFill];
-//        [view addSubview:imgLocation];
-//        
-//        UILabel *lblLocation = [[UILabel alloc] initWithFrame:CGRectMake(60, 25, sizeLocation.width, 10)];
-//        [lblLocation setText:strLocation];
-//        [lblLocation setFont:[helperIns getFontLight:10.0f]];
-//        [view addSubview:lblLocation];
-//        
-//    }else{
-//        /* Create custom view to display section header... */
-//        
-//        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-//        
-//        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
-//        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-//        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-//        [lblFullName setTextColor:[UIColor blackColor]];
-//        [lblFullName setBackgroundColor:[UIColor clearColor]];
-//        
-//        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-//        /* Section header is in 0th index... */
-//        
-//        [lblFullName setText:[string uppercaseString]];
-//        
-//        [view addSubview:lblFullName];
-//    }
-//    
-//    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
-//    NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
-//    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
-//    
-//    NSTimeInterval deltaWall = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
-//    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-//    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
-//                                                        fromDate:_dateTimeMessage
-//                                                          toDate:[NSDate date]
-//                                                         options:0];
-//    
-//    NSString *timeAgo = @"";
-//    NSInteger w = [components week];
-//    if (w <= 0) {
-//        NSInteger d = [components day];
-//        if (d <= 0) {
-//            NSInteger h = components.hour;
-//            if (h <=0) {
-//                NSInteger m = [components minute];
-//                if (m <= 0) {
-//                    NSInteger s = [components second];
-//                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
-//                }else{
-//                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
-//                }
-//            }else{
-//                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
-//            }
-//        }else{
-//            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
-//        }
-//    }else{
-//        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
-//    }
-//
-//    timeAgo = _wall.time;
-//    
-//    CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-//    
-//    UILabel *lblTime = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20), 20 - (sizeFullName.height / 2), sizeTime.width + 10, sizeTime.height)];
-//    [lblTime setBackgroundColor:[UIColor clearColor]];
-//    [lblTime setTextColor:[UIColor blackColor]];
-//    [lblTime setText:timeAgo];
-//    [lblTime setTag:2004];
-//    [lblTime setFont:[helperIns getFontLight:13.0f]];
-//    
-//    [view addSubview:lblTime];
-//    
-//    UIImageView *imgClock = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-ClockGreen.svg"]];
-//    [imgClock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
-//    [view addSubview:imgClock];
-//    
-//    return view;
+    NSString *_timeCountDown = [self calTimeCoundDown:_wall.time];
+    [header.lblTime setText:_timeCountDown];
+    return header;
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -230,15 +113,20 @@
 
 - (UITableViewCell*) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
 
-    static NSString *CellIdentifier = @"Cell";
+    static NSString *CellIdentifier = @"CellWall";
     SCWallTableViewCellV2 *scCell = nil;
     
     scCell = (SCWallTableViewCellV2*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    DataWall *_wall = [storeIns.walls objectAtIndex:indexPath.section];
+    __weak DataWall *_wall;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:indexPath.section];
+    }else{
+        _wall = [items objectAtIndex:indexPath.section];
+    }
     
     if (scCell == nil) {
-        scCell = [[SCWallTableViewCellV2 alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        scCell = [[SCWallTableViewCellV2 alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
     [scCell.btnMore setTag:indexPath.section];
@@ -250,46 +138,23 @@
     [scCell.btnComment setTag:2000 + indexPath.section];
     [scCell.btnComment addTarget:self action:@selector(btnComment:) forControlEvents:UIControlEventTouchUpInside];
     
+    [scCell.vAllComment setTag:3000 + indexPath.section];
+    
     if (_wall.isLike) {
         [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     }else{
         [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
     }
     
-    if (_wall.typePost == 0) {
+    if (_wall.codeType == 1) {  //image and text
+        [scCell.vImages setHidden:NO];
         
-        //post with image and caption
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-//            __block UIImage *img = [[UIImage alloc] initWithData:_wall.imgData];
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                
-//                [scCell.imgView setImage:img];
-//                img = nil;
-//                [scCell.spinner setHidden:YES];
-//                [scCell.spinner stopAnimating];
-//                
-//            });
-//        });
-        
-        [scCell.imgView setImage:[_wall.images lastObject]];
-        
+        [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_wall.urlFull] placeholderImage:[UIImage imageNamed:@"placeholder"] options:SDWebImageRefreshCached];
+
         CGFloat heightMain = [self calculationHeightRow:indexPath.section];
         
         [scCell.mainView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, heightMain)];
         [scCell.mainView setBackgroundColor:[UIColor whiteColor]];
-        
-        //set header scCell with fullname and avatar
-        //==========HEADER========
-        Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
-        if (_friend) {
-            _wall.fullName = _friend.nickName;
-            
-            scCell.imgAvatar.image = _friend.thumbnail;
-        }else{
-            
-            _wall.fullName = storeIns.user.nickName;
-            scCell.imgAvatar.image = storeIns.user.thumbnail;
-        }
         
         [scCell setWallData:_wall];
         
@@ -302,9 +167,8 @@
         
         //calculation height cell + spacing top and bottom
         CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
-        CGSize sizeStatus = { 0 , 0 };
-        sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
-        
+        CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+
         if (sizeStatus.height < 40) {
             sizeStatus.height = 40;
             [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
@@ -312,26 +176,31 @@
             [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
         }
         
-//        sizeStatus.height = sizeStatus.height < 40 ? 40 : sizeStatus.height;
+        sizeStatus.height = sizeStatus.height < 40 ? 40 : sizeStatus.height;
         
-        [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, 0, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
-        [scCell.lblStatus setBackgroundColor:[UIColor clearColor]];
-        [scCell.lblStatus setDelegate:self];
-        scCell.lblStatus.userInteractionEnabled = YES;
         //============LIKE===========
+        
+        [scCell.vLike setFrame:CGRectMake(0, scCell.vImages.bounds.size.height, self.bounds.size.width, scCell.vLike.bounds.size.height)];
         
         [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
         
-        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, scCell.vStatus.frame.origin.y + spacing, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height)];
+        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, scCell.vLike.frame.origin.y + scCell.vLike.bounds.size.height, scCell.vStatus.bounds.size.width, sizeStatus.height + spacing)];
+        [scCell.vStatus setBackgroundColor:[UIColor clearColor]];
         
-        //==========set hidden quotes
+        [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, spacing, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
+        [scCell.lblStatus setBackgroundColor:[UIColor clearColor]];
+        [scCell.lblStatus setDelegate:self];
+        scCell.lblStatus.userInteractionEnabled = YES;
+
+//        //==========set hidden quotes
         [scCell.bottomLike setHidden:NO];
         [scCell.imgQuotes setHidden:NO];
         [scCell.imgQuotesWhite setHidden:YES];
         [scCell.imgQuotesWhiteRight setHidden:YES];
-        
+
         //===========COMMENT=============
         if ([_wall.comments count] > 0) {
+            [scCell.vComment setHidden:NO];
             if ([_wall.comments count] > 4) {
                 [scCell.vAllComment setHidden:NO];
                 
@@ -343,6 +212,11 @@
                 [scCell.vComment setFrame:CGRectMake(scCell.vComment.frame.origin.x, scCell.vAllComment.frame.origin.y + scCell.vAllComment.bounds.size.height, scCell.vComment.bounds.size.width, heightComment)];
                 
                 [scCell.vTool setFrame:CGRectMake(0, scCell.vComment.frame.origin.y + scCell.vComment.bounds.size.height, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+                
+                UITapGestureRecognizer  *tapViewAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapViewAll setNumberOfTapsRequired:1];
+                [tapViewAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapViewAll];
             }else{
                 
                 [scCell.vAllComment setHidden:YES];
@@ -362,35 +236,15 @@
             
             [scCell.vTool setFrame:CGRectMake(0, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height + 10, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
         }
+    
+    }else if (_wall.codeType == 0){ //text only
         
-        //===========Waiting=======
-        if (![_wall.images count] > 0) {
-            [scCell.spinner setHidden:NO];
-            [scCell.spinner startAnimating];
-        }else{
-            [scCell.spinner setHidden:YES];
-            [scCell.spinner stopAnimating];
-        }
-        
-    }else{
+        [scCell.vImages setHidden:YES];
         
         CGFloat heightMain = [self calculationHeightRow:indexPath.section];
         
         [scCell.mainView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, heightMain)];
         [scCell.mainView setBackgroundColor:[UIColor whiteColor]];
-        
-        //set header scCell with fullname and avatar
-        //==========HEADER========
-        Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
-        if (_friend) {
-            _wall.fullName = _friend.nickName;
-            
-            scCell.imgAvatar.image = _friend.thumbnail;
-        }else{
-            
-            _wall.fullName = storeIns.user.nickName;
-            scCell.imgAvatar.image = storeIns.user.thumbnail;
-        }
         
         [scCell setWallData:_wall];
         
@@ -403,8 +257,7 @@
         
         //calculation height cell + spacing top and bottom
         CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
-        CGSize sizeStatus = { 0 , 0 };
-        sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+        CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
         
         if (sizeStatus.height < 60) {
             sizeStatus.height = 60;
@@ -471,7 +324,118 @@
         
         //===========Waiting=======
         [scCell.spinner setHidden:YES];
-        [scCell.spinner stopAnimating];
+//        [scCell.spinner stopAnimating];
+    }else if (_wall.codeType == 2){ //location
+      
+        NSString *strMap = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _wall.latitude, _wall.longitude, @"%7c" , _wall.latitude, _wall.longitude];
+
+        [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:strMap] placeholderImage:[UIImage imageNamed:@"placeholder"]];
+        
+        CGFloat heightMain = [self calculationHeightRow:indexPath.section];
+        
+        [scCell.mainView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, heightMain)];
+        [scCell.mainView setBackgroundColor:[UIColor whiteColor]];
+        
+        //set header scCell with fullname and avatar
+        //==========HEADER========
+        Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
+        if (_friend) {
+            _wall.fullName = _friend.nickName;
+            
+            scCell.imgAvatar.image = _friend.thumbnail;
+        }else{
+            
+            _wall.fullName = storeIns.user.nickName;
+            scCell.imgAvatar.image = storeIns.user.thumbnail;
+        }
+        
+        [scCell setWallData:_wall];
+        
+        //=========STATUS============
+        if (![_wall.content isEqualToString:@""]) {
+            NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, _wall.content];
+            [scCell setNickNameText:_wall.fullName];
+            [scCell setStatusText:_wall.content];
+            
+            [scCell setTextStatus];
+            
+            //calculation height cell + spacing top and bottom
+            CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
+            CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+            
+            if (sizeStatus.height < 40) {
+                sizeStatus.height = 40;
+                [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+            }else{
+                [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+            }
+            
+            [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, 0, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
+            [scCell.lblStatus setBackgroundColor:[UIColor clearColor]];
+            [scCell.lblStatus setDelegate:self];
+            scCell.lblStatus.userInteractionEnabled = YES;
+            
+            [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, scCell.vStatus.frame.origin.y + spacing, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height)];
+        }
+        
+        //============LIKE===========
+        
+        [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
+        
+        //==========set hidden quotes
+        [scCell.bottomLike setHidden:NO];
+        [scCell.imgQuotes setHidden:NO];
+        [scCell.imgQuotesWhite setHidden:YES];
+        [scCell.imgQuotesWhiteRight setHidden:YES];
+        
+        //===========View Distance==============
+        CGFloat yDistance = scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height;
+        
+        [scCell.vDistance setFrame:CGRectMake(0, yDistance , self.bounds.size.width, 60)];
+        [scCell.vDistance setBackgroundColor:[UIColor purpleColor]];
+        
+        //===========COMMENT=============
+        if ([_wall.comments count] > 0) {
+            if ([_wall.comments count] > 4) {
+                [scCell.vAllComment setHidden:NO];
+                
+                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vDistance.frame.origin.y + scCell.vDistance.bounds.size.height + spacingViewAllComment, scCell.lblViewAllComment.bounds.size.width, 40)];
+                [scCell.lblViewAllComment setText:[NSString stringWithFormat:@"View all %i comments", (int)[_wall.comments count]]];
+                
+                CGFloat heightComment = [self calculationHeightComemnt:indexPath.section];
+                
+                [scCell.vComment setFrame:CGRectMake(scCell.vComment.frame.origin.x, scCell.vAllComment.frame.origin.y + scCell.vAllComment.bounds.size.height, scCell.vComment.bounds.size.width, heightComment)];
+                
+                [scCell.vTool setFrame:CGRectMake(0, scCell.vComment.frame.origin.y + scCell.vComment.bounds.size.height, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+            }else{
+                
+                [scCell.vAllComment setHidden:YES];
+                
+                CGFloat heightComment = [self calculationHeightComemnt:indexPath.section];
+                
+                [scCell.vComment setFrame:CGRectMake(scCell.vComment.frame.origin.x, scCell.vDistance.frame.origin.y + scCell.vDistance.bounds.size.height, scCell.vComment.bounds.size.width, heightComment)];
+                
+                [scCell.vTool setFrame:CGRectMake(0, scCell.vComment.frame.origin.y + scCell.vComment.bounds.size.height + 10, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+            }
+            
+            [scCell renderComment];
+            
+        }else{
+            [scCell.vAllComment setHidden:YES];
+            [scCell.vComment setHidden:YES];
+            
+            [scCell.vTool setFrame:CGRectMake(0, scCell.vDistance.frame.origin.y + scCell.vDistance.bounds.size.height + 10, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+        }
+        
+        //===========Waiting=======
+        if (!_wall.imgMaps) {
+            [scCell.spinner setHidden:NO];
+            [scCell.spinner startAnimating];
+        }else{
+            [scCell.spinner setHidden:YES];
+            [scCell.spinner stopAnimating];
+        }
+        
     }
     
     return scCell;
@@ -488,12 +452,13 @@
             Friend *_friend = [storeIns getFriendByID:[query intValue]];
             
             if (_friend != nil) {
-                NSString *key = @"tapCellIndex";
+                NSString *key = @"tapFriend";
                 NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"postTapCellIndex" object:nil userInfo:dictionary];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+            }else{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
             }
-
-            NSLog(@"user post: %@", query);
+            
         } else if ([[url host] hasPrefix:@"show-tag"]) {
             /* load settings screen */
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -507,10 +472,9 @@
 - (void) handleRefresh:(id)sender{
     [self setContentOffset:CGPointMake(0.0f, -60.0f) animated:YES];
     [refreshControl beginRefreshing];
-    NSLog(@"change value");
+
     isEnd = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"loadNewWall" object:nil userInfo:nil];
-//    [refreshControl endRefreshing];
 }
 
 - (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
@@ -545,7 +509,7 @@
 }
 
 - (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-
+//    [self loadImagesForOnscreenRows];
 }
 
 - (void) stopLoadWall:(BOOL)_isEndData{
@@ -570,7 +534,6 @@
             
         });
     } completion:^(BOOL finished) {
-        [self setNeedsDisplay];
         [self reloadData];
     }];
 
@@ -584,14 +547,20 @@
  *  @return height row
  */
 - (CGFloat) calculationHeightRow:(NSInteger)indexPath{
-    DataWall *_wall = [storeIns.walls objectAtIndex:indexPath];
+    DataWall *_wall;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:indexPath];
+    }else{
+        _wall = [items objectAtIndex:indexPath];
+    }
     
     //calculation height cell + spacing top and bottom
     NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, _wall.content];
     CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
-    CGSize sizeStatus = { 0 , 0 };
+
     CGSize sizeComment = { 0, 0 };
-    sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    
+    CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
     //if size status < 40 then equal 40 else....
     sizeStatus.height = sizeStatus.height < 40 ? 40 : sizeStatus.height;
@@ -600,8 +569,9 @@
     CGFloat heightViewAllComment = 0;
     CGFloat heightVToolKit = 30;
     CGFloat heightImage = self.bounds.size.width;
+    CGFloat hDistance = 0;
     
-    if (_wall.typePost == 0) {
+    if (_wall.typePost == 1) {
         
         if ([_wall.comments count] > 0) {
             int max = 4;
@@ -626,7 +596,7 @@
             }
         }
         
-    }else if (_wall.typePost == 1){
+    }else if (_wall.typePost == 0){
         heightImage = 0;
         sizeStatus.height = sizeStatus.height < 60 ? 60 : sizeStatus.height;
         
@@ -642,9 +612,26 @@
         }else{
             spacingViewAllComment = 0;
         }
+    }else if (_wall.typePost == 2){
+        hDistance = 60;
+        sizeStatus.height = sizeStatus.height < 60 ? 60 : sizeStatus.height;
+        
+        if ([_wall.comments count] > 0) {
+            
+            sizeComment.height = [self calculationHeightComemnt:indexPath];
+            
+            if ([_wall.comments count] > 4) {
+                heightViewAllComment = 40;
+            }else{
+                spacingViewAllComment = 0;
+            }
+        }else{
+            spacingViewAllComment = 0;
+        }
+        
     }
     
-    CGFloat totalHeight = heightImage + heightLike + sizeStatus.height + sizeComment.height + heightViewAllComment + heightVToolKit + bottomSpacing + spacingViewAllComment;
+    CGFloat totalHeight = heightImage + heightLike + sizeStatus.height + sizeComment.height + heightViewAllComment + heightVToolKit + bottomSpacing + spacingViewAllComment + hDistance;
     
     return totalHeight;
 }
@@ -657,7 +644,12 @@
  *  @return height row
  */
 - (CGFloat) calculationHeightComemnt:(NSInteger)indexPath{
-    DataWall *_wall = [storeIns.walls objectAtIndex:indexPath];
+    DataWall *_wall;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:indexPath];
+    }else{
+        _wall = [items objectAtIndex:indexPath];
+    }
     
     //calculation height cell + spacing top and bottom
     CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
@@ -686,80 +678,92 @@
     return totalHeight;
 }
 
+- (void) stopStartOnTick:(BOOL)_isTick{
+    isOnTick = _isTick;
+}
+
 - (void) onTick:(id)sender{
-    
-    NSArray *paths = [self indexPathsForVisibleRows];
-    NSMutableSet *visibleCells = [NSMutableSet new];
-    for (NSIndexPath *path in paths) {
-        DataWall *_wall = [storeIns.walls objectAtIndex:path.section];
-        SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
+    if (isOnTick) {
+        NSArray *paths = [self indexPathsForVisibleRows];
         
-        NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
-        
-        NSDate *_endTimeMessage = [timeMessage dateByAddingTimeInterval:86400];
-        NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
-        
-        NSDate *newDate = [_endTimeMessage dateByAddingTimeInterval:deltaTime];
-        
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-        [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-        
-        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-        
-        NSDateComponents *todayComps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:_endTimeMessage];
-        
-        NSDateComponents *comps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:newDate];
-        
-        comps.minute = todayComps.minute;
-        comps.second = todayComps.second;
-        
-        NSDate *date = [calendar dateFromComponents:comps];
-
-        
-        NSTimeInterval countDownTime = [date timeIntervalSinceDate:[NSDate date]];
-        NSDate *countTime = [date dateByAddingTimeInterval:countDownTime];
-        
-        NSDate *fromDate;
-        NSDate *toDate;
-        
-        [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&fromDate
-                     interval:NULL forDate:[NSDate date]];
-        [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&toDate
-                     interval:NULL forDate:date];
-        
-        NSDateComponents *difference = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit)
-                                                   fromDate:fromDate toDate:toDate options:0];
-        
-        NSInteger h = [difference hour];
-        NSInteger m = [difference minute];
-        NSInteger s = [difference second];
-        
-//        NSLog(@"current date: %@ - server date: %@ - count down: %@", [dateFormatter stringFromDate:[NSDate date]], [dateFormatter stringFromDate:date], [dateFormatter stringFromDate:countTime]);
-        
-        NSString *sHour, *sMinute, *sSecond;
-        sHour = [NSString stringWithFormat:@"%i", h];
-        sMinute = [NSString stringWithFormat:@"%i", m];
-        sSecond = [NSString stringWithFormat:@"%i", s];
-        
-        if (s < 10) {
-            sSecond = [NSString stringWithFormat:@"0%i", s];
+        for (NSIndexPath *path in paths) {
+            DataWall *_wall;
+            if (type == 0) {
+                _wall = [storeIns.walls objectAtIndex:path.section];
+            }else{
+                _wall = [items objectAtIndex:path.section];
+            }
+            
+            NSString *_timeCountDown = [self calTimeCoundDown:_wall.time];
+            
+            SCHeaderFooterView *viewHeader = (SCHeaderFooterView*)[self headerViewForSection:path.section];
+            
+            viewHeader.lblTime.text = _timeCountDown;
+            
         }
-        
-        if (m < 10) {
-            sMinute = [NSString stringWithFormat:@"0%i", m];
-        }
-        
-        if (h < 10) {
-            sHour = [NSString stringWithFormat:@"0%i", h];
-        }
-        
-        SCHeaderFooterView *viewHeader = (SCHeaderFooterView*)[self headerViewForSection:path.section];
-
-//        viewHeader.lblTime.text = [helperIns convertNSDateToString:countTime withFormat:@"HH:mm:ss"];
-        viewHeader.lblTime.text = [NSString stringWithFormat:@"%@:%@:%@", sHour, sMinute, sSecond];
-        
     }
+}
+
+- (NSString*)calTimeCoundDown:(NSString*)strTime{
+    NSDate *timeMessage = [helperIns convertStringToDate:strTime];
+    
+    NSDate *_endTimeMessage = [timeMessage dateByAddingTimeInterval:86400];
+    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
+    
+    NSDate *newDate = [_endTimeMessage dateByAddingTimeInterval:deltaTime];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    NSDateComponents *todayComps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:_endTimeMessage];
+    
+    NSDateComponents *comps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:newDate];
+    
+    comps.minute = todayComps.minute;
+    comps.second = todayComps.second;
+    
+    NSDate *date = [calendar dateFromComponents:comps];
+    
+    
+//    NSTimeInterval countDownTime = [date timeIntervalSinceDate:[NSDate date]];
+//    NSDate *countTime = [date dateByAddingTimeInterval:countDownTime];
+    
+    NSDate *fromDate;
+    NSDate *toDate;
+    
+    [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&fromDate
+                 interval:NULL forDate:[NSDate date]];
+    [calendar rangeOfUnit:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit) startDate:&toDate
+                 interval:NULL forDate:date];
+    
+    NSDateComponents *difference = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit)
+                                               fromDate:fromDate toDate:toDate options:0];
+    
+    NSInteger h = [difference hour];
+    NSInteger m = [difference minute];
+    NSInteger s = [difference second];
+    
+    NSString *sHour, *sMinute, *sSecond;
+    sHour = [NSString stringWithFormat:@"%i", h];
+    sMinute = [NSString stringWithFormat:@"%i", m];
+    sSecond = [NSString stringWithFormat:@"%i", s];
+    
+    if (s < 10) {
+        sSecond = [NSString stringWithFormat:@"0%i", s];
+    }
+    
+    if (m < 10) {
+        sMinute = [NSString stringWithFormat:@"0%i", m];
+    }
+    
+    if (h < 10) {
+        sHour = [NSString stringWithFormat:@"0%i", h];
+    }
+    
+    return [NSString stringWithFormat:@"%@:%@:%@", sHour, sMinute, sSecond];
 }
 
 - (void) btnMore:(id)sender{
@@ -785,34 +789,66 @@
 - (void) btnLike:(id)sender{
     UIButton *btnLike = (UIButton*)sender;
     NSInteger _tagButton = btnLike.tag;
-    NSLog(@"button click like: %i", (int)_tagButton);
     
     NSArray *paths = [self indexPathsForVisibleRows];
     
     for (NSIndexPath *path in paths) {
         if (path.section == (_tagButton - 1000)) {
-            DataWall *_wall = [storeIns.walls objectAtIndex:(_tagButton - 1000)];
+            DataWall *_wall;
+            if (type == 0) {
+                _wall = [storeIns.walls objectAtIndex:(_tagButton - 1000)];
+            }else{
+                _wall = [items objectAtIndex:(_tagButton - 1000)];
+            }
+            
             if (!_wall.isLike) {
-                SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
                 
-                [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
-//                [_wall setIsLike:YES];
-//                [((DataWall*)[storeIns.walls objectAtIndex:(_tagButton - 1000)]) setIsLike:YES];
-                
+                [_wall setIsLike:YES];
                 [networkControllerIns addPostLike:_wall];
             }else{
-                SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:path];
                 
-                [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
                 [_wall setIsLike:NO];
-                [((DataWall*)[storeIns.walls objectAtIndex:(_tagButton - 1000)]) setIsLike:NO];
+                [networkControllerIns removePostLike:_wall];
             }
         }
     }
 }
 
 - (void) btnComment:(id)sender{
+    UIButton *btnComment = (UIButton*)sender;
+    NSInteger _tagButton = btnComment.tag - 2000;
+    DataWall *_wall ;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:_tagButton];
+    }else{
+        _wall = [items objectAtIndex:_tagButton];
+    }
     
+    if (_wall && _wall.userPostID > 0) {
+        NSString *key = @"tapCommentInfo";
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_wall forKey:key];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapComment" object:nil userInfo:dictionary];
+    }
+}
+
+- (void) tapViewAllComment:(UIGestureRecognizer*)recognizer{
+    UIView *viewAllComment = recognizer.view;
+    
+    NSInteger _tagComment = viewAllComment.tag - 3000;
+    DataWall *_wall ;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:_tagComment];
+    }else{
+        _wall = [items objectAtIndex:_tagComment];
+    }
+    
+    if (_wall && _wall.userPostID > 0) {
+        NSString *key = @"tapCommentInfo";
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_wall forKey:key];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapAllComment" object:nil userInfo:dictionary];
+    }
 }
 
 - (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
@@ -830,4 +866,5 @@
             break;
     }
 }
+
 @end

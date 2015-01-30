@@ -11,7 +11,7 @@
 @implementation SCWallTableViewCellV2
 
 @synthesize mainView;
-@synthesize vImages;
+@synthesize vImages = _vImages;
 @synthesize vLike;
 @synthesize vProfile;
 @synthesize vStatus;
@@ -22,6 +22,7 @@
 @synthesize vCommentButton;
 @synthesize btnLike;
 @synthesize btnComment;
+@synthesize vDistance;
 
 @synthesize imgAvatar;
 @synthesize imgView;
@@ -75,12 +76,27 @@
     storeIns = [Store shareInstance];
     
     widthBlock = self.bounds.size.width;
+    
+    //Init Image Default
+//    dImageLike = [helperIns getImageSVGContentFile:@"icon-LikeGreen"];
+//    dImageMore = [helperIns getImageSVGContentFile:@"icon-openMenuGreen"];
+//    dImageQuote = [helperIns getImageSVGContentFile:@"icon-QuoteGreen"];
+//    dImageQuoteWhite = [helperIns getImageSVGContentFile:@"icon-QuoteWhite"];
+//    dImageMoreComment = [helperIns getImageSVGContentFile:@"MoreCommentsGreen"];
+//    dIconLike = [helperIns getImageSVGContentFile:@"icon-LikeWhite"];
+    
+    dImageLike = [helperIns getImageFromSVGName:@"icon-LikeGreen.svg"];
+    dImageMore = [helperIns getImageFromSVGName:@"icon-openMenuGreen.svg"];
+    dImageQuote = [helperIns getImageFromSVGName:@"icon-QuoteGreen.svg"];
+    dImageQuoteWhite = [helperIns getImageFromSVGName:@"icon-QuoteWhite.svg"];
+    dImageMoreComment = [helperIns getImageFromSVGName:@"icon-MoreCommentsGreen.svg"];
+    dIconLike = [helperIns getImageFromSVGName:@"icon-LikeWhite.svg"];
 }
 
 - (void) setup{
     
     self.vImages = [[UIView alloc] initWithFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
-    [vImages setBackgroundColor:[UIColor clearColor]];
+    [_vImages setBackgroundColor:[UIColor clearColor]];
     
     self.imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
     [self.imgView setContentMode:UIViewContentModeScaleAspectFill];
@@ -100,9 +116,9 @@
     
     [self.vImages addSubview:self.spinner];
 
-    [self.mainView addSubview:vImages];
+    [self.mainView addSubview:_vImages];
 
-    self.vLike = [[UIView alloc] initWithFrame:CGRectMake(0, vImages.bounds.size.height + spacing, widthBlock, heightDefault)];
+    self.vLike = [[UIView alloc] initWithFrame:CGRectMake(0, _vImages.bounds.size.height + spacing, widthBlock, heightDefault)];
     [vLike setBackgroundColor:[UIColor clearColor]];
     
     self.bottomLike = [CALayer layer];
@@ -110,7 +126,7 @@
     [self.bottomLike setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.vLike.layer addSublayer:self.bottomLike];
 
-    UIImageView *imgLike = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LikeGreen.svg"]];
+    UIImageView *imgLike = [[UIImageView alloc] initWithImage:dImageLike];
     [imgLike setBackgroundColor:[UIColor clearColor]];
     [imgLike setFrame:CGRectMake(0, 5, sizeIconLeft.width, sizeIconLeft.height)];
     [vLike addSubview:imgLike];
@@ -123,31 +139,30 @@
     [vLike addSubview:self.lblLike];
     
     self.btnMore = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnMore setImage:[helperIns getImageFromSVGName:@"icon-openMenuGreen.svg"] forState:UIControlStateNormal];
+    [self.btnMore setImage:dImageMore forState:UIControlStateNormal];
     [self.btnMore setContentMode:UIViewContentModeCenter];
     [self.btnMore setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
     [self.vLike addSubview:self.btnMore];
 
     [self.mainView addSubview:vLike];
     
-    self.vStatus = [[UIView alloc] initWithFrame:CGRectMake(0, vImages.bounds.size.height + vLike.bounds.size.height + spacing, widthBlock, 18.5)];
+    self.vStatus = [[UIView alloc] initWithFrame:CGRectMake(0, _vImages.bounds.size.height + vLike.bounds.size.height + spacing, widthBlock, 18.5)];
     
-    self.imgQuotes = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-QuoteGreen.svg"]];
+    self.imgQuotes = [[UIImageView alloc] initWithImage:dImageQuote];
     [self.imgQuotes setBackgroundColor:[UIColor clearColor]];
     [self.imgQuotes setContentMode:UIViewContentModeScaleAspectFit];
     [self.imgQuotes setFrame:CGRectMake(0, -5, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotes];
     
-    self.imgQuotesWhite = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-QuoteWhite.svg"]];
+    self.imgQuotesWhite = [[UIImageView alloc] initWithImage:dImageQuoteWhite];
     [self.imgQuotesWhite setContentMode:UIViewContentModeScaleAspectFit];
     [self.imgQuotesWhite setFrame:CGRectMake(0, -5, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotesWhite];
     
-    self.imgQuotesWhiteRight = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-QuoteWhite.svg"]];
+    self.imgQuotesWhiteRight = [[UIImageView alloc] initWithImage:dImageQuoteWhite];
     [self.imgQuotesWhiteRight setContentMode:UIViewContentModeScaleAspectFit];
     [self.imgQuotesWhiteRight setFrame:CGRectMake(widthBlock - sizeIconLeft.width, 0, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotesWhiteRight];
-
 
     self.lblStatus = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, self.bounds.size.width - 60, 18.5)];
     [self.lblStatus setTextAlignment:NSTextAlignmentJustified];
@@ -171,11 +186,6 @@
     self.lblStatus.activeLinkAttributes = mutableActiveLinkAttributes;
     
     self.lblStatus.highlightedTextColor = [UIColor whiteColor];
-//    self.lblStatus.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
-//    self.lblStatus.shadowOffset = CGSizeMake(0.0f, 1.0f);
-//    self.lblStatus.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
-//    self.lblStatus.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
-//    self.lblStatus.highlightedShadowRadius = 1;
     self.lblStatus.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
     [self.lblStatus setFont:[helperIns getFontLight:14.0f]];
     
@@ -183,8 +193,8 @@
 
     [self.mainView addSubview:vStatus];
 
-    //View All Comment
-    self.vAllComment = [[UIView alloc] initWithFrame:CGRectMake(0, vImages.bounds.size.height + vLike.bounds.size.height + vStatus.bounds.size.height + spacing, widthBlock, heightDefault)];
+//    View All Comment
+    self.vAllComment = [[UIView alloc] initWithFrame:CGRectMake(0, _vImages.bounds.size.height + vLike.bounds.size.height + vStatus.bounds.size.height + spacing, widthBlock, heightDefault)];
     [self.mainView addSubview:self.vAllComment];
     
     CALayer *topLine = [CALayer layer];
@@ -197,11 +207,11 @@
     [bottomLine setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.vAllComment.layer addSublayer:bottomLine];
     
-    UIImageView *iconViewAllComment = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-MoreCommentsGreen.svg"]];
+    UIImageView *iconViewAllComment = [[UIImageView alloc] initWithImage:dImageMoreComment];
     [iconViewAllComment setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
     [self.vAllComment addSubview:iconViewAllComment];
     
-        //lblView All Comment
+    //lblView All Comment
     self.lblViewAllComment = [[UILabel alloc] initWithFrame:CGRectMake(iconViewAllComment.frame.origin.x - (widthBlock - 100), 0, widthBlock - 100, heightDefault)];
     [self.lblViewAllComment setTextAlignment:NSTextAlignmentRight];
     [self.lblViewAllComment setText:@"view all 70 comment"];
@@ -209,7 +219,7 @@
     [self.lblViewAllComment setTextColor:[UIColor grayColor]];
     [self.vAllComment addSubview:self.lblViewAllComment];
     
-    vComment = [[UIView alloc] initWithFrame:CGRectMake(0, vImages.bounds.size.height + lblViewAllComment.bounds.size.height + vLike.bounds.size.height + vStatus.bounds.size.height + spacing, widthBlock - 20, 0)];
+    vComment = [[UIView alloc] initWithFrame:CGRectMake(0, _vImages.bounds.size.height + lblViewAllComment.bounds.size.height + vLike.bounds.size.height + vStatus.bounds.size.height + spacing, widthBlock - 20, 0)];
 //    [vComment setBackgroundColor:[UIColor purpleColor]];
     [self.mainView addSubview:vComment];
  
@@ -224,7 +234,7 @@
     [self.btnLike setFrame:self.vLikeButton.bounds];
     [self.btnLike setTitle:@"LIKE" forState:UIControlStateNormal];
     [self.btnLike.titleLabel setFont:[helperIns getFontLight:13.0f]];
-    [self.btnLike setImage:[helperIns getImageFromSVGName:@"icon-LikeWhite.svg"] forState:UIControlStateNormal];
+    [self.btnLike setImage:dIconLike forState:UIControlStateNormal];
     [self.btnLike.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.btnLike setTitleEdgeInsets:UIEdgeInsetsMake(0, -30, 0, 0)];
     [self.vLikeButton addSubview:self.btnLike];
@@ -238,12 +248,15 @@
     [self.btnComment setFrame:self.vCommentButton.bounds];
     [self.btnComment setTitle:@"COMMENT" forState:UIControlStateNormal];
     [self.btnComment.titleLabel setFont:[helperIns getFontLight:13.0f]];
-    [self.btnComment setImage:[helperIns getImageFromSVGName:@"icon-QuoteWhite.svg"] forState:UIControlStateNormal];
+    [self.btnComment setImage:dImageQuoteWhite forState:UIControlStateNormal];
     [self.btnComment.imageView setContentMode:UIViewContentModeScaleAspectFit];
     [self.btnComment setTitleEdgeInsets:UIEdgeInsetsMake(0, -30, 0, 0)];
     [self.vCommentButton addSubview:self.btnComment];
     
     [self.mainView addSubview:vTool];
+    
+    self.vDistance = [[UIView alloc] initWithFrame:CGRectZero];
+    [self.mainView addSubview:vDistance];
 }
 
 - (void) setDataWall:(DataWall*)_wall{
@@ -315,7 +328,6 @@
     
     //calculation height cell + spacing top and bottom
     CGSize textSize = CGSizeMake(self.bounds.size.width - 40, 10000);
-    CGSize sizeComment = { 0, 0 };
 
     if ([self.wallData.comments count] > 0) {
         int max = 4;
@@ -324,12 +336,16 @@
             max = count;
         }
         
+        for (TTTAttributedLabel *comment in [self.vComment subviews]) {
+            [comment removeFromSuperview];
+        }
+        
         CGFloat y = 10;
         int count = (int)[self.wallData.comments count];
         for (int i = count - 1; i >= count - max; i--) {
 
-            PostComment *postComment = (PostComment*)[self.wallData.comments objectAtIndex:i];
-            UIImageView *imgAvatarComment = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"emptyAvatar.svg"]];
+            __weak PostComment *postComment = (PostComment*)[self.wallData.comments objectAtIndex:i];
+            UIImageView *imgAvatarComment = [[UIImageView alloc] init];
             [imgAvatarComment setBackgroundColor:[UIColor lightGrayColor]];
             [imgAvatarComment setFrame:CGRectMake(5, y, 30, 30)];
             [imgAvatarComment setContentMode:UIViewContentModeScaleAspectFill];
@@ -339,7 +355,7 @@
             imgAvatarComment.layer.cornerRadius = imgAvatarComment.bounds.size.height / 2;
             [self.vComment addSubview:imgAvatarComment];
 
-            Friend *_friend = [storeIns getFriendByID:postComment.userCommentId];
+            __weak Friend *_friend = [storeIns getFriendByID:postComment.userCommentId];
             if (_friend != nil) {
                 [imgAvatarComment setImage:_friend.thumbnail];
             }else{
@@ -349,10 +365,9 @@
             NSString *strFullName = [[NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName] uppercaseString];
             
             NSString *str = [NSString stringWithFormat:@"%@ %@", strFullName, postComment.contentComment];
-            sizeComment = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+            CGSize sizeComment = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
             
             TTTAttributedLabel *_lblComment = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacingComment, y, self.bounds.size.width - 45, sizeComment.height + 15)];
-//            [_lblComment setBackgroundColor:[UIColor grayColor]];
             [_lblComment setContentMode:UIViewContentModeCenter];
             [_lblComment setDelegate:self];
             _lblComment.font = [helperIns getFontLight:14.0f];
@@ -376,11 +391,6 @@
             _lblComment.activeLinkAttributes = mutableActiveLinkAttributes;
             
             _lblComment.highlightedTextColor = [UIColor whiteColor];
-//            _lblComment.shadowColor = [UIColor colorWithWhite:0.87f alpha:1.0f];
-//            _lblComment.shadowOffset = CGSizeMake(0.0f, 1.0f);
-//            _lblComment.highlightedShadowColor = [UIColor colorWithWhite:0.0f alpha:0.25f];
-//            _lblComment.highlightedShadowOffset = CGSizeMake(0.0f, -1.0f);
-//            _lblComment.highlightedShadowRadius = 1;
             _lblComment.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
             [_lblComment setFont:[helperIns getFontLight:14.0f]];
             
@@ -392,7 +402,7 @@
             y += sizeComment.height + 20;
             
             NSRange r = [str rangeOfString:[[NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName] uppercaseString]];
-            NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", self.wallData.userPostID];
+            NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", postComment.userCommentId];
             strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
             [_lblComment addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
             
@@ -405,6 +415,29 @@
 }
 
 - (void) attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
-    NSLog(@"test");
+    if ([[url scheme] hasPrefix:@"action"]) {
+        if ([[url host] hasPrefix:@"show-profile"]) {
+            //             load help screen
+            NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            
+            Friend *_friend = [storeIns getFriendByID:[query intValue]];
+            
+            if (_friend != nil) {
+                NSString *key = @"tapFriend";
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+            }else{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+            }
+            
+        } else if ([[url host] hasPrefix:@"show-tag"]) {
+            /* load settings screen */
+            NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSLog(@"Click Tag %@", query);
+        }
+    } else {
+        /* deal with http links here */
+    }
 }
+
 @end

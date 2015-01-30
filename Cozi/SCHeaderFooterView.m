@@ -21,13 +21,10 @@
     return self;
 }
 
-- (void) drawRect:(CGRect)rect{
-    
-}
-
 - (void) initVariable{
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
+    imgClock = [helperIns getImageFromSVGName:@"icon-ClockGreen.svg"];
 }
 
 - (void) initWithData:(DataWall*)_data withSection:(NSInteger)section{
@@ -44,22 +41,24 @@
     
     [view addSubview:imgAvatar];
     
-    DataWall *_wall = [storeIns.walls objectAtIndex:section];
+    __weak DataWall *_wall = _data;
     
-    Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
+    __weak Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
     if (_friend) {
         _wall.fullName = _friend.nickName;
-        [imgAvatar setImage:_friend.thumbnail];
+        __weak UIImage *imgFriendThumb = _friend.thumbnail;
+        [imgAvatar setImage:imgFriendThumb];
     }else{
         
         _wall.fullName = storeIns.user.nickName;
-        [imgAvatar setImage:storeIns.user.thumbnail];
+        __weak UIImage *useThumbnail = storeIns.user.thumbnail;
+        [imgAvatar setImage:useThumbnail];
     }
     
     //calculation height cell + spacing top and bottom
     CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
-    CGSize sizeFullName = { 0 , 0 };
-    CGSize sizeLocation = { 0, 0 };
+    CGSize sizeFullName ;
+    CGSize sizeLocation ;
     
     if (_wall.longitude != 0 || _wall.latitude != 0) {
         
@@ -73,14 +72,14 @@
         [lblFullName setTextColor:[UIColor blackColor]];
         [lblFullName setBackgroundColor:[UIColor clearColor]];
         
-        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
+        __weak NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
         /* Section header is in 0th index... */
         
         [lblFullName setText:[string uppercaseString]];
         
         [view addSubview:lblFullName];
         
-        NSString *strLocation = @"LONDON";
+        __weak NSString *strLocation = @"LONDON";
         sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
         
         UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
@@ -117,7 +116,6 @@
     NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
     NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
     
-    NSTimeInterval deltaWall = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
     NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
                                                         fromDate:_dateTimeMessage
@@ -148,8 +146,7 @@
         timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
     }
     
-    NSDate *_timeHeader = [helperIns convertStringToDate:_wall.time];
-    timeAgo = [helperIns convertNSDateToString:_timeHeader withFormat:@"HH:mm:ss"];
+    timeAgo = [helperIns convertNSDateToString:timeMessage withFormat:@"HH:mm:ss"];
     
     CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
     
@@ -159,12 +156,11 @@
     [self.lblTime setText:timeAgo];
     [self.lblTime setFont:[helperIns getFontLight:13.0f]];
     
-    NSLog(@"set time: %@", self.lblTime.text);
     [view addSubview:self.lblTime];
     
-    UIImageView *imgClock = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-ClockGreen.svg"]];
-    [imgClock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
-    [view addSubview:imgClock];
+    UIImageView *clock = [[UIImageView alloc] initWithImage:imgClock];
+    [clock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
+    [view addSubview:clock];
     
     [self addSubview:view];
 }
