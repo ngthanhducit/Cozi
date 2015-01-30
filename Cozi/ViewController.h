@@ -21,10 +21,6 @@
 #import "MainPageV6.h"
 #import "ChatView.h"
 #import "PersonContact.h"
-#import "Wall.h"
-#import "WallItem.h"
-#import "WallV6.h"
-#import "WallV6Item.h"
 #import "HPGrowingTextView.h"
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
@@ -36,7 +32,6 @@
 #import "GPUImageGrayscaleFilter.h"
 #import "DataWall.h"
 #import "SCSearchBar.h"
-#import "SCWallTableView.h"
 #import "SCWallTableViewV2.h"
 #import "NoisesPage.h"
 #import "NetworkController.h"
@@ -44,9 +39,14 @@
 #import "SCPostViewController.h"
 #import "SCPostPhotoViewController.h"
 #import "SCPostLocationViewController.h"
+#import "SCMoodPostViewController.h"
 #import "AmazonInfoPost.h"
+#import "SCProfileViewController.h"
+#import "SCFriendProfileViewController.h"
+#import "SCSinglePostViewController.h"
+#import "SCCommentViewController.h"
 
-@interface ViewController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate>
+@interface ViewController : UIViewController <UIScrollViewDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 {
     BOOL                                        isEndScroll;
     BOOL                                        isValidCondition;
@@ -56,7 +56,7 @@
     BOOL                                        showSiderBar;
     BOOL                                        showRightMenu;
     BOOL                                        isShow;
-    MKMapView           *mapView;
+    RMMapView                                   *mapView;
     UIScrollView                                *mainScroll;
     UIView                                      *leftView;
     UIView                                      *rightView;
@@ -143,6 +143,7 @@
     UIView                      *vBlurShareMenu;
     
     CGFloat                     alphatView;
+    NetworkController           *netController;
 }
 
 @property (nonatomic, strong) UILabel              *lblNickName;
@@ -154,13 +155,13 @@
 @property (nonatomic        ) NetworkCommunication *networkIns;
 
 @property (nonatomic, strong) LoginPage            *loginPage;
-@property (nonatomic, strong) Wall                 *wallPage;
-@property (nonatomic, strong) SCWallTableView       *wallPageV7;
 @property (nonatomic, strong) SCWallTableViewV2       *wallPageV8;
 @property (nonatomic, strong) NoisesPage               *noisePageV6;
 @property (nonatomic, strong) ChatView             *chatViewPage;
 @property (nonatomic, strong) MainPageV7           *homePageV6;
 @property (nonatomic, strong) SCShareMenu           *shareMenu;
+
+@property (nonatomic, strong) UIButton              *btnNewChat;
 
 - (void) setup;
 - (void) initializeGestures;

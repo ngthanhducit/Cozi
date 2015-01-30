@@ -17,15 +17,27 @@
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-
+@synthesize naviController = _naviController;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    Store   *storeIns = [Store shareInstance];
+    [Store shareInstance];
 //    [application setApplicationIconBadgeNumber:0];
-    [self reloadDeviceToken];
+//    [self reloadDeviceToken];
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    
+    viewController  = [[ViewController alloc] initWithNibName:nil bundle:nil];
+    self.naviController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    [self.naviController.view setFrame:[[UIScreen mainScreen] bounds]];
+    [self.naviController setNavigationBarHidden:YES animated:NO];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    
+    self.window.rootViewController = self.naviController;
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

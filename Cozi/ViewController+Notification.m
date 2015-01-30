@@ -31,7 +31,11 @@
 }
 
 - (void) loadMoreNoise:(NSNotification*)notification{
+    isFirstLoadWall = NO;
     
+    DataWall *_wall = [self.storeIns.noises lastObject];
+    NSString *_clientKey = [self.helperIns encodedBase64:[_wall.clientKey dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
 }
 
 - (void) loadNewNoise:(NSNotification*)notification{
@@ -41,6 +45,53 @@
     NSString *tempKey = @"-1";
     NSString *_clientKey = [self.helperIns encodedBase64:[tempKey dataUsingEncoding:NSUTF8StringEncoding]];
     [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
+}
+
+- (void) tapFriendProfile:(NSNotification*)notification{
+    NSDictionary *userInfo = [notification userInfo];
+    Friend *_friend = (Friend*)[userInfo valueForKey:@"tapFriend"];
+    SCFriendProfileViewController *post = [[SCFriendProfileViewController alloc] init];
+    [post setFriendProfile:_friend];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
+- (void) tapMyProfile:(NSNotification*)notification{
+
+    SCProfileViewController *post = [[SCProfileViewController alloc] init];
+    [post setProfile:self.storeIns.user];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+
+//    UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
+//    
+//    [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
+//    [naviController setDelegate:self];
+//    
+//    [self presentViewController:naviController animated:YES completion:^{
+//        
+//    }];
+}
+
+- (void) reloadWallAndNoises:(NSNotification*)notification{
+    [self.wallPageV8 reloadData];
+    [self.wallPageV8 scrollRectToVisible:CGRectMake(0, 0, 1, 1) animated:YES];
+    [self.noisePageV6.scCollection reloadData];
+}
+
+- (void) selectNoise:(NSNotification*)notification{
+    NSDictionary *userInfo = [notification userInfo];
+    DataWall *_noise = [userInfo objectForKey:@"selectNoise"];
+    NSMutableArray *items = [NSMutableArray new];
+    [items addObject:_noise];
+    
+    SCSinglePostViewController *post = [[SCSinglePostViewController alloc] initWithNibName:nil bundle:nil];
+    [post setData:items];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
 }
 
 - (void) ResignActiveNotification:(NSNotification*)notification{
@@ -74,27 +125,18 @@
 
 - (void)selectFriend:(NSNotification*)notification{
     
+    [mainScroll setScrollEnabled:YES];
+    
     NSDictionary *userInfo = [notification userInfo];
-    //    int index = [[userInfo objectForKey:@"tapCellIndex"] intValue];
     Friend *_friend  = (Friend*)[userInfo objectForKey:@"tapCellIndex"];
     
-    //    Friend *_friend = [self.storeIns.friends objectAtIndex:index];
-    //    Friend *_friend = [self.storeIns.recent objectAtIndex:index];
-    
-    [self.chatViewPage initFriendInfo:_friend];
     [self.chatViewPage setTag:10000];
     [self.chatViewPage addFriendIns:_friend];
     [self.lblNickName setText:[_friend.nickName uppercaseString]];
     [self.chatViewPage reloadFriend];
+    [self.chatViewPage resetUI];
     [self.chatViewPage.tbView setClearData:NO];
     [self.chatViewPage.tbView reloadData];
-    
-    UITapGestureRecognizer *tapLogoReturn = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
-    [tapLogoReturn setNumberOfTapsRequired:1];
-    [tapLogoReturn setNumberOfTouchesRequired:1];
-    
-    [self.chatViewPage._backView addGestureRecognizer:tapLogoReturn];
-    //    [self.chatViewPage initLibraryImage];
     
     [self hiddenMenu];
     
@@ -164,6 +206,12 @@
     
     [self initRightMenu];
     
+    //Get wall
+    NSString *firstCall = @"-1";
+    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+    
+    NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
 }
 
 - (void) loadFriendComplete:(NSNotification*)notification{
@@ -174,5 +222,47 @@
     
     [self.wallPageV8 reloadData];
     [self.noisePageV6.scCollection reloadData];
+}
+
+- (void) notificationSelectContact:(NSNotification*)notification{
+    NSDictionary *_userInfo = [notification userInfo];
+    NSNumber *countSelectContact = [_userInfo valueForKey:@"countSelect"];
+    
+    if ([countSelectContact intValue] > 1) {//Group Chat
+        [self.btnNewChat setTitle:@"NEW GROUP CHAT" forState:UIControlStateNormal];
+    }else{//Single Chat
+        [self.btnNewChat setTitle:@"NEW CHAT" forState:UIControlStateNormal];
+    }
+    
+    CGSize size = { self.view.bounds.size.width, self.view.bounds.size.height };
+    CGSize sizeTitleLable = [self.btnNewChat.titleLabel.text sizeWithFont:[self.helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    [self.btnNewChat setTitleEdgeInsets:UIEdgeInsetsMake(0, -self.btnNewChat.imageView.image.size.width, 0, self.btnNewChat.imageView.image.size.width)];
+    self.btnNewChat.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + self.btnNewChat.imageView.image.size.width, 0, -((sizeTitleLable.width) + self.btnNewChat.imageView.image.size.width));
+}
+
+- (void) notificationSelectComment:(NSNotification*)notification{
+    
+    //show list comment
+    NSDictionary *_wallInfo = notification.userInfo;
+    DataWall *_wall = [_wallInfo valueForKey:@"tapCommentInfo"];
+    
+    SCCommentViewController *post = [[SCCommentViewController alloc] initWithNibName:nil bundle:nil];
+    [post setData:_wall withType:0];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+
+}
+
+- (void) notificationSelectAllComment:(NSNotification*)notification{
+    //show list comment
+    NSDictionary *_wallInfo = notification.userInfo;
+    DataWall *_wall = [_wallInfo valueForKey:@"tapCommentInfo"];
+    
+    SCCommentViewController *post = [[SCCommentViewController alloc] initWithNibName:nil bundle:nil];
+    [post setData:_wall withType:1];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
 }
 @end

@@ -29,4 +29,11 @@
 - (void) loadUserComplete:(NSNotification*)notification;
 - (void) loadFriendComplete:(NSNotification*)notification;
 - (void) loadWallComplete:(NSNotification*)notification;
+- (void) tapFriendProfile:(NSNotification*)notification;
+- (void) tapMyProfile:(NSNotification*)notification;
+- (void) reloadWallAndNoises:(NSNotification*)notification;
+- (void) selectNoise:(NSNotification*)notification;
+- (void) notificationSelectContact:(NSNotification*)notification;
+- (void) notificationSelectComment:(NSNotification*)notification;
+- (void) notificationSelectAllComment:(NSNotification*)notification;
 @end

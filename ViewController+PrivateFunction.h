@@ -22,4 +22,8 @@
 - (void) showStatusConnected:(int)_isConnected;
 - (void) hiddenMenu;
 - (void) showShareMenu;
+- (void) onTick:(id)sender;
+- (void) btnNewChatClick:(id)sender;
+- (void) reloadWall;
+- (void) reloadNoise;
 @end

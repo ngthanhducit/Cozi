@@ -17,7 +17,8 @@
         //hidden menu right
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
@@ -35,7 +36,8 @@
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
-            [leftView setFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(-widthMenu - 2, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
@@ -50,9 +52,10 @@
         
     }else{
         
-        
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [leftView setFrame:CGRectMake(0, heightHeader, widthMenu , leftView.bounds.size.height)];
+            [leftView setHidden:NO];
+            
             [blurView setAlpha:alphatView];
             
             [self.view bringSubviewToFront:blurView];
@@ -71,7 +74,8 @@
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
-            [leftView setFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(-widthMenu + 2, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
@@ -83,14 +87,15 @@
         } completion:^(BOOL finished) {
             isShowMenuLeft = NO;
         }];
-        
     }
+    
     if (isShowMenuRight) {
         
         //hidden menu right
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
@@ -109,6 +114,7 @@
         //show menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [rightView setFrame:CGRectMake((self.view.bounds.size.width / 4), heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setHidden:NO];
             
             [blurView setAlpha:alphatView];
             
@@ -127,6 +133,7 @@
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         //hidden right
         [rightView setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height)];
+        [rightView setHidden:YES];
         
         [blurView setAlpha:0.0];
         
@@ -137,6 +144,7 @@
         
         //hidden left
         [leftView setFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, leftView.bounds.size.height)];
+        [leftView setHidden:YES];
         
         [blurView setAlpha:0.0];
         
@@ -281,5 +289,50 @@
 
 - (void) onTick:(id)sender{
     self.storeIns.timeServer = [self.storeIns.timeServer dateByAddingTimeInterval:1];
+}
+
+- (void) btnNewChatClick:(id)sender{
+    
+    NSMutableArray *selectList = [tbContact getSelectList];
+    
+    if ([selectList count] > 1) {//Group Chat
+        
+    }else{
+        Friend *_friend  = (Friend*)[selectList lastObject];
+        
+        [self.chatViewPage setTag:10000];
+        [self.chatViewPage addFriendIns:_friend];
+        [self.lblNickName setText:[_friend.nickName uppercaseString]];
+        [self.chatViewPage reloadFriend];
+        [self.chatViewPage.tbView setClearData:NO];
+        [self.chatViewPage.tbView reloadData];
+        
+        [self hiddenMenu];
+        
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+            [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
+        } completion:^(BOOL finished) {
+            page = 0;
+        }];
+        
+        //scroll to bottom
+        double y = self.chatViewPage.tbView.contentSize.height - self.chatViewPage.tbView.bounds.size.height;
+        CGPoint bottomOffset = CGPointMake(0, y);
+        
+        if (y > -self.chatViewPage.tbView.contentInset.top)
+            [self.chatViewPage.tbView setContentOffset:bottomOffset animated:NO];
+    }
+    
+    [tbContact resetCell];
+    
+    NSLog(@"new chat");
+}
+
+- (void) reloadWall{
+    [self.wallPageV8 reloadData];
+}
+
+- (void) reloadNoise{
+    [self.noisePageV6.scCollection reloadData];
 }
 @end
