@@ -55,6 +55,7 @@
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size;
 - (UIImage *)imageWithColor:(UIColor *)color;
 - (int) getHexIntColorWithKey:(NSString*)key;
+- (NSDate*) convertNSDateWithFormat:(NSDate*)_date;
 - (NSString*) convertNSDateToString:(NSDate*)_date;
 - (NSString*) convertNSDateToString:(NSDate*)_date withFormat:(NSString*)_strFormat;
 - (NSDate*) convertNSStringToDate:(NSString*)_strDate;
@@ -62,6 +63,7 @@
 - (NSDate*) convertStringToDate:(NSString*)_strDate;
 - (UIImage *)takeSnapshotOfView:(UIView *)view;
 - (UIImage *) getImageFromSVGName:(NSString*)svgName;
+- (UIImage *) getImageSVGContentFile:(NSString*)svgName;
 - (UIImage *)maskImage:(UIImage *)originalImage toPath:(UIBezierPath *)path ;
 - (UIImage*) cropImage:(UIImage *)image withFrame:(CGRect)_frameImage;
 - (UIImage *)squareImageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
@@ -74,4 +76,6 @@
 
 - (UIImage *)blurWithImageEffectsRestore:(UIImage *)image withRadius:(CGFloat)_radius;
 - (UIImage *)scaleUIImage:(UIImage *)_img scaledToSize:(CGSize)newSize;
+
+- (BOOL) saveImageToDocument:(UIImage*)_img withName:(NSString*)_name;
 @end

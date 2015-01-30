@@ -81,7 +81,7 @@
     //create new a managed object
     NSManagedObject *newMessenger = [NSEntityDescription insertNewObjectForEntityForName:@"MessengerFriend" inManagedObjectContext:context];
     [newMessenger setValue:[NSNumber numberWithInt:_messenger.senderID] forKey:@"sender_id"];
-    [newMessenger setValue:[NSNumber numberWithInteger:_messenger.keySendMessage] forKey:@"key_send_message"];
+    [newMessenger setValue:_messenger.keySendMessage forKey:@"key_send_message"];
     [newMessenger setValue:_messenger.strMessage forKey:@"str_messenger"];
     [newMessenger setValue:_messenger.strImage forKey:@"strImage"];
     [newMessenger setValue:[NSNumber numberWithInt:_messenger.typeMessage] forKey:@"type_messenger"];
@@ -96,8 +96,7 @@
     [newMessenger setValue:[NSNumber numberWithInt:_messenger.userID] forKey:@"user_id"];
     [newMessenger setValue:[NSNumber numberWithInt:_messenger.timeOutMessenger] forKey:@"timeout_messenger"];
     [newMessenger setValue:[NSNumber numberWithBool:_messenger.isTimeOut] forKey:@"is_timeout"];
-    
-    NSString *strTimeServer = [newMessenger valueForKey:@"time_server"];
+
     NSError *error= nil;
     if (![context save:&error]) {
         NSLog(@"add new failed");
@@ -118,9 +117,8 @@
     NSManagedObject *messenger = (NSManagedObject*)[messengers lastObject];
     
     [messenger setValue:[NSNumber numberWithInt:_messenger.senderID] forKey:@"sender_id"];
-    [messenger setValue:[NSNumber numberWithInteger:_messenger.keySendMessage] forKey:@"key_send_message"];
+    [messenger setValue:_messenger.keySendMessage forKey:@"key_send_message"];
     [messenger setValue:_messenger.strMessage forKey:@"str_messenger"];
-//    [messenger setValue:[NSNumber numberWithInt:_messenger.typeMessage] forKey:@"type_messenger"];
     [messenger setValue:[NSNumber numberWithInt:_messenger.statusMessage] forKey:@"status_messenger"];
     [messenger setValue:_messenger.timeMessage forKey:@"time_messenger"];
     [messenger setValue:[helperIns convertNSDateToString:_messenger.timeServerMessage withFormat:@"yyyy-MM-dd HH:mm:ss"] forKey:@"time_server"];
@@ -376,6 +374,103 @@
     NSManagedObject *user = (NSManagedObject*)[users lastObject];
     if (user != nil) {
         [context deleteObject:user];
+    }
+}
+
+#pragma -mark Follower
+- (NSMutableArray*) getFollower{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSMutableArray *result = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return result;
+}
+
+- (NSMutableArray*) getFollowerByUserID:(int)_userID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user_id = %i", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *followers = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return followers;
+}
+
+- (NSMutableArray*) getFollowerByParentUserID:(int)_userID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"parent_id = %i", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *followers = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return followers;
+}
+
+- (BOOL) isExistsFollower:(int)_userID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i)", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *followers = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    NSManagedObject *follower = (NSManagedObject*)[followers lastObject];
+    if (follower != nil) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL) saveFollower:(FollowerUser *)_follower{
+    NSManagedObjectContext  *context = [self managedObjectContext];
+    NSManagedObject *newFollower = [NSEntityDescription insertNewObjectForEntityForName:@"Follower" inManagedObjectContext:context];
+    [newFollower setValue:_follower.firstName forKey:@"first_name"];
+    [newFollower setValue:_follower.lastName forKey:@"last_name"];
+    [newFollower setValue:_follower.urlAvatar forKey:@"url_avatar"];
+    [newFollower setValue:[NSNumber numberWithInt:_follower.parentUserID] forKey:@"parent_id"];
+    
+    NSError *error = nil;
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL) updateFollower:(FollowerUser *)_follower{
+    NSManagedObjectContext  *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i)", _follower.userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *followers = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *follower = (NSManagedObject*)[followers lastObject];
+    
+    [follower setValue:_follower.firstName forKey:@"first_name"];
+    [follower setValue:_follower.lastName forKey:@"last_name"];
+    [follower setValue:_follower.urlAvatar forKey:@"url_avatar"];
+    
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void) deleteFollower:(int)_userID{
+    NSManagedObjectContext  *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i)", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *followers = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *follower = (NSManagedObject*)[followers lastObject];
+    if (follower != nil) {
+        [context deleteObject:follower];
     }
 }
 @end

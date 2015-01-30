@@ -385,7 +385,7 @@ const NSString                  *_cKey = @"PTCSYC22";
             
             if (_newMessage.typeMessage == 0) {
                 for(id key in dicMessage) {
-                    NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%ld}%@",
+                    NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%@%@",
                                             _newMessage.senderID, _newMessage.strMessage, _newMessage.typeMessage,
                                             _newMessage.statusMessage, @"" , @"",
                                             _newMessage.friendID, _newMessage.timeMessage,
@@ -400,7 +400,7 @@ const NSString                  *_cKey = @"PTCSYC22";
                 [_defaultUser synchronize];
             }else{
                 for(id key in dicMessage) {
-                    NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%ld}%@",
+                    NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%@}%@",
                                             _newMessage.senderID, @"", _newMessage.typeMessage,
                                             _newMessage.statusMessage, [self encodedBase64:_newMessage.dataImage], @"",
                                             _newMessage.friendID, _newMessage.timeMessage,
@@ -421,7 +421,7 @@ const NSString                  *_cKey = @"PTCSYC22";
         NSMutableArray *messageArr = [[NSMutableArray alloc] init];
         
         if (_newMessage.typeMessage == 0) {
-            NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%ld}%@",
+            NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%@}%@",
                                     _newMessage.senderID, _newMessage.strMessage, _newMessage.typeMessage,
                                     _newMessage.statusMessage, @"" , @"",
                                     _newMessage.friendID, _newMessage.timeMessage,
@@ -431,7 +431,7 @@ const NSString                  *_cKey = @"PTCSYC22";
             
             [dictMessage setObject:messageArr forKey:[NSNumber numberWithInt: _friendID]];
         }else{
-            NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%ld}%@",
+            NSString *strMessage = [NSString stringWithFormat:@"%i}%@}%i}%i}%@}%@}%i}%@}%@}%@",
                                     _newMessage.senderID, @"", _newMessage.typeMessage,
                                     _newMessage.statusMessage, [self encodedBase64:_newMessage.dataImage] , @"",
                                     _newMessage.friendID, _newMessage.timeMessage,
@@ -489,7 +489,7 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (NSString*) convertNSDateToString:(NSDate*)_date{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd-MM-yyyy HH:mm:ss"];
+    [dateFormatter setDateFormat:@"dd-MM-yyyy hh:mm:ss"];
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
     NSString *stringDate = [dateFormatter stringFromDate:_date];
     
@@ -507,10 +507,9 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (NSDate*) convertNSStringToDate:(NSString*)_strDate{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"dd-MM-yyyy HH:mm:ss"];
+    [dateFormatter setDateFormat:@"dd-MM-yyyy hh:mm:ss"];
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-    NSDate *dateFromString = [[NSDate alloc] init];
-    dateFromString = [dateFormatter dateFromString:_strDate];
+    NSDate *dateFromString = [dateFormatter dateFromString:_strDate];
     
     return dateFromString;
 }
@@ -519,8 +518,7 @@ const NSString                  *_cKey = @"PTCSYC22";
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-    NSDate *dateFromString = [[NSDate alloc] init];
-    dateFromString = [dateFormatter dateFromString:_strDate];
+    NSDate *dateFromString = [dateFormatter dateFromString:_strDate];
     
     return dateFromString;
 }
@@ -529,8 +527,7 @@ const NSString                  *_cKey = @"PTCSYC22";
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:_strFormat];
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-    NSDate *dateFromString = [[NSDate alloc] init];
-    dateFromString = [dateFormatter dateFromString:_strDate];
+    NSDate *dateFromString = [dateFormatter dateFromString:_strDate];
     
     return dateFromString;
 }
@@ -550,12 +547,33 @@ const NSString                  *_cKey = @"PTCSYC22";
     return [SVGKImage imageNamed:svgName].UIImage;
 }
 
+- (UIImage *) getImageSVGContentFile:(NSString*)svgName{
+    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:svgName ofType:@"svg"];
+    if (bundlePath) {
+        return [SVGKImage imageWithContentsOfFile:bundlePath].UIImage;
+    }
+    
+    return nil;
+}
+
 - (NSString *) getDateFormatMessage:(NSDate *)_time{
     NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
+    [DateFormatter setTimeZone:[NSTimeZone localTimeZone]];
     [DateFormatter setDateFormat:@"hh:mm a"];
     NSString *strTime = [DateFormatter stringFromDate:_time];
     
     return strTime;
+}
+
+- (NSDate*) convertNSDateWithFormat:(NSDate*)_date{
+    NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
+    [DateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    [DateFormatter setDateFormat:@"dd-MM-yyyy hh:mm:ss"];
+    
+    NSString *strTime = [self convertNSDateToString:_date];
+    NSDate *time = [DateFormatter dateFromString:strTime];
+    
+    return time;
 }
 
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock{
@@ -608,5 +626,13 @@ const NSString                  *_cKey = @"PTCSYC22";
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+- (BOOL) saveImageToDocument:(UIImage*)_img withName:(NSString *)_name {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *filePath = [[paths objectAtIndex:0] stringByAppendingPathComponent:_name];
+    
+    // Save image.
+    return [UIImagePNGRepresentation(_img) writeToFile:filePath atomically:YES];
 }
 @end

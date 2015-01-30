@@ -29,7 +29,7 @@
 + (id)shareInstance;
 
 @property (nonatomic, strong) GCDAsyncSocket                *gcdSocket;
-@property (nonatomic, weak) id <NetworkCommunicationDelegate> delegate;
+@property (nonatomic, strong) id <NetworkCommunicationDelegate> delegate;
 @property (nonatomic      ) Helper                       *helperIns;
 
 - (void) sendData:(NSString*)str;

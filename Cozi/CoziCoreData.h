@@ -13,6 +13,7 @@
 #import "User.h"
 #import <CoreData/CoreData.h>
 #import "Helper.h"
+#import "FollowerUser.h"
 
 @interface CoziCoreData : NSObject
 {
@@ -41,4 +42,12 @@
 - (BOOL) saveUser:(User *)_user;
 - (BOOL) updateUser:(User*)_user;
 - (void) deleteUser:(int)_userID;
+
+- (NSMutableArray*) getFollower;
+- (NSMutableArray*) getFollowerByUserID:(int)_userID;
+- (NSMutableArray*) getFollowerByParentUserID:(int)_userID;
+- (BOOL) isExistsFollower:(int)_userID;
+- (BOOL) saveFollower:(FollowerUser *)_follower;
+- (BOOL) updateFollower:(FollowerUser*)_follower;
+- (void) deleteFollower:(int)_userID;
 @end
