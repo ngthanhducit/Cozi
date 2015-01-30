@@ -51,7 +51,7 @@ static NSString * const SCLayoutPhotoCellKind = @"PhotoCell";
     self.itemInsets = UIEdgeInsetsMake(10.0f, 10.0f, 10.0f, 10.0f);
     self.itemSize = CGSizeMake(100.0f, 100.0f);
     self.interItemSpacingY = 10.0f;
-    self.numberOfColumns = 2;
+//    self.numberOfColumns = 2;
 }
 
 #pragma -mark - Layout
