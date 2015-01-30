@@ -18,6 +18,7 @@
     CGFloat                     hRow;
 }
 
-@property (nonatomic, strong) NSMutableArray                *nearItems;
-
+//@property (nonatomic, strong) NSMutableArray                *nearItems;
+- (void) setData:(NSMutableArray*)items;
+- (void) addData:(NSMutableArray*)items;
 @end

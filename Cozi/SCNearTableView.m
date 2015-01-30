@@ -27,10 +27,26 @@
     return self;
 }
 
+- (void) setData:(NSMutableArray*)items{
+    _nearItems = items;
+}
+
+- (void) addData:(NSMutableArray*)items{
+    if (_nearItems != nil) {
+        int count = (int)[items count];
+        for (int i = 0; i < count; i++) {
+            [_nearItems addObject:[items objectAtIndex:i]];
+        }
+    }else{
+        _nearItems = [NSMutableArray new];
+        _nearItems = items;
+    }
+}
+
 - (void) setup{
     helperIns = [Helper shareInstance];
     hRow = 50;
-    self.nearItems = [NSMutableArray new];
+    _nearItems = [NSMutableArray new];
 //    [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setUserInteractionEnabled:YES];
     [self setDelegate:self];
@@ -39,14 +55,12 @@
     
 }
 
-@synthesize nearItems;
-
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [nearItems count];
+    return [_nearItems count];
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -60,7 +74,7 @@
     
     scCell = (SCNearTableViewCell*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    NearLocation *_near = [self.nearItems objectAtIndex:indexPath.row];
+    NearLocation *_near = [_nearItems objectAtIndex:indexPath.row];
     
     if (scCell == nil) {
         scCell = [[SCNearTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
@@ -96,6 +110,10 @@
 
     NSAttributedString *vincityAttribute = [[NSAttributedString alloc] initWithString:cell.lblVincity.text attributes:@{ NSForegroundColorAttributeName : c }];
     [cell.lblVincity setAttributedText:vincityAttribute];
+    
+//    NSNumber *index = [[NSNumber alloc] initWithInteger:indexPath.row];
+//    NSString *key = @"NearLocationIndex";
+//    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:index forKey:key];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"SelectNearLocation" object:nil userInfo:nil];
 }
