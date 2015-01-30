@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 @interface TriangleView : UIView
 {
@@ -17,4 +18,6 @@
 - (void) drawTriangleToolKit;
 - (void) drawTrianDownToolkit;
 - (void) drawTrianUp;
+- (void) drawTrianMessage;
+- (void) drawTrianMessageBlack;
 @end

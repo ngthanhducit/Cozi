@@ -40,6 +40,35 @@
     self.layer.mask=cusLayer;
 }
 
+- (void) drawTrianMessage{
+    
+    CAShapeLayer *cusLayer=[CAShapeLayer layer];
+    UIBezierPath *p=[UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))];
+    [p setLineWidth:0.0f];
+    [p addLineToPoint:CGPointMake(CGRectGetMaxX(self.bounds), CGRectGetMinY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMaxX(self.bounds), CGRectGetMaxY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))];
+    [p stroke];
+    cusLayer.path=p.CGPath;
+    self.layer.mask=cusLayer;
+}
+
+- (void) drawTrianMessageBlack{
+    
+    CAShapeLayer *cusLayer=[CAShapeLayer layer];
+    UIBezierPath *p=[UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(0, 0)];
+    [p setLineWidth:0.0f];
+    [p addLineToPoint:CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMinX(self.bounds), CGRectGetMaxY(self.bounds))];
+    [p addLineToPoint:CGPointMake(0, 0)];
+    [p stroke];
+    
+    cusLayer.path=p.CGPath;
+    self.layer.mask=cusLayer;
+}
+
 - (void) drawTriangleToolKit{
     CAShapeLayer *cusLayer=[CAShapeLayer layer];
     UIBezierPath *p=[UIBezierPath bezierPath];
