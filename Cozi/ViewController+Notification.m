@@ -49,10 +49,15 @@
 
 - (void) tapFriendProfile:(NSNotification*)notification{
     NSDictionary *userInfo = [notification userInfo];
-    Friend *_friend = (Friend*)[userInfo valueForKey:@"tapFriend"];
-    SCFriendProfileViewController *post = [[SCFriendProfileViewController alloc] init];
-    [post setFriendProfile:_friend];
+    NSNumber *_friendID = [userInfo valueForKey:@"tapFriend"];
     
+//    Friend *_friend = (Friend*)[userInfo valueForKey:@"tapFriend"];
+    SCFriendProfileViewController *post = [[SCFriendProfileViewController alloc] init];
+    [post showHiddenClose:YES];
+    
+    [post setFriendId:[_friendID intValue]];
+//    [post setFriendProfile:_friend];
+//
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
 }
@@ -60,6 +65,7 @@
 - (void) tapMyProfile:(NSNotification*)notification{
 
     SCProfileViewController *post = [[SCProfileViewController alloc] init];
+    [post showHiddenClose:YES];
     [post setProfile:self.storeIns.user];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -88,6 +94,7 @@
     [items addObject:_noise];
     
     SCSinglePostViewController *post = [[SCSinglePostViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     [post setData:items];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -125,14 +132,13 @@
 
 - (void)selectFriend:(NSNotification*)notification{
     
-    [mainScroll setScrollEnabled:YES];
-    
     NSDictionary *userInfo = [notification userInfo];
     Friend *_friend  = (Friend*)[userInfo objectForKey:@"tapCellIndex"];
     
     [self.chatViewPage setTag:10000];
     [self.chatViewPage addFriendIns:_friend];
-    [self.lblNickName setText:[_friend.nickName uppercaseString]];
+    [self.chatViewPage.lblNickName setText:[_friend.nickName uppercaseString]];
+//    [self.lblNickName setText:[_friend.nickName uppercaseString]];
     [self.chatViewPage reloadFriend];
     [self.chatViewPage resetUI];
     [self.chatViewPage.tbView setClearData:NO];
@@ -141,7 +147,10 @@
     [self hiddenMenu];
     
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
+//        [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
+        [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+        [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+        [self.chatViewPage setFrame:CGRectMake(0, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
     } completion:^(BOOL finished) {
         page = 0;
     }];
@@ -187,7 +196,7 @@
             break;
             
         case ReachableViaWWAN:
-//            NSLog(@"WWAN");
+
             break;
             
         default:
@@ -207,11 +216,11 @@
     [self initRightMenu];
     
     //Get wall
-    NSString *firstCall = @"-1";
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
-    
-    NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
+//    NSString *firstCall = @"-1";
+//    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+//    
+//    NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+//    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
 }
 
 - (void) loadFriendComplete:(NSNotification*)notification{
@@ -247,6 +256,7 @@
     DataWall *_wall = [_wallInfo valueForKey:@"tapCommentInfo"];
     
     SCCommentViewController *post = [[SCCommentViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     [post setData:_wall withType:0];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -260,9 +270,29 @@
     DataWall *_wall = [_wallInfo valueForKey:@"tapCommentInfo"];
     
     SCCommentViewController *post = [[SCCommentViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     [post setData:_wall withType:1];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
+}
+
+- (void) notificationSelectLikes:(NSNotification*)notification{
+    //show list comment
+    NSDictionary *_wallInfo = notification.userInfo;
+    DataWall *_wall = [_wallInfo valueForKey:@"tapLikesInfo"];
+    
+    SCLikeViewController *post = [[SCLikeViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
+    [post setData:_wall];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+
+}
+
+- (void) notificationReloadListFriend:(NSNotification*)notification{
+    [tbContact initData:self.storeIns.friends];
+    [tbContact reloadData];
 }
 @end

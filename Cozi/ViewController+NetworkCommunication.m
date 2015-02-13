@@ -58,6 +58,7 @@ static NSString         *dataNetwork;
                     
                     if (userID > 0) {
                         //Load Friend from database
+                        [waitingReconnect stopAnimating];
                         
                         [self.dataMapIns mapLogin:data];
                         
@@ -67,9 +68,16 @@ static NSString         *dataNetwork;
                         
                         [self.storeIns sortMessengerFriend];
                         
-                        [self.loginPage stopLoadingView];
+                        [self.loginPageV3 showHiddenProgress:NO];
                         
-                        [self.loginPage removeFromSuperview];
+                        [self.loginPageV3.view setHidden:YES];
+                        
+//                        [self.loginPageV3.view removeFromSuperview];
+//                        self.loginPageV3 = nil;
+                        
+//                        [self.loginPage stopLoadingView];
+//                        
+//                        [self.loginPage removeFromSuperview];
                         
                         [self setup];
                         
@@ -78,6 +86,24 @@ static NSString         *dataNetwork;
                         [self.chatViewPage initLibraryImage];
                         
                         dataNet = nil;
+                        
+                        [self.loginPageV3 resetFormLogin];
+                        
+                        NSString *firstCall = @"-1";
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+                        
+                        NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
+                        
+                        [self setStatusRequestFriend];
+                    }else{
+                        [self.loginPageV3 resetFormLogin];
+                        
+                        [self.loginPageV3 showHiddenProgress:NO];
+                        [self.loginPageV3 showHiddenPopupWarning:NO withWarning:@""];
+                        [self.loginPageV3 showHiddenPopupWarning:YES withWarning:@"Invalid username or password"];
+                        
+                        [self.networkIns connectSocket];
                     }
                 }
                 
@@ -86,6 +112,46 @@ static NSString         *dataNetwork;
                     NSArray *subData = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"~"];
                     if ([subData count] > 0) {
                         
+                        NSArray *subResult = [[subData objectAtIndex:0] componentsSeparatedByString:@"}"];
+                        self.storeIns.user.userID = [[subResult objectAtIndex:0] intValue];
+                        self.storeIns.user.firstname = self.loginPageV3.txtFirstName.text;
+                        self.storeIns.user.lastName = self.loginPageV3.txtLastName.text;
+                        self.storeIns.user.nickName = [NSString stringWithFormat:@"%@ %@", self.loginPageV3.txtFirstName.text, self.loginPageV3.txtLastName.text];
+                        self.storeIns.user.phoneNumber = self.loginPageV3.txtPhoneNumber.text;
+                        self.storeIns.user.urlThumbnail = [NSString stringWithFormat:@"%@%@", self.loginPageV3.amazonThumbnail.url, self.loginPageV3.amazonThumbnail.key];
+                        self.storeIns.user.urlAvatar = [NSString stringWithFormat:@"%@%@", self.loginPageV3.amazonAvatar.url, self.loginPageV3.amazonAvatar.key];
+                        self.storeIns.user.accessKey = [subResult objectAtIndex:1];
+                        self.storeIns.user.avatar = self.loginPageV3.vPreviewPhoto.imgViewCapture.image;
+                        
+                        NSUserDefaults *_default = [NSUserDefaults standardUserDefaults];
+                        [_default setBool:YES forKey:@"IsLogin"];
+                        [_default setInteger:self.storeIns.user.userID forKey:@"UserID"];
+                        [_default setObject:self.storeIns.user.accessKey forKey:@"accessKey"];
+                        [_default setObject:self.loginPageV3.txtPassword.text forKey:@"password"];
+                        
+                        [self initLeftMenu];
+                        
+                        [self initRightMenu];
+                        
+                        [self.loginPageV3 showHiddenProgress:NO];
+                        
+                        [self.loginPageV3.view setHidden:YES];
+                        
+                        [self setup];
+                        
+                        [self initializeGestures];
+                        
+                        [self.chatViewPage initLibraryImage];
+                        
+                        dataNet = nil;
+                        
+                        [self.loginPageV3 resetFormLogin];
+                        
+                        NSString *firstCall = @"-1";
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
+                        
+                        NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
+                        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
                     }
                 }
                 
@@ -116,6 +182,9 @@ static NSString         *dataNetwork;
                         [self.storeIns sortMessengerFriend];
                         
                         [self.chatViewPage.tbView reloadData];
+                        
+                        [waitingReconnect stopAnimating];
+                        [self setStatusRequestFriend];
                         
                         //Get wall
                         //        [self.networkIns sendData:@"GETWALL{10}-1<EOF>"];
@@ -187,11 +256,7 @@ static NSString         *dataNetwork;
                     Friend *_tempFriend = [self.dataMapIns processReceiveMessage:_newMessage];
                     ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
                     
-                    [self vibrate];
-                    
-                    [self playSoundSystem];
-                    
-                    if (temp != nil && page == 0) {
+                    if (temp != nil) {
                         if (_tempFriend.friendID == temp.friendIns.friendID) {
                             
                             [self.storeIns updateStatusMessageFriend:_tempFriend.friendID withStatus:1];
@@ -203,36 +268,41 @@ static NSString         *dataNetwork;
                     }else{
                         [self.storeIns updateStatusMessageFriend:_tempFriend.friendID withStatus:1];
                         
+                        if (self.storeIns.recent == nil) {
+                            self.storeIns.recent = [NSMutableArray new];
+                        }
                         //find friend recent list
                         int indexRecent = -1;
-                        if (self.storeIns.recent != nil) {
-                            BOOL isExists = NO;
-                            int count = (int)[self.storeIns.recent count];
-                            for (int i = 0; i < count; i++) {
-                                if ([[self.storeIns.recent objectAtIndex:i] friendID] == _tempFriend.friendID) {
-                                    isExists = YES;
-                                    indexRecent = i;
-                                    break;
-                                }
+                        BOOL isExists = NO;
+                        
+                        int count = (int)[self.storeIns.recent count];
+                        for (int i = 0; i < count; i++) {
+                            if ([[self.storeIns.recent objectAtIndex:i] friendID] == _tempFriend.friendID) {
+                                isExists = YES;
+                                indexRecent = i;
+                                break;
                             }
+                        }
+                        
+                        if (!isExists) {
+                            [self.storeIns.recent addObject:_tempFriend];
+                            [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
+                        }else{
+                            Friend *_tempFriend = [self.storeIns.recent objectAtIndex:indexRecent];
+                            [self.storeIns.recent removeObjectAtIndex:indexRecent];
+                            [self.storeIns.recent insertObject:_tempFriend atIndex:0];
                             
-                            if (!isExists) {
-                                [self.storeIns.recent addObject:_tempFriend];
-                                [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
-                            }else{
-                                Friend *_tempFriend = [self.storeIns.recent objectAtIndex:indexRecent];
-                                [self.storeIns.recent removeObjectAtIndex:indexRecent];
-                                [self.storeIns.recent insertObject:_tempFriend atIndex:0];
-                                
-                                [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
-                                
-                                [self.homePageV6.scCollection reloadData];
-                            }
+                            [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
+                            
                         }
                         
                     }
                     
+                    [self.homePageV6.scCollection reloadData];
                     
+                    [self vibrate];
+                    
+                    [self playSoundSystem];
                     
                     [self.coziCoreDataIns saveMessenger:_newMessage];
                 }
@@ -272,8 +342,6 @@ static NSString         *dataNetwork;
                     [_newMessage setTimeServerMessage:[self.helperIns convertStringToDate:[subParameter objectAtIndex:4]]];
                     [_newMessage setTimeMessage:[self.helperIns getDateFormatMessage:_dateTimeMessage]];
                     
-                    [self.coziCoreDataIns saveMessenger:_newMessage];
-                    
                     //save info request google
                     ReceiveLocation *_receiveLocation = [[ReceiveLocation alloc] init];
                     _receiveLocation.friendID = [[subParameter objectAtIndex:0] intValue];
@@ -285,9 +353,6 @@ static NSString         *dataNetwork;
                     [self.storeIns.receiveLocation addObject:_receiveLocation];
                     [self.storeIns processReceiveLocation];
                     
-                    [self vibrate];
-                    
-                    [self playSoundSystem];
                     
                     //process show message in chatview
                     Friend *_tempFriend = [self.dataMapIns processReceiveMessage:_newMessage];
@@ -295,13 +360,8 @@ static NSString         *dataNetwork;
                     
                     [self.storeIns updateStatusMessageFriend:_tempFriend.friendID withStatus:1];
                     
-                    if (temp != nil && page == 0) {
+                    if (temp != nil) {
                         if (_tempFriend.friendID == temp.friendIns.friendID) {
-                            
-                            //                Messenger *_lastMessage = [self.chatViewPage.friendIns.friendMessage lastObject];
-                            //                [_lastMessage setStatusMessage:1];
-                            
-                            //                [self.helperIns cacheMessage:_lastMessage.friendID withMessage:_lastMessage];
                             
                             [self.chatViewPage addFriendIns:_tempFriend];
                             
@@ -332,12 +392,17 @@ static NSString         *dataNetwork;
                                 [self.storeIns.recent insertObject:_tempFriend atIndex:0];
                                 
                                 [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
-                                
-                                [self.homePageV6.scCollection reloadData];
                             }
                         }
                     }
                     
+                    [self.homePageV6.scCollection reloadData];
+                    
+                    [self vibrate];
+                    
+                    [self playSoundSystem];
+                    
+                    [self.coziCoreDataIns saveMessenger:_newMessage];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"LOCATIONISREAD"]) {
@@ -508,13 +573,7 @@ static NSString         *dataNetwork;
                     if ([subValue count] == 2) {
                         NSArray *subParameter = [[subValue objectAtIndex:1] componentsSeparatedByString:@"}"];
                         if ([subParameter count] > 1) {
-                            
-                            Friend *_tempFriend = [self.storeIns getFriendByID:[[subParameter objectAtIndex:0] intValue]];
-                            
-                            [self vibrate];
-                            
-                            [self playSoundSystem];
-                            
+                
                             Messenger *newMessage = [[Messenger alloc] init];
                             [newMessage setTypeMessage:1];
                             [newMessage setStatusMessage:1];
@@ -534,60 +593,63 @@ static NSString         *dataNetwork;
                             [newMessage setTimeServerMessage:[self.helperIns convertStringToDate:[subParameter objectAtIndex:3]]];
                             [newMessage setTimeMessage:[self.helperIns getDateFormatMessage:_dateTimeMessage]];
                             
-                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:newMessage.strMessage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            Friend *_tempFriend = [self.storeIns getFriendByID:[[subParameter objectAtIndex:0] intValue]];
+                            
+                            if (_tempFriend) {
+                                [self.storeIns updateMessageFriend:newMessage withFriendID:_tempFriend.friendID];
                                 
-                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                
-                                newMessage.dataImage = data;
-                                NSString *stringImage = [self.helperIns encodedBase64:data];
-                                [newMessage setStrImage:stringImage];
-                                [newMessage setIsTimeOut:YES];
-                                
-                                [self.storeIns updateMessageFriend:newMessage withFriendID:newMessage.senderID];
-                                
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    
-                                    ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
-                                    if (temp != nil && page == 0) {
-                                        
-                                        [self.chatViewPage autoScrollTbView];
-                                        
-                                    }else{
-                                        //find friend recent list
-                                        int indexRecent = -1;
-                                        if (self.storeIns.recent != nil) {
-                                            BOOL isExists = NO;
-                                            int count = (int)[self.storeIns.recent count];
-                                            for (int i = 0; i < count; i++) {
-                                                if ([[self.storeIns.recent objectAtIndex:i] friendID] == _tempFriend.friendID) {
-                                                    isExists = YES;
-                                                    indexRecent = i;
-                                                    break;
-                                                }
-                                            }
-                                            
-                                            if (!isExists) {
-                                                [self.storeIns.recent addObject:_tempFriend];
-                                                
-                                            }else{
-                                                Friend *_temp = [self.storeIns.recent objectAtIndex:indexRecent];
-                                                [self.storeIns.recent removeObjectAtIndex:indexRecent];
-                                                [self.storeIns.recent insertObject:_temp atIndex:0];
-                                            }
-                                            
-                                            [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
-                                            [self.homePageV6.scCollection reloadData];
-                                        }else{
-                                            [self.homePageV6.scCollection reloadData];
+                                //find friend recent list
+                                int indexRecent = -1;
+                                if (self.storeIns.recent != nil) {
+                                    BOOL isExists = NO;
+                                    int count = (int)[self.storeIns.recent count];
+                                    for (int i = 0; i < count; i++) {
+                                        if ([[self.storeIns.recent objectAtIndex:i] friendID] == _tempFriend.friendID) {
+                                            isExists = YES;
+                                            indexRecent = i;
+                                            break;
                                         }
                                     }
                                     
-                                    [self.coziCoreDataIns saveMessenger:newMessage];
+                                    if (!isExists) {
+                                        [self.storeIns.recent addObject:_tempFriend];
+                                        
+                                    }else{
+                                        Friend *_temp = [self.storeIns.recent objectAtIndex:indexRecent];
+                                        [self.storeIns.recent removeObjectAtIndex:indexRecent];
+                                        [self.storeIns.recent insertObject:_temp atIndex:0];
+                                    }
                                     
-                                });
-                                
-                            }];
+                                    [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
+                                }
+                            }
                             
+                            [self.homePageV6.scCollection reloadData];
+                            
+                            [self vibrate];
+                            
+                            [self playSoundSystem];
+                            
+                            [self.coziCoreDataIns saveMessenger:newMessage];
+                            
+//                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:newMessage.strMessage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+//                                
+//                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+//                                
+//                                newMessage.dataImage = data;
+//                                NSString *stringImage = [self.helperIns encodedBase64:data];
+//                                [newMessage setStrImage:stringImage];
+//                                [newMessage setIsTimeOut:YES];
+//                                
+//                                [self.storeIns updateMessageFriend:newMessage withFriendID:newMessage.senderID];
+//                                
+//                                dispatch_async(dispatch_get_main_queue(), ^{
+//                                    
+//                                    
+//                                    
+//                                });
+//                                
+//                            }];
                         }
                     }
                 }
@@ -629,78 +691,85 @@ static NSString         *dataNetwork;
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"REG"]) {
-                    int result = [[subCommand objectAtIndex:1] intValue];
-                    if (result == 0) {
-                        [self.loginPage showViewEnterCodeAuth];
-                    }
+//                    int result = [[subCommand objectAtIndex:1] intValue];
+//                    if (result == 0) {
+//                        [self.loginPage showViewEnterCodeAuth];
+//                    }
+                    [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"AUTHCODE"]) {
-                    int result = [[subCommand objectAtIndex:1] intValue];
-                    if (result == 0) {
-                        [self.loginPage showViewEnterPerson];
-                        
-                        NSString *cmdGetUrl = [self.dataMapIns getUploadAvatar];
-                        [self.networkIns sendData:cmdGetUrl];
-                    }
+//                    int result = [[subCommand objectAtIndex:1] intValue];
+//                    if (result == 0) {
+//                        [self.loginPage showViewEnterPerson];
+//                        
+//                        NSString *cmdGetUrl = [self.dataMapIns getUploadAvatar];
+//                        [self.networkIns sendData:cmdGetUrl];
+//                    }
+                    
+                    [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADAVATARURL"]) {
-                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"$"];
-                    if ([subParameter count] == 2) {
-                        amazonThumbnail = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:0]];
-                        amazonAvatar = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:1]];
-                    }
+//                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"$"];
+//                    if ([subParameter count] == 2) {
+//                        amazonThumbnail = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:0]];
+//                        amazonAvatar = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:1]];
+//                    }
+                    
+                    [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"RESULTUPLOADAVATAR"]) {
-                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
-                    if ([subParameter count] == 2) {
-                        int resultAvatar = [[subParameter objectAtIndex:0] intValue];
-                        int resultThumbnail = [[subParameter objectAtIndex:1] intValue];
-                        
-                        if (resultAvatar == 0 && resultThumbnail == 0) {
-                            //call function register user
-                            NewUser *_newUser = [[NewUser alloc] init];
-                            _newUser.nickName = [NSString stringWithFormat:@"%@ %@", self.loginPage.joinNowView.txtFirstN.text, self.loginPage.joinNowView.txtLastN.text];
-                            NSString *strBirthDate = self.loginPage.joinNowView.txtBirthDayJoin.text;
-                            NSArray *subBirthDate = [strBirthDate componentsSeparatedByString:@"/"];
-                            _newUser.birthDay = [subBirthDate objectAtIndex:0];
-                            _newUser.birthMonth = [subBirthDate objectAtIndex:1];
-                            _newUser.birthYear = [subBirthDate objectAtIndex:2];
-                            _newUser.gender = [self.loginPage.joinNowView.btnGender getGender];
-                            _newUser.avatarKey = amazonThumbnail.key;
-                            _newUser.avatarFullKey = amazonAvatar.key;
-                            _newUser.password = self.loginPage.joinNowView.txtPasswordJoin.text;
-                            
-                            [[NSUserDefaults standardUserDefaults] setObject:_newUser.password forKey:@"password"];
-                            
-                            NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
-                            NSString *_deviceToken = [NSString stringWithFormat:@"%@", token];
-                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@" " withString:@""];
-                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
-                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@">" withString:@""];
-                            
-                            _newUser.deviceToken = _deviceToken;
-                            _newUser.longitude = [self.storeIns getLongitude];
-                            _newUser.latitude = [self.storeIns getlatitude];
-                            _newUser.userName = self.loginPage.joinNowView.txtUserNameJoin.text;
-                            _newUser.firstName = self.loginPage.joinNowView.txtFirstN.text;
-                            _newUser.lastName = self.loginPage.joinNowView.txtLastN.text;
-                            _newUser.leftAvatar = @"0";
-                            _newUser.topAvatar = @"0";
-                            _newUser.widthAvatar = @"0";
-                            _newUser.heightAvatar = @"0";
-                            _newUser.scaleAvatar = @"1";
-                            _newUser.contacts = contactList;
-                            
-                            NSString *cmd = [self.dataMapIns cmdNewUser:_newUser];
-                            [self.networkIns sendData:cmd];
-                            
-                        }else{
-                            //alert wrong avatar
-                        }
-                    }
+                    [netController setResult:_data];
+                    
+//                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
+//                    if ([subParameter count] == 2) {
+//                        int resultAvatar = [[subParameter objectAtIndex:0] intValue];
+//                        int resultThumbnail = [[subParameter objectAtIndex:1] intValue];
+//                        
+//                        if (resultAvatar == 0 && resultThumbnail == 0) {
+//                            //call function register user
+//                            NewUser *_newUser = [[NewUser alloc] init];
+//                            _newUser.nickName = [NSString stringWithFormat:@"%@ %@", self.loginPage.joinNowView.txtFirstN.text, self.loginPage.joinNowView.txtLastN.text];
+//                            NSString *strBirthDate = self.loginPage.joinNowView.txtBirthDayJoin.text;
+//                            NSArray *subBirthDate = [strBirthDate componentsSeparatedByString:@"/"];
+//                            _newUser.birthDay = [subBirthDate objectAtIndex:0];
+//                            _newUser.birthMonth = [subBirthDate objectAtIndex:1];
+//                            _newUser.birthYear = [subBirthDate objectAtIndex:2];
+//                            _newUser.gender = [self.loginPage.joinNowView.btnGender getGender];
+//                            _newUser.avatarKey = amazonThumbnail.key;
+//                            _newUser.avatarFullKey = amazonAvatar.key;
+//                            _newUser.password = self.loginPage.joinNowView.txtPasswordJoin.text;
+//                            
+//                            [[NSUserDefaults standardUserDefaults] setObject:_newUser.password forKey:@"password"];
+//                            
+//                            NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
+//                            NSString *_deviceToken = [NSString stringWithFormat:@"%@", token];
+//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@" " withString:@""];
+//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
+//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@">" withString:@""];
+//                            
+//                            _newUser.deviceToken = _deviceToken;
+//                            _newUser.longitude = [self.storeIns getLongitude];
+//                            _newUser.latitude = [self.storeIns getlatitude];
+//                            _newUser.userName = self.loginPage.joinNowView.txtUserNameJoin.text;
+//                            _newUser.firstName = self.loginPage.joinNowView.txtFirstN.text;
+//                            _newUser.lastName = self.loginPage.joinNowView.txtLastN.text;
+//                            _newUser.leftAvatar = @"0";
+//                            _newUser.topAvatar = @"0";
+//                            _newUser.widthAvatar = @"0";
+//                            _newUser.heightAvatar = @"0";
+//                            _newUser.scaleAvatar = @"1";
+//                            _newUser.contacts = contactList;
+//                            
+//                            NSString *cmd = [self.dataMapIns cmdNewUser:_newUser];
+//                            [self.networkIns sendData:cmd];
+//                            
+//                        }else{
+//                            //alert wrong avatar
+//                        }
+//                    }
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"NEWUSER"]) {
@@ -828,7 +897,9 @@ static NSString         *dataNetwork;
                     
                     if (isFirstLoadWall) {
                         
-//                        self.storeIns.walls = [NSMutableArray new];
+                        if (self.storeIns.walls == nil) {
+                            self.storeIns.walls = [NSMutableArray new];
+                        }
                         [self.storeIns.walls removeAllObjects];
                         [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                         isFirstLoadWall = NO;
@@ -841,6 +912,8 @@ static NSString         *dataNetwork;
                     }else{
                         [self.wallPageV8 stopLoadWall:NO];
                     }
+                    
+                    [waitingWall stopAnimating];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETNOISE"]) {
@@ -853,7 +926,6 @@ static NSString         *dataNetwork;
                         [self.dataMapIns mapDataNoises:[subCommand objectAtIndex:1]];
                     }
                     
-                    
 //                    [self.noisePageV6.scCollection reloadData];
                     if ([[subCommand objectAtIndex:1] isEqualToString:@"0"]) {
                         [self.noisePageV6.scCollection stopLoadNoise:YES];
@@ -861,6 +933,7 @@ static NSString         *dataNetwork;
                         [self.noisePageV6.scCollection stopLoadNoise:NO];
                     }
 
+                    [waitingNoise stopAnimating];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADPOSTURL"]) {
@@ -884,30 +957,37 @@ static NSString         *dataNetwork;
                     NSString *key = @"ADDPOST";
                     NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[subCommand objectAtIndex:1] forKey:key];
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"setResultAddWall" object:nil userInfo:dictionary];
-                    
+            
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDPOSTLIKE"]) {
                 
                     NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
-                    NSString *decodeClientKey = [self.helperIns decode:[subParameter objectAtIndex:1]];
-                    
-                    int userPost = [[subParameter objectAtIndex:2] intValue];
-                    DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
-                    [_wall setTimeLike:[subParameter objectAtIndex:0]];
-                    [_wall setIsLike:YES];
-                    
-                    PostLike *_newLike = [PostLike new];
-                    _newLike.dateLike = [subParameter objectAtIndex:0];
-                    _newLike.userLikeId =self.storeIns.user.userID;
-                    _newLike.firstName = self.storeIns.user.firstname;
-                    _newLike.lastName = self.storeIns.user.lastName;
+                    if ([subParameter count] > 1) {
+                        NSString *decodeClientKey = [self.helperIns decode:[subParameter objectAtIndex:1]];
+                        
+                        int userPost = [[subParameter objectAtIndex:2] intValue];
+                        DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
+                        [_wall setTimeLike:[subParameter objectAtIndex:0]];
+                        [_wall setIsLike:YES];
+                        
+                        PostLike *_newLike = [PostLike new];
+                        _newLike.dateLike = [subParameter objectAtIndex:0];
+                        _newLike.userLikeId =self.storeIns.user.userID;
+                        _newLike.firstName = self.storeIns.user.firstname;
+                        _newLike.lastName = self.storeIns.user.lastName;
+                        _newLike.urlAvatarThumb = self.storeIns.user.urlThumbnail;
+                        _newLike.urlAvatarFull = self.storeIns.user.urlAvatar;
+                        
+                        [_wall.likes addObject:_newLike];
+                        
+                        [self.storeIns updateWall:decodeClientKey withUserPost:userPost withData:_wall];
+                        [self.storeIns updateNoise:decodeClientKey withUserPost:userPost withData:_wall];
 
-                    [_wall.likes addObject:_newLike];
-                    
-                    [self.storeIns updateWall:decodeClientKey withUserPost:(int)[subParameter objectAtIndex:2] withData:_wall];
-                    
-                    [self.wallPageV8 stopLoadWall:NO];
+                        [self.wallPageV8 stopLoadWall:NO];
+                        
+                        [netController setResult:_data];
+                    }
                     
                 }
                 
@@ -924,6 +1004,8 @@ static NSString         *dataNetwork;
                     _newLike.userLikeId = [[subParameter objectAtIndex:3] intValue];
                     _newLike.firstName = [subParameter objectAtIndex:4];
                     _newLike.lastName = [subParameter objectAtIndex:5];
+                    _newLike.urlAvatarThumb = [self.helperIns decode:[subParameter objectAtIndex:6]];
+                    _newLike.urlAvatarFull  = [self.helperIns decode:[subParameter objectAtIndex:7]];
                     
                     [_wall.likes addObject:_newLike];
                     
@@ -935,35 +1017,38 @@ static NSString         *dataNetwork;
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"REMOVEPOSTLIKE"]) {
                     
                     NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
-                    NSString *decodeClientKey = [self.helperIns decode:[subParameter objectAtIndex:1]];
-                    
-                    int userPost = [[subParameter objectAtIndex:2] intValue];
-                    DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
-                    [_wall setTimeLike:[subParameter objectAtIndex:0]];
-                    [_wall setIsLike:NO];
-                    
-                    PostLike *_newLike = [PostLike new];
-                    _newLike.dateLike = [subParameter objectAtIndex:0];
-                    _newLike.userLikeId = self.storeIns.user.userID;
-                    _newLike.firstName = self.storeIns.user.firstname;
-                    _newLike.lastName = self.storeIns.user.lastName;
-                    
-                    if (_wall.likes != nil && [_wall.likes count] > 0) {
-                        int count = (int)[_wall.likes count];
-                        for (int i = 0; i < count; i++) {
-                            if ([[_wall.likes objectAtIndex:i] userLikeId] == _newLike.userLikeId) {
-                                
-                                [_wall.likes removeObjectAtIndex:i];
-                                break;
+                    if ([subParameter count] > 1) {
+                        NSString *decodeClientKey = [self.helperIns decode:[subParameter objectAtIndex:1]];
+                        
+                        int userPost = [[subParameter objectAtIndex:2] intValue];
+                        DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
+                        [_wall setTimeLike:[subParameter objectAtIndex:0]];
+                        [_wall setIsLike:NO];
+                        
+                        PostLike *_newLike = [PostLike new];
+                        _newLike.dateLike = [subParameter objectAtIndex:0];
+                        _newLike.userLikeId = self.storeIns.user.userID;
+                        _newLike.firstName = self.storeIns.user.firstname;
+                        _newLike.lastName = self.storeIns.user.lastName;
+                        
+                        if (_wall.likes != nil && [_wall.likes count] > 0) {
+                            int count = (int)[_wall.likes count];
+                            for (int i = 0; i < count; i++) {
+                                if ([[_wall.likes objectAtIndex:i] userLikeId] == _newLike.userLikeId) {
+                                    
+                                    [_wall.likes removeObjectAtIndex:i];
+                                    break;
+                                }
                             }
                         }
-                    }
-                    [_wall.likes removeObject:_newLike];
-                    
-                    [self.storeIns updateWall:decodeClientKey withUserPost:(int)[subParameter objectAtIndex:2] withData:_wall];
-                    
-                    [self.wallPageV8 stopLoadWall:NO];
+                        [_wall.likes removeObject:_newLike];
+                        
+                        [self.storeIns updateWall:decodeClientKey withUserPost:(int)[subParameter objectAtIndex:2] withData:_wall];
+                        
+                        [self.wallPageV8 stopLoadWall:NO];
 
+                        [netController setResult:_data];
+                    }
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"NTFPOSTUNLIKE"]) {
@@ -1021,7 +1106,70 @@ static NSString         *dataNetwork;
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDCOMMENT"]) {
                     [netController setResult:_data];
                 }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUSERFOLLOWER"]) {
+                    [netController setResult:_data];
+                }
 
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUSERFOLLOWING"]) {
+                    [netController setResult:_data];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"USERREMOVEFOLLOW"]) {
+                    [netController setResult:_data];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"LOGOUT"]) {
+                    [self.networkIns connectSocket];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUSERBYSTRING"]) {
+                    [netController setResult:_data];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"SENDFRIENDREQUEST"]) {
+                    [netController setResult:_data];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"RECEIVEFRIENDREQUEST"]) {
+                    [netController setResult:_data];
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"FRIENDREQUEST"]) {
+                    NSArray *subFriendRequest = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
+                    if ([subFriendRequest count] > 1) {
+                        UserSearch *_friendRequest = [UserSearch new];
+                        [_friendRequest setUserID:self.storeIns.user.userID];
+                        [_friendRequest setFriendID:[[subFriendRequest objectAtIndex:0] intValue]];
+                        [_friendRequest setFirstName:[self.helperIns decode:[subFriendRequest objectAtIndex:1]]];
+                        [_friendRequest setLastName:[self.helperIns decode:[subFriendRequest objectAtIndex:2]]];
+                        [_friendRequest setNickName:[NSString stringWithFormat:@"%@ %@", _friendRequest.firstName, _friendRequest.lastName]];
+                        [_friendRequest setUrlAvatar:[self.helperIns decode:[subFriendRequest objectAtIndex:3]]];
+                        [_friendRequest setUrlAvatarFull:[self.helperIns decode:[subFriendRequest objectAtIndex:4]]];
+                        
+                        [self.storeIns.friendsRequest addObject:_friendRequest];
+                        
+                        [self setStatusRequestFriend];
+                    }
+                    
+                }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"RESULTFRIENDREQUEST"]) {
+                    //Notifi allow add friend
+                    NSArray *subResutlAddFriend = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
+                    if ([subResutlAddFriend count] > 1) {
+                        int status = [[subResutlAddFriend objectAtIndex:1] intValue];
+                        
+                        if (status == 0) {//Denies
+                            [self.storeIns progressResultAddFriend:[[subResutlAddFriend objectAtIndex:0] intValue] withIsAllow:NO];
+                        }
+                        
+                        if (status == 1) {//Accept
+                            [self.storeIns progressResultAddFriend:[[subResutlAddFriend objectAtIndex:0] intValue] withIsAllow:YES];
+                        }
+                    
+                    }
+                }
             }
         }
     }
@@ -1032,12 +1180,14 @@ static NSString         *dataNetwork;
     switch (code) {
         case 1:
         {
+            self.storeIns.isConnected = YES;
             [viewStatusConnect setHidden:YES];
             [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
             NSUserDefaults *_default = [NSUserDefaults standardUserDefaults];
             BOOL _isLogin = [_default boolForKey:@"IsLogin"];
             if (_isLogin) {
+                
                 NSString *accessKey = [_default stringForKey:@"accessKey"];
                 
                 NSString *strPass = [_default stringForKey:@"password"];
@@ -1053,6 +1203,11 @@ static NSString         *dataNetwork;
                 
                 [self.networkIns sendData:str];
             }
+        }
+            break;
+            
+        case -1:{
+            self.storeIns.isConnected = NO;
         }
             break;
             

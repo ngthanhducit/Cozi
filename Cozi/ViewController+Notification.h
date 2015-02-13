@@ -36,4 +36,6 @@
 - (void) notificationSelectContact:(NSNotification*)notification;
 - (void) notificationSelectComment:(NSNotification*)notification;
 - (void) notificationSelectAllComment:(NSNotification*)notification;
+- (void) notificationSelectLikes:(NSNotification*)notification;
+- (void) notificationReloadListFriend:(NSNotification*)notification;
 @end

@@ -26,4 +26,5 @@
 - (void) btnNewChatClick:(id)sender;
 - (void) reloadWall;
 - (void) reloadNoise;
+- (void) setStatusRequestFriend;
 @end
