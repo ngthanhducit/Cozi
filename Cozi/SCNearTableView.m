@@ -56,11 +56,14 @@
 }
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
-    return 1;
+    return 2;
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [_nearItems count];
+    if (section == 0) {
+        return 1;
+    }else
+        return [_nearItems count];
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -74,31 +77,55 @@
     
     scCell = (SCNearTableViewCell*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    NearLocation *_near = [_nearItems objectAtIndex:indexPath.row];
-    
     if (scCell == nil) {
         scCell = [[SCNearTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     }
     
-    NSArray *subName = [_near.nearName componentsSeparatedByString:@" "];
-    CGSize textSize = { self.bounds.size.width, 10000.0 };
-    CGSize sizeName = [[subName objectAtIndex:0] sizeWithFont:[helperIns getFontThin:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+    if (indexPath.section == 0) {
+        
+        CGSize textSize = { self.bounds.size.width, 10000.0 };
+        CGSize sizeName = [@"SEND MY LOCATION" sizeWithFont:[helperIns getFontThin:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        
+        CGSize sizeVincity = [@"100 m" sizeWithFont:[helperIns getFontThin:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        
+        CGFloat h = sizeName.height + sizeVincity.height;
+        CGFloat y = (hRow / 2) - (h / 2);
+        
+        [scCell.lblName setText:@"SEND MY LOCATION"];
+        [scCell.lblName setFrame:CGRectMake(20, y, scCell.lblName.bounds.size.width, sizeName.height)];
+        [scCell.lblName setFont:[helperIns getFontLight:11.0f]];
+        
+        [scCell.lblVincity setText:@"100 m"];
+        [scCell.lblVincity setFrame:CGRectMake(20, y + sizeName.height, scCell.lblVincity.bounds.size.width, sizeVincity.height)];
+        [scCell.lblVincity setFont:[helperIns getFontLight:11.0f]];
+        [scCell.lblVincity setTextColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+        
+        return scCell;
+    }else if(indexPath.section == 1){
+        NearLocation *_near = [_nearItems objectAtIndex:indexPath.row];
+        
+        NSArray *subName = [_near.nearName componentsSeparatedByString:@" "];
+        CGSize textSize = { self.bounds.size.width, 10000.0 };
+        CGSize sizeName = [[subName objectAtIndex:0] sizeWithFont:[helperIns getFontThin:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        
+        CGSize sizeVincity = [_near.vicinity sizeWithFont:[helperIns getFontThin:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        
+        CGFloat h = sizeName.height + sizeVincity.height;
+        CGFloat y = (hRow / 2) - (h / 2);
+        
+        [scCell.lblName setText:_near.nearName];
+        [scCell.lblName setFont:[helperIns getFontLight:15.0f]];
+        [scCell.lblName setFrame:CGRectMake(20, y, scCell.lblName.bounds.size.width, sizeName.height)];
+        
+        [scCell.lblVincity setText:_near.vicinity];
+        [scCell.lblVincity setFont:[helperIns getFontLight:11.0f]];
+        [scCell.lblVincity setFrame:CGRectMake(20, y + sizeName.height, scCell.lblVincity.bounds.size.width, sizeVincity.height)];
+        [scCell.lblVincity setTextColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+        
+        return scCell;
+    }
     
-    CGSize sizeVincity = [_near.vicinity sizeWithFont:[helperIns getFontThin:11.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-    
-    CGFloat h = sizeName.height + sizeVincity.height;
-    CGFloat y = (hRow / 2) - (h / 2);
-    
-    [scCell.lblName setText:_near.nearName];
-    [scCell.lblName setFont:[helperIns getFontLight:15.0f]];
-    [scCell.lblName setFrame:CGRectMake(20, y, scCell.lblName.bounds.size.width, sizeName.height)];
-    
-    [scCell.lblVincity setText:_near.vicinity];
-    [scCell.lblVincity setFont:[helperIns getFontLight:11.0f]];
-    [scCell.lblVincity setFrame:CGRectMake(20, y + sizeName.height, scCell.lblVincity.bounds.size.width, sizeVincity.height)];
-    [scCell.lblVincity setTextColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
-    
-    return scCell;
+    return nil;
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{

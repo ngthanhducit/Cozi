@@ -35,7 +35,7 @@
     UIView *selectionColor = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];
     [selectionColor setBackgroundColor:[hp colorWithHex:[hp getHexIntColorWithKey:@"GreenColor"]]];
     
-    UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickGrey.svg"];
+    UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickGrey-v3.svg"];
     UIImageView *_imgView = [[UIImageView alloc] initWithImage:img];
     [_imgView setFrame:CGRectMake(self.bounds.size.width - 40, 5, 40, 40)];
     [_imgView setContentMode:UIViewContentModeCenter];
