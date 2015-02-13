@@ -14,21 +14,24 @@
 #import "Friend.h"
 #import "NetworkController.h"
 #import "PNetworkCommunication.h"
+#import "SCFollowersViewController.h"
+#import "SCFollowingViewController.h"
+#import "SCPostParentViewController.h"
 
-@interface SCProfileViewController : UIViewController <PNetworkCommunication>
+@interface SCProfileViewController : SCPostParentViewController <PNetworkCommunication>
 {
     MainPageV6              *mainPage;
     User                    *my;
     Friend                  *friend;
-    CGFloat                 hHeader;
-    Helper                  *helperIns;
-    Store                   *storeIns;
+//    CGFloat                 hHeader;
+//    Helper                  *helperIns;
+//    Store                   *storeIns;
     NetworkController       *netIns;
 }
 
-@property (nonatomic, strong) UILabel                   *lblTitle;
-@property (nonatomic, strong) UIButton                  *btnClose;
-@property (nonatomic, strong) UIView                    *vHeader;
+//@property (nonatomic, strong) UILabel                   *lblTitle;
+//@property (nonatomic, strong) UIButton                  *btnClose;
+//@property (nonatomic, strong) UIView                    *vHeader;
 
 - (void) setProfile:(User*)_myProfile;
 @end

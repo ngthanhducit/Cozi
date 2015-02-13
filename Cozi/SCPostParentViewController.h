@@ -19,5 +19,12 @@
 
 @property (nonatomic, strong) UILabel  *lblTitle;
 @property (nonatomic, strong) UIButton *btnClose;
+@property (nonatomic, strong) UIButton  *btnBack;
 @property (nonatomic, strong) UIView   *vHeader;
+
+- (void) btnCloseTap:(id)sender;
+- (void) btnBackTap:(id)sender;
+
+- (void) showHiddenClose:(BOOL)_isShow;
+- (void) showHiddenBack:(BOOL)_isShow;
 @end

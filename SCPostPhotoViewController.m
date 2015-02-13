@@ -84,6 +84,7 @@
 //        UIImage *img = [UIImage imageWithCGImage:imgRef];
         
         SCPreviewPhotoViewController *post = [[SCPreviewPhotoViewController alloc] initWithNibName:nil bundle:nil];
+        [post showHiddenClose:YES];
         //set image to post
         [post setImagePreview:img];
         

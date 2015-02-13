@@ -17,22 +17,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self setupVariable];
+    [self setupNotification];
+    [self setupUI];
 }
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        
-        [self initVariable];
-        [self setupNotification];
-        [self setup];
-        [self setupUI];
-    }
-    
-    return self;
-}
-
-- (void) initVariable{
+- (void) setupVariable{
     hHeader = 40;
     hViewAddComment = 40;
     helperIns = [Helper shareInstance];
@@ -46,32 +36,8 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
 }
 
-- (void) setup{
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    [self.navigationController setNavigationBarHidden:YES];
-    
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:self.vHeader];
-    
-    self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
-    [self.lblTitle setText:@"COMMENTS"];
-    [self.lblTitle setFont:[helperIns getFontLight:18.0f]];
-    [self.lblTitle setTextColor:[UIColor whiteColor]];
-    [self.lblTitle setTextAlignment:NSTextAlignmentCenter];
-    [self.vHeader addSubview:self.lblTitle];
-    
-    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-    [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
-    [self.vHeader addSubview:self.btnClose];
-    
-    [self.view addSubview:self.vHeader];
+- (void) setupUI{
+    wallItems = [DataWall new];
     
     self.tbComment = [[SCCommentTableView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader - hViewAddComment) style:UITableViewStylePlain];
     [self.tbComment setKeyboardDismissMode:UIScrollViewKeyboardDismissModeOnDrag];
@@ -90,21 +56,18 @@
     self.txtComment.font = [helperIns getFontLight:17.0f];
     self.txtComment.internalTextView.scrollIndicatorInsets = UIEdgeInsetsMake(5, 0, 5, 0);
     self.txtComment.placeholder = @"ADD A COMMENT...";
+    [self.txtComment setTextColor:[UIColor darkGrayColor]];
     [self.vAddComment addSubview:self.txtComment];
     
+    UIImage *imgSend = [helperIns getImageFromSVGName:@"icon-Chat-Send.svg"];
     self.btnSend = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnSend setBackgroundColor:[UIColor greenColor]];
+//    [self.btnSend setBackgroundColor:[UIColor greenColor]];
     [self.btnSend setFrame:CGRectMake(self.view.bounds.size.width - 50, 0, 50, hViewAddComment)];
-    [self.btnSend setTitle:@"SEND" forState:UIControlStateNormal];
+    [self.btnSend setImage:imgSend forState:UIControlStateNormal];
+//    [self.btnSend setTitle:@"SEND" forState:UIControlStateNormal];
     [self.btnSend.titleLabel setFont:[helperIns getFontLight:14.0f]];
     [self.btnSend addTarget:self action:@selector(btnSendComment:) forControlEvents:UIControlEventTouchUpInside];
     [self.vAddComment addSubview:self.btnSend];
-    
-}
-
-
-- (void) setupUI{
-    wallItems = [DataWall new];
 }
 
 - (void) setData:(DataWall*)data withType:(int)_typeDisplay{
@@ -120,11 +83,10 @@
     [self scrollToBottom];
 }
 
-- (void) btnCloseTap:(id)sender{
-    [netControllerIns removeListener:self];
-    
-    [self.navigationController popViewControllerAnimated:YES];
-}
+//- (void) btnCloseTap:(id)sender{
+//    
+//    [self.navigationController popViewControllerAnimated:YES];
+//}
 
 - (void) btnSendComment:(id)sender{
     
@@ -199,37 +161,61 @@
     NSArray *subData = [_strResult componentsSeparatedByString:@"{"];
     if ([subData count] == 2) {
         
-        NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
-        if ([subCommand count] > 1) {
-            
-            PostComment *_newComment = [[PostComment alloc] init];
-            _newComment.dateComment = [helperIns convertStringToDate:[subCommand objectAtIndex:0]];
-            _newComment.userCommentId = [[subCommand objectAtIndex:1] integerValue];
-            _newComment.firstName = [helperIns decode:[subCommand objectAtIndex:2]];
-            _newComment.lastName = [helperIns decode:[subCommand objectAtIndex:3]];
-            _newComment.contentComment = self.txtComment.text;
-            _newComment.urlImageComment = storeIns.user.urlThumbnail;
-            _newComment.commentLikes = [NSMutableArray new];
-            
-            //Map list like comment
-            [wallItems.comments addObject:_newComment];
-            
-            self.txtComment.text = @"";
-            [self.navigationController popToRootViewControllerAnimated:YES];
-            
-            [self.tbComment reloadData];
+        if ([[subData objectAtIndex:0] isEqualToString:@"ADDCOMMENT"]) {
+            NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
+            if ([subCommand count] > 1) {
+                
+                PostComment *_newComment = [[PostComment alloc] init];
+                _newComment.dateComment = [helperIns convertStringToDate:[subCommand objectAtIndex:0]];
+                
+                _newComment.userCommentId = storeIns.user.userID;
+                
+                _newComment.firstName = storeIns.user.firstname;
+                _newComment.lastName = storeIns.user.lastName;
+                _newComment.contentComment = self.txtComment.text;
+                _newComment.urlImageComment = @"";
+                
+                //object at index 6
+                _newComment.commentLikes = [NSMutableArray new];
+                //object at index 7
+                //_newComment.isLikeComment
+                _newComment.postClientKey = [helperIns decode:[subCommand objectAtIndex:1]];
+                _newComment.commentClientKey = [helperIns decode:[subCommand objectAtIndex:2]];
+                _newComment.commentLikes = [NSMutableArray new];
+                
+                //Map list like comment
+                [wallItems.comments addObject:_newComment];
+                
+                self.txtComment.text = @"";
+//                [self.navigationController popViewControllerAnimated:YES];
+                
+                [self.tbComment reloadData];
+            }
+    
         }
         
     }
     
 }
 
+- (void) removeNotification{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationAddRemoveFollowing" object:nil];
+}
+
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
+    [self.tbComment reloadData];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.lblTitle setText:@"COMMENTS"];
 
     [netControllerIns addListener:self];
+}
+
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    [self removeNotification];
+    [netControllerIns removeListener:self];
 }
 
 - (void)didReceiveMemoryWarning {

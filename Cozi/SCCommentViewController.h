@@ -14,21 +14,22 @@
 #import "DataWall.h"
 #import "PNetworkCommunication.h"
 #import "NetworkController.h"
+#import "SCPostParentViewController.h"
 
-@interface SCCommentViewController : UIViewController <HPGrowingTextViewDelegate, PNetworkCommunication>
+@interface SCCommentViewController : SCPostParentViewController <HPGrowingTextViewDelegate, PNetworkCommunication>
 {
     DataWall                *wallItems;
-    CGFloat                 hHeader;
+//    CGFloat                 hHeader;
     CGFloat                 hViewAddComment;
-    Helper                  *helperIns;
-    Store                   *storeIns;
+//    Helper                  *helperIns;
+//    Store                   *storeIns;
     int                     typeDisplay;
     NetworkController       *netControllerIns;
 }
 
-@property (nonatomic, strong) UILabel           *lblTitle;
-@property (nonatomic, strong) UIButton          *btnClose;
-@property (nonatomic, strong) UIView            *vHeader;
+//@property (nonatomic, strong) UILabel           *lblTitle;
+//@property (nonatomic, strong) UIButton          *btnClose;
+//@property (nonatomic, strong) UIView            *vHeader;
 @property (nonatomic, strong) SCCommentTableView    *tbComment;
 
 @property (nonatomic, strong) UIView                *vAddComment;

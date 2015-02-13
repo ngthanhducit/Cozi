@@ -13,11 +13,12 @@
 #import "SCPostDetailsViewController.h"
 #import "TriangleView.h"
 #import "SCGridView.h"
+#import "SCPostParentViewController.h"
 
-@interface SCPostViewController : UIViewController
+@interface SCPostViewController : SCPostParentViewController
 {
-    Helper              *helperIns;
-    CGFloat             hHeader;
+//    Helper              *helperIns;
+//    CGFloat             hHeader;
     CGFloat             hTool;
     CGFloat             yLineTool;
     int                 statusFlash; //0:off-1:on:2:auto
@@ -25,7 +26,7 @@
     BOOL                inChangeFlash;
 }
 
-@property (nonatomic, strong) UIButton          *btnClose;
+//@property (nonatomic, strong) UIButton          *btnClose;
 @property (nonatomic, strong) SCCameraCaptureV7 *cameraCapture;
 
 @property (nonatomic, strong) SCGridView        *vGridLine;
@@ -33,6 +34,6 @@
 @property (nonatomic, strong) UIButton          *btnFlash;
 @property (nonatomic, strong) UIButton          *btnSwithCamera;
 @property (nonatomic, strong) UIButton          *btnTakePhoto;
-@property (nonatomic, strong) UIView            *vHeader;
+//@property (nonatomic, strong) UIView            *vHeader;
 @property (nonatomic, strong) UIView            *vTool;
 @end

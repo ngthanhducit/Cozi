@@ -25,19 +25,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self setupVariable];
+    [self setupUI];
 }
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        [self initVariable];
-        [self setup];
-    }
-    
-    return self;
-}
-
-- (void) initVariable{
+- (void) setupVariable{
     hHeader = 40;
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
@@ -53,30 +45,30 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultAddWall:) name:@"setResultAddWall" object:nil];
 }
 
-- (void) setup{
+- (void) setupUI{
     [self.view setBackgroundColor:[UIColor whiteColor]];
     
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:self.vHeader];
-    
-    UILabel *lblPhotoDetails = [[UILabel alloc] initWithFrame:CGRectMake(hHeader, 0, self.view.bounds.size.width - (hHeader * 2), hHeader)];
-    [lblPhotoDetails setText:@"PHOTO DETAILS"];
-    [lblPhotoDetails setFont:[helperIns getFontLight:18.0f]];
-    [lblPhotoDetails setTextColor:[UIColor whiteColor]];
-    [lblPhotoDetails setTextAlignment:NSTextAlignmentCenter];
-    [self.vHeader addSubview:lblPhotoDetails];
-    
-    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
-    [self.btnClose addTarget:self action:@selector(btnCloseClick) forControlEvents:UIControlEventTouchUpInside];
-    [self.vHeader addSubview:self.btnClose];
+//    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
+//    [self.vHeader setBackgroundColor:[UIColor blackColor]];
+//    [self.view addSubview:self.vHeader];
+//    
+//    UILabel *lblPhotoDetails = [[UILabel alloc] initWithFrame:CGRectMake(hHeader, 0, self.view.bounds.size.width - (hHeader * 2), hHeader)];
+//    [lblPhotoDetails setText:@"PHOTO DETAILS"];
+//    [lblPhotoDetails setFont:[helperIns getFontLight:18.0f]];
+//    [lblPhotoDetails setTextColor:[UIColor whiteColor]];
+//    [lblPhotoDetails setTextAlignment:NSTextAlignmentCenter];
+//    [self.vHeader addSubview:lblPhotoDetails];
+//    
+//    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+//    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+//    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
+//    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
+//    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
+//    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
+//    [self.btnClose addTarget:self action:@selector(btnCloseClick) forControlEvents:UIControlEventTouchUpInside];
+//    [self.vHeader addSubview:self.btnClose];
     
     self.imgPost = [[UIImageView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, (self.view.bounds.size.height / 3))];
     
@@ -153,7 +145,7 @@
     [lblTitleFB setBackgroundColor:[UIColor clearColor]];
     [self.vAddFacebook addSubview:lblTitleFB];
     
-    imgSelectFB = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-TickGrey"]];
+    imgSelectFB = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-TickWhite-V2.svg"]];
     [imgSelectFB setFrame:CGRectMake(self.view.bounds.size.width - 50, self.vAddFacebook.bounds.size.height / 2 - 15, 30, 30)];
     [imgSelectFB setHidden:YES];
     [self.vAddFacebook addSubview:imgSelectFB];
@@ -169,9 +161,9 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void) btnCloseClick{
-    [self.navigationController popToRootViewControllerAnimated:YES];
-}
+//- (void) btnCloseClick{
+//    [self.navigationController popToRootViewControllerAnimated:YES];
+//}
 
 - (void) setImagePost:(UIImage*)_imagePost{
     [self.imgPost setImage:_imagePost];
@@ -256,8 +248,11 @@
 
 - (void) btnPostPhoto:(id)sender{
     if (self.imgPost.image != nil && ![self.txtCaption.text isEqualToString:@""]) {
-        vLoading = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
-        [vLoading setBackgroundColor:[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:0.5]];
+//        vLoading = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+//        [vLoading setBackgroundColor:[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:0.5]];
+//        [self.view addSubview:vLoading];
+        
+        vLoading = [[SCWaitingView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
         [self.view addSubview:vLoading];
         
         [networkControllerIns getUploadPostUrl];
@@ -405,15 +400,23 @@
             DataWall *_newWall = [DataWall new];
             _newWall.userPostID = storeIns.user.userID;
             _newWall.content = self.txtCaption.text;
-            __weak NSString *strFullName = storeIns.user.nickName;
-            _newWall.fullName = strFullName;
+//            __weak NSString *strFullName = storeIns.user.nickName;
+            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+            _newWall.firstName = storeIns.user.firstname;
+            _newWall.lastName = storeIns.user.lastName;
             _newWall.urlFull = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.key];
+            _newWall.urlThumb = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.keyThumb];
+            _newWall.urlAvatarThumb = storeIns.user.urlThumbnail;
+            _newWall.urlAvatarFull = storeIns.user.urlAvatar;
             _newWall.video = @"";
-            _newWall.longitude = @"";
-            _newWall.latitude = @"";
+            _newWall.longitude = @"0";
+            _newWall.latitude = @"0";
             _newWall.time = [subCommand objectAtIndex:0];
-            _newWall.typePost = 1;
-            _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
+//            _newWall.typePost = 1;
+            _newWall.codeType = 1;
+            _newWall.clientKey = _clientKeyID;
+            _newWall.comments = [NSMutableArray new];
+            _newWall.likes = [NSMutableArray new];
             
             [storeIns insertWallData:_newWall];
             [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];

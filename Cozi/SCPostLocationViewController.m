@@ -36,6 +36,7 @@
 
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
+    [self.lblTitle setText:@"LOCATION"];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -64,28 +65,33 @@
     [searchBar setPlaceholder:@"SEARCH"];
     
     [vSearch addSubview:searchBar];
-    
-    self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height), self.view.bounds.size.width, self.view.bounds.size.height / 3)];
-    [self.vMaps setBackgroundColor:[UIColor orangeColor]];
-    [self.view addSubview:self.vMaps];
-    
-    RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithMapID:@"ngthanhducit.kok79pln"];
-    mapView = [[RMMapView alloc] initWithFrame:self.vMaps.bounds andTilesource:tileSource];
-    [mapView setShowsUserLocation:YES];
 
-    [mapView setDelegate:self];
-    CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
-    [mapView setCenterCoordinate:center];
-    mapView.zoom = 15;
-    
-    [self.vMaps addSubview:mapView];
-    
-    self.vMarket = [[UIView alloc] initWithFrame:self.vMaps.bounds];
-    [self.vMarket setBackgroundColor:[UIColor clearColor]];
-    [self.vMarket setUserInteractionEnabled:NO];
-    [self.vMarket setAlpha:0.5];
-    
-    [self.vMaps addSubview:self.vMarket];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height), self.view.bounds.size.width, self.view.bounds.size.height / 3)];
+        [self.vMaps setBackgroundColor:[UIColor clearColor]];
+        [self.view addSubview:self.vMaps];
+        
+        RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithMapID:@"ngthanhducit.kok79pln"];
+        mapView = [[RMMapView alloc] initWithFrame:self.vMaps.bounds andTilesource:tileSource];
+        [mapView setShowsUserLocation:YES];
+        
+        [mapView setDelegate:self];
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
+        [mapView setCenterCoordinate:center];
+        mapView.zoom = 15;
+        
+        [self.vMaps addSubview:mapView];
+        
+        self.vMarket = [[UIView alloc] initWithFrame:self.vMaps.bounds];
+        [self.vMarket setBackgroundColor:[UIColor clearColor]];
+        [self.vMarket setUserInteractionEnabled:NO];
+        [self.vMarket setAlpha:0.5];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.vMaps addSubview:self.vMarket];
+        });
+        
+    });
     
     UIImage *img = [helperIns getImageFromSVGName:@"icon-LocationGreen.svg"];
     self.imgMarket = [[UIImageView alloc] initWithImage:img];
@@ -118,7 +124,6 @@
     [lblNear setFont:[helperIns getFontLight:15.0f]];
     [vNearTitle addSubview:lblNear];
     
-//    self.tbNearLocation = [[SCNearTableView alloc] initWithFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height)];
     self.tbNearLocation = [[SCNearTableView alloc] initWithFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height) style:UITableViewStylePlain];
     [self.tbNearLocation setBackgroundColor:[UIColor clearColor]];
     [self.vNear addSubview:self.tbNearLocation];
@@ -158,8 +163,7 @@
     [self.btnPostLocation setTitleColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] forState:UIControlStateNormal];
 
     [self.vButton addSubview:self.btnPostLocation];
-    
-//    [self downloadLocation:[storeIns getlatitude] withLongitude:[storeIns getLongitude]];
+
 }
 
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar{
@@ -385,7 +389,7 @@
 - (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
     CLLocationCoordinate2D l = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
     
-//    [mapView setCenterCoordinate:l animated:YES];
+    [mapView setCenterCoordinate:l animated:YES];
 }
 
 - (void) beforeMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
@@ -395,6 +399,7 @@
     } completion:^(BOOL finished) {
         
     }];
+    
 }
 
 - (void) afterMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
@@ -450,9 +455,9 @@
         _clientKeyID = [storeIns randomKeyMessenger];
         NSString *tempClientKey = [helperIns encodedBase64:[[NSString stringWithFormat:@"%i", (int)_clientKeyID] dataUsingEncoding:NSUTF8StringEncoding]];
         
-        NSString *location = [NSString stringWithFormat:@"%@|%@", near.lng, near.lat];
-        
-        [networkControllerIns addPost:@"" withImage:@"" withImageThumb: @"" withVideo:@"" withLocation:location withClientKey:tempClientKey withCode:2];
+//        NSString *location = [NSString stringWithFormat:@"%@|%@", near.lng, near.lat];
+//        
+//        [networkControllerIns addPost:@"" withImage:@"" withImageThumb: @"" withVideo:@"" withLocation:location withClientKey:tempClientKey withCode:2];
     }
 }
 
@@ -473,7 +478,8 @@
             _newWall.longitude = near.lng;
             _newWall.latitude = near.lat;
             _newWall.time = [subCommand objectAtIndex:0];
-            _newWall.typePost = 2;
+//            _newWall.typePost = 2;
+            _newWall.codeType = 2;
             _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
             
             [storeIns insertWallData:_newWall];

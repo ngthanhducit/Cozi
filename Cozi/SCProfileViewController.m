@@ -24,15 +24,15 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
-        [self initVariable];
-        [self setup];
+        [self setupVariable];
+//        [self setup];
         [self setupUI];
     }
     
     return self;
 }
 
-- (void) initVariable{
+- (void) setupVariable{
     hHeader = 40;
     netIns = [NetworkController shareInstance];
     [netIns addListener:self];
@@ -41,34 +41,34 @@
     storeIns = [Store shareInstance];
 }
 
-- (void) setup{
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    [self.navigationController setNavigationBarHidden:YES];
-    
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:self.vHeader];
-    
-    self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
-    [self.lblTitle setText:@"SELECT"];
-    [self.lblTitle setFont:[helperIns getFontLight:18.0f]];
-    [self.lblTitle setTextColor:[UIColor whiteColor]];
-    [self.lblTitle setTextAlignment:NSTextAlignmentCenter];
-    [self.vHeader addSubview:self.lblTitle];
-    
-    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
-    [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
-    [self.vHeader addSubview:self.btnClose];
-    
-    [self.view addSubview:self.vHeader];
-}
+//- (void) setup{
+//    [self.view setBackgroundColor:[UIColor whiteColor]];
+//    [self.navigationController setNavigationBarHidden:YES];
+//    
+//    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
+//    [self.vHeader setBackgroundColor:[UIColor blackColor]];
+//    [self.view addSubview:self.vHeader];
+//    
+//    self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
+//    [self.lblTitle setText:@"SELECT"];
+//    [self.lblTitle setFont:[helperIns getFontLight:18.0f]];
+//    [self.lblTitle setTextColor:[UIColor whiteColor]];
+//    [self.lblTitle setTextAlignment:NSTextAlignmentCenter];
+//    [self.vHeader addSubview:self.lblTitle];
+//    
+//    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+//    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+//    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
+//    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
+//    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
+//    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
+//    [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.vHeader addSubview:self.btnClose];
+//    
+//    [self.view addSubview:self.vHeader];
+//}
 
 - (void) setupUI{
     mainPage = [[MainPageV6 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
@@ -78,7 +78,7 @@
 - (void) setProfile:(User*)_myProfile{
     my = _myProfile;
     [mainPage initUser:my];
-    [mainPage setNoisesHistory:storeIns.walls];
+    [mainPage setNoisesHistory:storeIns.listHistoryPost];
 }
 
 - (void) selectMyNoise:(NSNotification*)notification{
@@ -88,6 +88,7 @@
     NSMutableArray *items = [NSMutableArray new];
     [items addObject:_noise];
     SCSinglePostViewController *post = [[SCSinglePostViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     //set image to post
     [post setData:items];
     
@@ -95,7 +96,7 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"selectMyNoiseNotification" object:nil];
+    [self removeNotification];
 }
 
 - (void) viewWillAppear:(BOOL)animated{
@@ -103,10 +104,48 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.lblTitle setText:[my.nickName uppercaseString]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectMyNoise:) name:@"selectMyNoiseNotification" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapFollowers:) name:@"notificationTapFollowers" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapFollowing:) name:@"notificationTapFollowing" object:nil];
 }
 
-- (void) btnCloseTap:(id)sender{
-    [self.navigationController popViewControllerAnimated:YES];
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    [self removeNotification];
+}
+
+- (void) tapFollowers:(NSNotification*)notification{
+    NSLog(@"tap Followers");
+    SCFollowersViewController *post = [[SCFollowersViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
+    [post setData:storeIns.listFollower];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
+- (void) tapFollowing:(NSNotification*)notification{
+    NSLog(@"tap Following");
+    SCFollowingViewController *post = [[SCFollowingViewController alloc] init];
+    [post showHiddenClose:YES];
+    [post setData:storeIns.listFollowing];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
+//- (void) btnCloseTap:(id)sender{
+//    [self removeNotification];
+//    
+//    [self.navigationController popViewControllerAnimated:YES];
+//}
+
+- (void) removeNotification{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"selectMyNoiseNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationTapFollowers" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationTapFollowing" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {

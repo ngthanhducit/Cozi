@@ -22,6 +22,14 @@
 
 + (id) shareInstance;
 
+//Login page
+- (void) registerPhone:(NSString*)_cmdPhone;
+- (void) sendAuthCode:(NSString*)_cmdAuthCode;
+- (void) getUploadAvatar:(NSString*)_cmdUploadAvatar;
+- (void) sendResultUploadAvatar:(NSString*)_cmdResultUpload;
+- (void) createNewUser:(NSString*)_cmdCreateUser;
+- (void) login:(NSString*)_strUserName withPassword:(NSString*)_strPassword;
+
 - (void) addListener:(id)instance;
 - (void) removeListener:(id)instance;
 
@@ -45,4 +53,9 @@
 - (void) getUserPost:(int)_userID withCountPost:(int)_countPost withClientKey:(NSString*)_clientKey;
 
 - (void) addFollow:(int)_userFollowID;
+- (void) removeFollow:(int)_userFollowID;
+
+- (void) getUserByString:(NSString*)_strSearch;
+- (void) addFriend:(int)_userID withDigit:(NSString*)_digit;
+- (void) acceptOrDenyAddFriend:(int)_userRequestID withIsAllow:(int)_isAllow;
 @end

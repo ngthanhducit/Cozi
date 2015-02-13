@@ -13,6 +13,7 @@
 #import "Store.h"
 #import "TTTAttributedLabel.h"
 #import "DataWall.h"
+#import "SDWebImage/UIImageView+WebCache.h"
 
 @interface SCCommentTableView : UITableView <UITableViewDataSource, UITableViewDelegate, TTTAttributedLabelDelegate>
 {

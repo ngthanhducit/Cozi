@@ -45,6 +45,48 @@
     networkIns = [NetworkCommunication shareInstance];
 }
 
+- (void) registerPhone:(NSString*)_cmdPhone{
+    [networkIns sendData:_cmdPhone];
+}
+
+- (void) sendAuthCode:(NSString*)_cmdAuthCode{
+    [networkIns sendData:_cmdAuthCode];
+}
+
+- (void) getUploadAvatar:(NSString*)_cmdUploadAvatar{
+    [networkIns sendData:_cmdUploadAvatar];
+}
+
+- (void) sendResultUploadAvatar:(NSString*)_cmdResultUpload{
+    [networkIns sendData:_cmdResultUpload];
+}
+
+- (void) createNewUser:(NSString*)_cmdCreateUser{
+    [networkIns sendData:_cmdCreateUser];
+}
+
+- (void) login:(NSString*)_strUserName withPassword:(NSString*)_strPassword{
+    NSString *strUserNameEncode = [helperIns encodedBase64:[_strUserName dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *strPasswordEncode = [helperIns encoded:_strPassword];
+    
+    [[NSUserDefaults standardUserDefaults] setObject:_strPassword forKey:@"password"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
+    NSString *_deviceToken = @"c5d46419d7e93ce0c6cd3cb0b01d1f9c1d41fb16e05a73ef8969efdaf91d5e24";
+    
+    if (token != nil) {
+        _deviceToken = [NSString stringWithFormat:@"%@", token];
+        _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@" " withString:@""];
+        _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
+        _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@">" withString:@""];
+    }
+    
+    NSString *cmdLogin = [NSString stringWithFormat:@"LOGIN{%@}%@}%@}%@}%@}1<EOF>", strUserNameEncode, strPasswordEncode, _deviceToken, @"0", @"0"];
+    
+    [networkIns sendData:cmdLogin];
+}
+
 - (void) getUploadPostUrl{
     NSString *cmd = @"GETUPLOADPOSTURL{<EOF>";
     [networkIns sendData:cmd];
@@ -131,6 +173,29 @@
     [networkIns sendData:cmd];
 }
 
+- (void) removeFollow:(int)_userFollowID{
+    NSString *cmd = [NSString stringWithFormat:@"USERREMOVEFOLLOW{%i<EOF>", _userFollowID];
+    [networkIns sendData:cmd];
+}
+
+- (void) getUserByString:(NSString*)_strSearch{
+    NSString *encodeStr = [helperIns encodedBase64:[_strSearch dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *cmd = [NSString stringWithFormat:@"GETUSERBYSTRING{%@<EOF>", encodeStr];
+    [networkIns sendData:cmd];
+}
+
+- (void) addFriend:(int)_userID withDigit:(NSString*)_digit{
+    NSString *cmd = [NSString stringWithFormat:@"SENDFRIENDREQUEST{%i}%@<EOF>", _userID, _digit];
+    
+    [networkIns sendData:cmd];
+}
+
+- (void) acceptOrDenyAddFriend:(int)_userRequestID withIsAllow:(int)_isAllow{
+    NSString *cmd = [NSString stringWithFormat:@"RECEIVEFRIENDREQUEST{%i}%i<EOF>", _userRequestID, _isAllow];
+    
+    [networkIns sendData:cmd];
+}
+
 - (void) setResult:(NSString *)_strResult{
     if (instances != nil && [instances count] > 0) {
 //        int count = (int)[instances count];
@@ -147,4 +212,5 @@
         }
     }
 }
+
 @end

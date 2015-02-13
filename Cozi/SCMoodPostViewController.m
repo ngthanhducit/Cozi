@@ -107,7 +107,7 @@
     [lblTitleFB setBackgroundColor:[UIColor clearColor]];
     [self.vAddFacebook addSubview:lblTitleFB];
     
-    imgSelectFB = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-TickGrey.svg"]];
+    imgSelectFB = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
     [imgSelectFB setFrame:CGRectMake(self.view.bounds.size.width - 50, self.vAddFacebook.bounds.size.height / 2 - 15, 30, 30)];
     [imgSelectFB setHidden:YES];
     [self.vAddFacebook addSubview:imgSelectFB];
@@ -177,10 +177,13 @@
             _newWall.video = @"";
             _newWall.longitude = @"";
             _newWall.latitude = @"";
-            __weak NSString *strFullName = storeIns.user.nickName;
-            _newWall.fullName = strFullName;
+//            __weak NSString *strFullName = storeIns.user.nickName;
+            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+            _newWall.firstName = storeIns.user.firstname;
+            _newWall.lastName = storeIns.user.lastName;
             _newWall.time = [subCommand objectAtIndex:0];
-            _newWall.typePost = 0;
+//            _newWall.typePost = 0;
+            _newWall.codeType = 0;
             _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
             
             [storeIns insertWallData:_newWall];

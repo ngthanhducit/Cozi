@@ -37,6 +37,7 @@
     self.wallData = [DataWall new];
     sizeText = CGSizeMake(self.bounds.size.width - 110, CGFLOAT_MAX);
     
+    [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setSeparatorInset:UIEdgeInsetsMake(0, 55, 0, 0)];
     [self setUserInteractionEnabled:YES];
     [self setDelegate:self];
@@ -137,24 +138,66 @@
         [scCell setSelectionStyle:UITableViewCellSelectionStyleNone];
         User *_user = storeIns.user;
         
-        CGSize sizeContent = [self.wallData.content sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
+        if (self.wallData.userPostID == _user.userID) {
+            
+            CGSize sizeContent = [self.wallData.content sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
+            
+            if (_user.thumbnail) {
+                scCell.imgAvatar.image = _user.thumbnail;
+            }else{
+                [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+            }
+
+            scCell.lblNickName.text = [NSString stringWithFormat:@"%@", _user.nickName];
+            [scCell.lblNickName setDelegate:self];
+            NSString *str = [NSString stringWithFormat:@"%@", _user.nickName];
+            
+            NSRange r = [str rangeOfString:scCell.lblNickName.text];
+            NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _user.userID];
+            strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+            [scCell.lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+            
+            scCell.lblComment.text = self.wallData.content;
+            [scCell.lblComment setFrame:CGRectMake(55, scCell.lblNickName.frame.origin.y + scCell.lblNickName.bounds.size.height, scCell.lblNickName.bounds.size.width, sizeContent.height)];
+            
+            
+            
+            scCell.lblTime.text = [self calculationTimeAgo:self.wallData.time];
+            
+            [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
+            
+        }else{  //Friend or not post
+            
+            CGSize sizeContent = [self.wallData.content sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
+            
+            if (self.wallData.urlAvatarThumb) {
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.wallData.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    if (image && finished) {
+                        scCell.imgAvatar.image = image;
+                    }
+                }];
+            }
+            
+            scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", self.wallData.firstName, self.wallData.lastName];
+            [scCell.lblNickName setDelegate:self];
+            NSString *str = [NSString stringWithFormat:@"%@ %@", self.wallData.firstName, self.wallData.lastName];
+            
+            NSRange r = [str rangeOfString:scCell.lblNickName.text];
+            NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", self.wallData.userPostID];
+            strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+            [scCell.lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+            
+            scCell.lblComment.text = self.wallData.content;
+            [scCell.lblComment setFrame:CGRectMake(55, scCell.lblNickName.frame.origin.y + scCell.lblNickName.bounds.size.height, scCell.lblNickName.bounds.size.width, sizeContent.height)];
+            
+            scCell.lblTime.text = [self calculationTimeAgo:self.wallData.time];
+            [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
+            
+        }
+
         
-        scCell.imgAvatar.image = _user.thumbnail;
-        
-        scCell.lblNickName.text = [NSString stringWithFormat:@"%@", _user.nickName];
-        [scCell.lblNickName setDelegate:self];
-        NSString *str = [NSString stringWithFormat:@"%@", _user.nickName];
-        
-        NSRange r = [str rangeOfString:scCell.lblNickName.text];
-        NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _user.userID];
-        strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
-        [scCell.lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
-        
-        scCell.lblComment.text = self.wallData.content;
-        [scCell.lblComment setFrame:CGRectMake(55, scCell.lblNickName.frame.origin.y + scCell.lblNickName.bounds.size.height, scCell.lblNickName.bounds.size.width, sizeContent.height)];
-        
-        scCell.lblTime.text = @"2h";
-        [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
     }else{
         
         if ([self.wallData.comments count] > maxRow) {
@@ -196,8 +239,20 @@
             scCell.imgAvatar.image = _user.thumbnail;
         }else{
             
-            //call get info use
-//            scCell.imgAvatar.image = _comment.urlImageComment;
+            if (![_comment.urlAvatarThumb isEqualToString:@""]) {
+                //call get info use
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_comment.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    
+                    if (image && finished) {
+                        scCell.imgAvatar.image = image;
+                    }
+                }];
+                
+            }else{
+                [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+            }
         }
     }
     
@@ -215,7 +270,8 @@
     scCell.lblComment.text = _comment.contentComment;
     [scCell.lblComment setFrame:CGRectMake(55, scCell.lblNickName.frame.origin.y + scCell.lblNickName.bounds.size.height, scCell.lblNickName.bounds.size.width, sizeContent.height)];
     
-    scCell.lblTime.text = @"2h";
+    scCell.lblTime.text = [self calculationTimeAgo:[helperIns convertNSDateToString:_comment.dateComment withFormat:@"yyyy-MM-dd HH:mm:ss"]];
+    
     [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
 
 }
@@ -252,14 +308,13 @@
             //             load help screen
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
             
-            Friend *_friend = [storeIns getFriendByID:[query intValue]];
-            
-            if (_friend != nil) {
-                NSString *key = @"tapFriend";
-                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
-            }else{
+            if ([query intValue] == storeIns.user.userID) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+            }else{
+                NSString *key = @"tapFriend";
+                NSNumber *nUser = [NSNumber numberWithInt:[query intValue]];
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:nUser forKey:key];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
             }
             
         } else if ([[url host] hasPrefix:@"show-tag"]) {
@@ -270,5 +325,44 @@
     } else {
         /* deal with http links here */
     }
+}
+
+- (NSString*) calculationTimeAgo:(NSString *)_timePost{
+    //calculation time count down
+    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
+    NSDate *timeMessage = [helperIns convertStringToDate:_timePost];
+    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
+    
+    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
+                                                        fromDate:_dateTimeMessage
+                                                          toDate:[NSDate date]
+                                                         options:0];
+    
+    NSString *timeAgo = @"";
+    NSInteger w = [components week];
+    if (w <= 0) {
+        NSInteger d = [components day];
+        if (d <= 0) {
+            NSInteger h = components.hour;
+            if (h <=0) {
+                NSInteger m = [components minute];
+                if (m <= 0) {
+                    NSInteger s = [components second];
+                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
+                }else{
+                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
+                }
+            }else{
+                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
+            }
+        }else{
+            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
+        }
+    }else{
+        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
+    }
+    
+    return timeAgo;
 }
 @end

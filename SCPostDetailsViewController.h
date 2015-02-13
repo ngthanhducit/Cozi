@@ -16,23 +16,25 @@
 #import "AmazonInfo.h"
 #import "Cozi/Store.h"
 #import "NetworkController.h"
+#import "SCPostParentViewController.h"
+#import "SCWaitingView.h"
 
-@interface SCPostDetailsViewController : UIViewController <HPGrowingTextViewDelegate>
+@interface SCPostDetailsViewController : SCPostParentViewController <HPGrowingTextViewDelegate>
 {
-    CGFloat             hHeader;
-    Helper              *helperIns;
-    Store               *storeIns;
+//    CGFloat             hHeader;
+//    Helper              *helperIns;
+//    Store               *storeIns;
     NetworkController *networkControllerIns;
     UIImageView         *imgQuotes;
     UIImageView         *imgSelectFB;
     BOOL                isSelectFB;
     AmazonInfoPost                  *amazonInfomation;
     NSString                   *_clientKeyID;
-    SCActivityIndicatorView         *vLoading;
+    SCWaitingView         *vLoading;
 }
 
-@property (nonatomic, strong) UIView             *vHeader;
-@property (nonatomic, strong) UIButton           *btnClose;
+//@property (nonatomic, strong) UIView             *vHeader;
+//@property (nonatomic, strong) UIButton           *btnClose;
 @property (nonatomic, strong) UIImageView        *imgPost;
 @property (nonatomic, strong) SCPhotoDetailsView *vCaption;
 @property (nonatomic, strong) UIView             *vAddFacebook;

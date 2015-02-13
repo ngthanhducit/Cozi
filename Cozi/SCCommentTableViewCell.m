@@ -30,6 +30,7 @@
     
     self.imgAvatar = [[UIImageView alloc] initWithFrame:CGRectMake(10, 7.5, 35, 35)];
     [self.imgAvatar setClipsToBounds:YES];
+    [self.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     [self.imgAvatar setContentMode:UIViewContentModeScaleAspectFill];
     [self.imgAvatar setAutoresizingMask:UIViewAutoresizingNone];
     self.imgAvatar.layer.cornerRadius = self.imgAvatar.bounds.size.width / 2;
@@ -40,12 +41,12 @@
     [self.lblLoadMore setFont:[helperIns getFontLight:14.0f]];
     [self.lblLoadMore setText:@"Load more comments"];
     [self.lblLoadMore setTextAlignment:NSTextAlignmentLeft];
-    [self.lblLoadMore setTextColor:[UIColor lightGrayColor]];
+    [self.lblLoadMore setTextColor:[UIColor clearColor]];
     [self.contentView addSubview:self.lblLoadMore];
     
-    self.lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 5, self.bounds.size.width - 100, 20)];
+    self.lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 2.5, self.bounds.size.width - 100, 20)];
     [self.lblNickName setTextAlignment:NSTextAlignmentJustified];
-    self.lblNickName.font = [helperIns getFontLight:14.0f];
+    self.lblNickName.font = [helperIns getFontRegular:14.0f];
     self.lblNickName.textColor = [UIColor darkGrayColor];
     self.lblNickName.lineBreakMode = NSLineBreakByCharWrapping;
     self.lblNickName.numberOfLines = 0;
@@ -53,6 +54,12 @@
     NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
     [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
     [mutableLinkAttributes setValue:(__bridge id)[[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+    
+    UIFont *baseFont = [helperIns getFontRegular:14.0];
+    CTFontRef baseFontRef = CTFontCreateWithName((__bridge CFStringRef)baseFont.fontName, baseFont.pointSize, NULL);
+    mutableLinkAttributes[(__bridge NSString *)kCTFontAttributeName] = (__bridge id)baseFontRef;
+    CFRelease(baseFontRef);
+    
     self.lblNickName.linkAttributes = mutableLinkAttributes;
     
     NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];

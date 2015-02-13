@@ -15,19 +15,19 @@
 #import "SCPostDetailsViewController.h"
 #import "SCPostParentViewController.h"
 
-@interface SCPreviewPhotoViewController : UIViewController
+@interface SCPreviewPhotoViewController : SCPostParentViewController
 {
-    CGFloat                 hHeader;
-    Helper                  *helperIns;
-    Store                   *storeIns;
+//    CGFloat                 hHeader;
+//    Helper                  *helperIns;
+//    Store                   *storeIns;
     UIImage                 *imgSelect;
 }
 
 @property (nonatomic, strong) UIButton       *btnSelect;
 @property (nonatomic, strong) SCGridView     *vGridLine;
 @property (nonatomic, strong) SCPhotoPreview *vPreviewPhoto;
-@property (nonatomic, strong) UIButton       *btnClose;
-@property (nonatomic, strong) UIView         *vHeader;
+//@property (nonatomic, strong) UIButton       *btnClose;
+//@property (nonatomic, strong) UIView         *vHeader;
 @property (nonatomic, strong) UIView         *vTool;
 
 - (void) setImagePreview:(UIImage*)_imagePreview;

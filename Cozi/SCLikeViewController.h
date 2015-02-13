@@ -1,31 +1,32 @@
 //
-//  SCSinglePostViewController.h
+//  SCLikeViewController.h
 //  Cozi
 //
-//  Created by Nguyen Thanh Duc on 1/16/15.
+//  Created by Nguyen Thanh Duc on 2/1/15.
 //  Copyright (c) 2015 ChjpCoj. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "SCPostParentViewController.h"
-#import "SCWallTableViewV2.h"
+#import "SCLikeTableView.h"
+#import "NetworkController.h"
 #import "PNetworkCommunication.h"
-#import "networkController.h"
 #import "SCPostParentViewController.h"
 
-@interface SCSinglePostViewController : SCPostParentViewController <PNetworkCommunication>
+@interface SCLikeViewController : SCPostParentViewController <PNetworkCommunication>
 {
-    NSMutableArray              *items;
+    DataWall                *wallItems;
 //    CGFloat                 hHeader;
 //    Helper                  *helperIns;
 //    Store                   *storeIns;
     NetworkController       *netControllerIns;
 }
 
-@property (nonatomic, strong) SCWallTableViewV2 *singleWall;
 //@property (nonatomic, strong) UILabel           *lblTitle;
+//@property (nonatomic, strong) UIButton          *btnBack;
 //@property (nonatomic, strong) UIButton          *btnClose;
 //@property (nonatomic, strong) UIView            *vHeader;
+@property (nonatomic, strong) SCLikeTableView    *tbLike;
 
-- (void) setData:(NSMutableArray*)data;
+- (void) setData:(DataWall*)data;
+
 @end

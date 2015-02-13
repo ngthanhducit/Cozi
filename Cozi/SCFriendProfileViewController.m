@@ -17,56 +17,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self setupVariable];
+    [self setupUI];
 }
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        
-        [self initVariable];
-        [self setup];
-        [self setupUI];
-    }
-    
-    return self;
-}
-
-- (void) initVariable{
+- (void) setupVariable{
     hHeader = 40;
     netIns = [NetworkController shareInstance];
-    
+
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
     dataMapIns = [DataMap shareInstance];
-}
-
-- (void) setup{
-    [self.view setBackgroundColor:[UIColor whiteColor]];
-    [self.navigationController setNavigationBarHidden:YES];
-    
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:self.vHeader];
-    
-    self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
-    [self.lblTitle setText:@"SELECT"];
-    [self.lblTitle setFont:[helperIns getFontLight:18.0f]];
-    [self.lblTitle setTextColor:[UIColor whiteColor]];
-    [self.lblTitle setTextAlignment:NSTextAlignmentCenter];
-    [self.vHeader addSubview:self.lblTitle];
-    
-    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
-    [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
-    [self.vHeader addSubview:self.btnClose];
-    
-    [self.view addSubview:self.vHeader];
 }
 
 - (void) setupUI{
@@ -75,8 +36,13 @@
 }
 
 - (void) setFriendProfile:(Friend*)_friendProfile{
-    friend = _friendProfile;
-    [netIns getUserProfile:friend.friendID];
+//    friend = _friendProfile;
+//    [netIns getUserProfile:friend.friendID];
+}
+
+- (void) setFriendId:(int)_friendID{
+    friendID = _friendID;
+    [netIns getUserProfile:friendID];
 }
 
 - (void) selectMyNoise:(NSNotification*)notification{
@@ -86,6 +52,7 @@
     NSMutableArray *items = [NSMutableArray new];
     [items addObject:_noise];
     SCSinglePostViewController *post = [[SCSinglePostViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     //set image to post
     [post setData:items];
     
@@ -93,31 +60,66 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"selectMyNoiseNotification" object:nil];
+    [self removeNotification];
+    
     [netIns removeListener:self];
+}
+
+- (void) tapFollowers:(NSNotification*)notification{
+    NSLog(@"tap Followers");
+    followers = [[SCFollowersViewController alloc] initWithNibName:nil bundle:nil];
+    [followers showHiddenClose:YES];
+    [followers setFriendID:friendID];
+
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:followers animated:YES];
+}
+
+- (void) tapFollowing:(NSNotification*)notification{
+    NSLog(@"tap Following");
+    following = [[SCFollowingViewController alloc] initWithNibName:nil bundle:nil];
+    [following showHiddenClose:YES];
+    [following setFriendID:friendID];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:following animated:YES];
 }
 
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    [self.lblTitle setText:[friend.nickName uppercaseString]];
+//    [self.lblTitle setText:[friend.nickName uppercaseString]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectMyNoise:) name:@"selectMyNoiseNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapFollowers:) name:@"notificationTapFollowers" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapFollowing:) name:@"notificationTapFollowing" object:nil];
     [netIns addListener:self];
 }
 
-- (void) btnCloseTap:(id)sender{
-    [netIns removeListener:self];
-    [self.navigationController popViewControllerAnimated:YES];
+- (void) removeNotification{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"selectMyNoiseNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationTapFollowers" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationTapFollowing" object:nil];
 }
 
+//- (void) btnCloseTap:(id)sender{
+//    [netIns removeListener:self];
+//    [self removeNotification];
+    
+//    [self dismissViewControllerAnimated:YES completion:^{
+//        
+//    }];
+//}
+
 - (void) setResult:(NSString *)_strResult{
-    NSLog(@"%@", _strResult);
+    
     NSArray *subData = [_strResult componentsSeparatedByString:@"{"];
     if ([subData count] == 2) {
         if ([[subData objectAtIndex:0] isEqualToString: @"GETUSERPROFILE"]) {
             NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
             if ([subCommand count] > 1) {
                 Profile *_profile = [Profile new];
+                _profile.isPublic = [[subCommand objectAtIndex:0] boolValue];
                 _profile.countFollower = [[subCommand objectAtIndex:1] intValue];
                 _profile.countFollowing = [[subCommand objectAtIndex:2] intValue];
                 _profile.countPost = [[subCommand objectAtIndex:3] intValue];
@@ -131,16 +133,24 @@
                 _profile.gender = [helperIns decode:[subCommand objectAtIndex:11]];
                 _profile.relationship = [helperIns decode:[subCommand objectAtIndex:12]];
                 
+                profile = _profile;
+                
                 [mainPage initFriend:_profile];
                 [mainPage.btnFollow addTarget:self action:@selector(btnFollowUserClick:) forControlEvents:UIControlEventTouchUpInside];
+                
+//                UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(btnFollowUserClick:)];
+//                [tapFollowing setNumberOfTapsRequired:1];
+//                [tapFollowing setNumberOfTouchesRequired:1];
+//                [mainPage.vFollowingUser addGestureRecognizer:tapFollowing];
                 
                 UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFollowingUser)];
                 [tapFollowing setNumberOfTapsRequired:1];
                 [tapFollowing setNumberOfTouchesRequired:1];
                 [mainPage.vFollowingUser addGestureRecognizer:tapFollowing];
                 
-
-                [netIns getUserPost:friend.friendID withCountPost:INT_MAX withClientKey:@"-1"];
+                [self.lblTitle setText:[[NSString stringWithFormat:@"%@ %@", _profile.firstName, _profile.lastName] uppercaseString]];
+                
+                [netIns getUserPost:friendID withCountPost:INT_MAX withClientKey:@"-1"];
                 
             }
         }
@@ -152,15 +162,85 @@
             
         }
         
+        if ([[subData objectAtIndex:0] isEqualToString:@"USERADDFOLLOW"]) {
+            inFollowing = NO;
+            if ([[subData objectAtIndex:1] intValue] == 0) {
+                [mainPage.waitingFollow stopAnimating];
+                FollowerUser *follower = [FollowerUser new];
+                [follower setUserID:profile.userID];
+                [follower setParentUserID:storeIns.user.userID];
+                [follower setFirstName:profile.firstName];
+                [follower setLastName:profile.lastName];
+                [follower setUrlAvatar:profile.thumbAvatar];
+                [follower setUrlAvatarFull:profile.avatar];
+                
+                [storeIns.listFollowing addObject:follower];
+                
+                [mainPage initViewFollowing];
+                
+                UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFollowingUser)];
+                [tapFollowing setNumberOfTapsRequired:1];
+                [tapFollowing setNumberOfTouchesRequired:1];
+                [mainPage.vFollowingUser addGestureRecognizer:tapFollowing];
+
+            }else{
+                [mainPage.waitingFollow stopAnimating];
+                [mainPage.btnFollow setHidden:NO];
+            }
+            
+        }
+        
+        if ([[subData objectAtIndex:0] isEqualToString:@"USERREMOVEFOLLOW"]) {
+            inFollowing = NO;
+            if ([[subData objectAtIndex:1] intValue] == 0) {
+                [mainPage.waitingFollow stopAnimating];
+                if (storeIns.listFollowing) {
+                    int count = (int)[storeIns.listFollowing count];
+                    for (int i = 0; i < count; i++) {
+                        if ([[storeIns.listFollowing objectAtIndex:i] userID] == profile.userID) {
+                            [storeIns.listFollowing removeObjectAtIndex:i];
+                            break;
+                        }
+                    }
+                }
+               
+                [mainPage initButtonFollowUser];
+                
+                [mainPage.btnFollow addTarget:self action:@selector(btnFollowUserClick:) forControlEvents:UIControlEventTouchUpInside];
+            }else{
+                [mainPage.waitingFollow stopAnimating];
+                [mainPage.vFollowingUser setHidden:NO];
+            }
+        }
+        
     }
 }
 
 - (void) tapFollowingUser{
-    NSLog(@"tap following");
+    [mainPage.vFollowingUser setHidden:YES];
+    [mainPage.waitingFollow startAnimating];
+    [netIns removeFollow:profile.userID];
+    
+//    BOOL isFollowing = [storeIns isFollowing:profile.userID];
+//    if (isFollowing) {
+//
+//    }else{
+//        [netIns addFollow:profile.userID];
+//    }
+    
 }
 
 - (void) btnFollowUserClick:(id)sender{
-    NSLog(@"tap Button Follower User");
+
+    [mainPage.btnFollow setHidden:YES];
+    [mainPage.waitingFollow startAnimating];
+    [netIns addFollow:profile.userID];
+}
+
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [netIns removeListener:self];
+    [self removeNotification];
 }
 
 - (void)didReceiveMemoryWarning {

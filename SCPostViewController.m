@@ -27,6 +27,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self setupVariable];
+    [self initNotification];
+    [self setupUI];
+
 }
 
 - (void) viewWillAppear:(BOOL)animated{
@@ -34,18 +38,7 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        [self initVariable];
-        [self initNotification];
-        [self setup];
-    }
-    
-    return self;
-}
-
-- (void) initVariable{
+- (void) setupVariable{
     statusFlash = 0;
     helperIns = [Helper shareInstance];
     hHeader = 40;
@@ -56,34 +49,12 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(nsCompleteCapture) name:@"SC_CompleteCaptureCamera" object:nil];
 }
 
-- (void) setup{
+- (void) setupUI{
     [self.view setBackgroundColor:[UIColor clearColor]];
     [self.navigationController setNavigationBarHidden:YES];
-    
-//    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
-//    [self.view addSubview:cameraCapture];
-    
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-    [self.view addSubview:self.vHeader];
-    
-    UILabel     *lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(hHeader, 0, self.view.bounds.size.width - (hHeader * 2), hHeader)];
-    [lblTitle setTextAlignment:NSTextAlignmentCenter];
-    [lblTitle setText:@"TAKE A SHOT"];
-    [lblTitle setTextColor:[UIColor whiteColor]];
-    [lblTitle setFont:[helperIns getFontLight:18.0f]];
-    [self.vHeader addSubview:lblTitle];
-    
-    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-//    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
-    [self.btnClose addTarget:self action:@selector(btnCloseClick) forControlEvents:UIControlEventTouchUpInside];
-    [self.vHeader addSubview:self.btnClose];
+
+    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    [self.view addSubview:cameraCapture];
     
     self.vTool = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - hTool, self.view.bounds.size.width, hTool)];
     [self.vTool setBackgroundColor:[[UIColor blackColor] colorWithAlphaComponent:0.8]];
@@ -126,7 +97,7 @@
     self.btnGrid.layer.cornerRadius = self.btnGrid.bounds.size.height / 2;
     self.btnGrid.layer.borderWidth = 1.0f;
     self.btnGrid.layer.borderColor = [UIColor whiteColor].CGColor;
-    [self.btnGrid setImage:[helperIns getImageFromSVGName:@"icon-GridWhite.svg"] forState:UIControlStateNormal];
+    [self.btnGrid setImage:[helperIns getImageFromSVGName:@"icon-GridWhite-25px-V4.svg"] forState:UIControlStateNormal];
     [self.btnGrid addTarget:self action:@selector(btnShowHiddenGridTap:) forControlEvents:UIControlEventTouchUpInside];
     [vGrid addSubview:self.btnGrid];
 
@@ -144,7 +115,7 @@
     self.btnSwithCamera.layer.cornerRadius = self.btnGrid.bounds.size.height / 2;
     self.btnSwithCamera.layer.borderWidth = 1.0f;
     self.btnSwithCamera.layer.borderColor = [UIColor whiteColor].CGColor;
-    [self.btnSwithCamera setImage:[helperIns getImageFromSVGName:@"icon-CameraWhite.svg"] forState:UIControlStateNormal];
+    [self.btnSwithCamera setImage:[helperIns getImageFromSVGName:@"icon-CameraWhite-25px.svg"] forState:UIControlStateNormal];
     [self.btnSwithCamera addTarget:self action:@selector(btnSwitchCamera:) forControlEvents:UIControlEventTouchUpInside];
     [vSwithCamera addSubview:self.btnSwithCamera];
     
@@ -154,8 +125,8 @@
     [self.vTool addSubview:vFlash];
     
     self.btnFlash = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnFlash setTitle:@"ON" forState:UIControlStateNormal];
-    [self.btnFlash setTitle:@"OFF" forState:UIControlStateSelected];
+//    [self.btnFlash setTitle:@"ON" forState:UIControlStateNormal];
+//    [self.btnFlash setTitle:@"OFF" forState:UIControlStateSelected];
     [self.btnFlash.titleLabel setFont:[helperIns getFontLight:8.0f]];
     [self.btnFlash setBackgroundColor:[UIColor blackColor]];
     [self.btnFlash setFrame:CGRectMake((vFlash.bounds.size.width / 2) - (hButton / 2), (vFlash.bounds.size.height / 2) - (hButton / 2), hButton, hButton)];
@@ -165,7 +136,7 @@
     self.btnFlash.layer.cornerRadius = self.btnGrid.bounds.size.height / 2;
     self.btnFlash.layer.borderWidth = 1.0f;
     self.btnFlash.layer.borderColor = [UIColor whiteColor].CGColor;
-    [self.btnFlash setImage:[helperIns getImageFromSVGName:@"icon-FlashWhite.svg"] forState:UIControlStateNormal];
+//    [self.btnFlash setImage:[helperIns getImageFromSVGName:@"icon-camera-flash-off-25px.svg"] forState:UIControlStateNormal];
     [self.btnFlash addTarget:self action:@selector(btnChangeFlash:) forControlEvents:UIControlEventTouchUpInside];
     [vFlash addSubview:self.btnFlash];
     
@@ -189,7 +160,7 @@
     [self.btnTakePhoto.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnTakePhoto setContentMode:UIViewContentModeCenter];
     [self.btnTakePhoto setFrame:CGRectMake(0, 0, self.view.bounds.size.width, vTakePhoto.bounds.size.height)];
-    [self.btnTakePhoto setTitle:@"JOIN NOW" forState:UIControlStateNormal];
+    [self.btnTakePhoto setTitle:@"TAKE A SHOT" forState:UIControlStateNormal];
     [self.btnTakePhoto addTarget:self action:@selector(btnTakePhotoTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnTakePhoto.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
@@ -208,11 +179,11 @@
     [self.view addSubview:self.vGridLine];
 }
 
-- (void) btnCloseClick{
-    [self dismissViewControllerAnimated:YES completion:^{
-        
-    }];
-}
+//- (void) btnCloseClick{
+//    [self dismissViewControllerAnimated:YES completion:^{
+//        
+//    }];
+//}
 
 - (void) btnTakePhotoTap:(id)sender{
     [self.cameraCapture captureImage:nil];
@@ -220,13 +191,12 @@
 
 - (void) nsCompleteCapture{
     UIImage *img = [self.cameraCapture getImageCapture];
-//    UIImage *_newImage = [helperIns squareImageWithImage:img scaledToSize:CGSizeMake(self.view.bounds.size.width , self.view.bounds.size.width)];
-//    UIImage *_newImage1 = [helperIns cropImage:img withFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width)];
-//    UIImage *_newImage2 = [helperIns resizeImage:img resizeSize:CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.width)];
     UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
-//    NSData *_dataCompress = [helperIns compressionImage:_newImage];
+    
+    UIImage *_newImage1 = [helperIns squareImageWithImage:img scaledToSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
     
     SCPostDetailsViewController *post = [[SCPostDetailsViewController alloc] initWithNibName:nil bundle:nil];
+    [post showHiddenClose:YES];
     //set image to post
     [post setImagePost:_newImage];
     
@@ -284,16 +254,25 @@
     }
     
     switch (statusFlash) {
-        case 0:
+        case 0:{
+            UIImage *imgFlashOff = [helperIns getImageFromSVGName:@"icon-camera-flash-off-25px.svg"];
+            [self.btnFlash setImage:imgFlashOff forState:UIControlStateNormal];
             [self.cameraCapture enableFlash:AVCaptureFlashModeOff];
+        }
             break;
             
-        case 1:
+        case 1:{
+            UIImage *imgFlashOn = [helperIns getImageFromSVGName:@"icon-camera-flash-on-25px.svg"];
+            [self.btnFlash setImage:imgFlashOn forState:UIControlStateNormal];
             [self.cameraCapture enableFlash:AVCaptureFlashModeOn];
+        }
             break;
             
-        case 2:
+        case 2:{
+            UIImage *imgFlashAuto = [helperIns getImageFromSVGName:@"icon-camera-flash-auto-25px.svg"];
+            [self.btnFlash setImage:imgFlashAuto forState:UIControlStateNormal];
             [self.cameraCapture enableFlash:AVCaptureFlashModeAuto];
+        }
             break;
             
         default:
