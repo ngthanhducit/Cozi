@@ -1,11 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C106a" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14D72i" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Comments" syncable="YES">
+        <attribute name="comment_client_key" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="comment_time" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="content_comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="is_like_comment" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="post_client_key" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_full" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_thumb" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_image_comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_comment_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="user_name_comment" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="Follower" representedClassName="Follower" syncable="YES">
         <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="parent_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="status_follower" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="url_avatar" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_full" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="user_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="FriendRequest" syncable="YES">
+        <attribute name="friend_request_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="nick_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_thumbnail" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="user_name" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Likes" syncable="YES">
+        <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="parent_client_key" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_like" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_full" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_thumb" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_like_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_name_like" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="MessengerFriend" representedClassName="Messengers" syncable="YES">
         <attribute name="amazon_key" optional="YES" attributeType="String" syncable="YES"/>
@@ -25,6 +59,23 @@
         <attribute name="url_image" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="user_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
+    <entity name="Posts" syncable="YES">
+        <attribute name="client_key" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="code_type" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="content_post" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="is_like" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_like" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_post" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_full" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_avatar_thumb" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_image_full" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_image_thumb" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_video" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_post_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
     <entity name="UserFriend" representedClassName="Friends" syncable="YES">
         <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="friend_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
@@ -35,11 +86,13 @@
         <attribute name="nick_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="phone_number" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="scale_avatar" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="status_add_friend" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="status_friend" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="top_avatar" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="url_avatar" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="url_thumbnail" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="user_id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="user_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="width_avatar" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
     </entity>
     <entity name="UserLogin" representedClassName="Users" syncable="YES">
@@ -64,9 +117,13 @@
         <relationship name="relationship" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserFriend" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Follower" positionX="-207" positionY="207" width="128" height="118"/>
+        <element name="Comments" positionX="-198" positionY="216" width="128" height="223"/>
+        <element name="Follower" positionX="-387" positionY="414" width="128" height="30"/>
+        <element name="Likes" positionX="-189" positionY="225" width="128" height="165"/>
         <element name="MessengerFriend" positionX="-36" positionY="54" width="128" height="285"/>
-        <element name="UserFriend" positionX="-216" positionY="54" width="128" height="270"/>
+        <element name="Posts" positionX="-207" positionY="207" width="128" height="268"/>
+        <element name="UserFriend" positionX="-216" positionY="54" width="128" height="300"/>
         <element name="UserLogin" positionX="-387" positionY="53" width="128" height="330"/>
+        <element name="FriendRequest" positionX="-207" positionY="207" width="128" height="135"/>
     </elements>
 </model>

@@ -37,33 +37,49 @@
     helperIns = [Helper shareInstance];
     
     imageList = [[NSMutableArray alloc] init];
+    
+    waitingLoad = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [waitingLoad setFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
+    [self addSubview:waitingLoad];
+    [waitingLoad startAnimating];
 }
 
 - (void) initWithUrl:(NSURL *)_urlImage{
+    
     urlImage = _urlImage;
     
-    self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
-    [self.mainScroll setMinimumZoomScale:1.0];
-    [self.mainScroll setMaximumZoomScale:5.0];
-    [self.mainScroll setContentSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height - 40)];
-    [self.mainScroll setDelegate:self];
+    photoPreview = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
+    
+//    self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
+//    [self.mainScroll setMinimumZoomScale:1.0];
+//    [self.mainScroll setMaximumZoomScale:5.0];
+//    [self.mainScroll setContentSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height - 40)];
+//    [self.mainScroll setDelegate:self];
     
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:_urlImage options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         
     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
         if (image && finished) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.imageView = [[UIImageView alloc] initWithImage:image];
+//                self.imageView = [[UIImageView alloc] initWithImage:image];
                 
-                [self.imageView setFrame:CGRectMake(0, 0, self.mainScroll.bounds.size.width, image.size.height / 2)];
-                [self.mainScroll addSubview:self.imageView];
-                CGPoint centerPoint = CGPointMake(CGRectGetMidX(self.mainScroll.bounds),
-                                                  CGRectGetMidY(self.mainScroll.bounds));
+                [photoPreview setImagePreview:image];
+                [self addSubview:photoPreview];
                 
-                [self view:self.imageView setCenter:centerPoint];
+//                [self.imageView setFrame:CGRectMake(0, 0, self.mainScroll.bounds.size.width, image.size.height / 2)];
+//                [self.mainScroll addSubview:self.imageView];
                 
-                [self addSubview:self.mainScroll];
+//                CGPoint centerPoint = CGPointMake(CGRectGetMidX(self.mainScroll.bounds),
+//                                                  CGRectGetMidY(self.mainScroll.bounds));
+                
+
+                
+//                [self.imageView setCenter:centerPoint];
+                
+//                [self addSubview:self.mainScroll];
             });
+            
+            [waitingLoad stopAnimating];
         }
     }];
     

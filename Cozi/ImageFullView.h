@@ -10,6 +10,7 @@
 #import "Helper.h"
 #import "UIImageView+WebCache.h"
 #import "SDImageCache.h"
+#import "SCPhotoPreview.h"
 
 @interface ImageFullView : UIView <UIScrollViewDelegate>
 {
@@ -17,6 +18,8 @@
     int                             pageIndex;
     Helper                          *helperIns;
     NSURL                           *urlImage;
+    UIActivityIndicatorView         *waitingLoad;
+    SCPhotoPreview                  *photoPreview;
 }
 
 @property (nonatomic, strong) UIScrollView            *mainScroll;

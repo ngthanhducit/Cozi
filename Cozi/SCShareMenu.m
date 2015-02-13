@@ -38,7 +38,7 @@
     self.btnMood = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnMood setBackgroundImage:imgBackgroundButton forState:UIControlStateHighlighted];
     [self.btnMood setFrame:CGRectMake(0, 0, self.bounds.size.width / 4, self.bounds.size.width / 4)];
-    [self.btnMood setImage:[helperIns getImageFromSVGName:@"icon-QuotesGrey.svg"] forState:UIControlStateNormal];
+    [self.btnMood setImage:[helperIns getImageFromSVGName:@"icon-QuotesGrey-V2.svg"] forState:UIControlStateNormal];
     [self.btnMood setTitle:@"MOOD" forState:UIControlStateNormal];
     [self.btnMood setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.btnMood.titleLabel  setFont:[helperIns getFontLight:12.0f]];

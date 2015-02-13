@@ -25,7 +25,7 @@
 #import "ImageLibraryViewController.h"
 #import "SCChatToolKitView.h"
 
-@interface ChatView : SwapView <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, SCMessageTableViewDelegate, HPGrowingTextViewDelegate, UITextViewDelegate>
+@interface ChatView : UIView <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, SCMessageTableViewDelegate, HPGrowingTextViewDelegate, UITextViewDelegate>
 {
     BOOL                isShowPanel;
     BOOL                isShowKeyboar;
@@ -49,8 +49,11 @@
     BOOL                isBackCamera;
     
     UIButton            *btnShowLibrary;
+    CGFloat             hHeader;
+    UIView              *vHeader;
 }
 
+@property (nonatomic, strong) UILabel               *lblNickName;
 @property (nonatomic, strong) SCChatToolKitView     *chatToolKit;
 @property (nonatomic, strong) Store                *storeIns;
 @property (nonatomic, strong) Helper               *helperIns;
@@ -84,4 +87,5 @@
 - (void) initLibraryImage;
 - (void) resetCamera;
 - (void) resetUI;
+- (CGFloat) getHeaderHeight;
 @end

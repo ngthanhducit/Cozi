@@ -17,6 +17,7 @@
 #import "SVGKImage.h"
 #import "Reachability.h"
 #import "UIImage+ImageEffects.h"
+#import "AmazonInfo.h"
 
 @interface Helper : NSObject
 {
@@ -51,6 +52,7 @@
 - (UIFont*) getFontLight:(CGFloat)size;
 - (UIFont *) getFontMedium:(CGFloat)size;
 - (UIFont *) getFontThin:(CGFloat)size;
+- (UIFont *) getFontRegular:(CGFloat)size;
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size;
 - (UIImage *)imageWithColor:(UIColor *)color;
@@ -78,4 +80,6 @@
 - (UIImage *)scaleUIImage:(UIImage *)_img scaledToSize:(CGSize)newSize;
 
 - (BOOL) saveImageToDocument:(UIImage*)_img withName:(NSString*)_name;
+
+- (int) uploadAvatarAmazon:(AmazonInfo *)info withImage:(NSData *)imgData;
 @end

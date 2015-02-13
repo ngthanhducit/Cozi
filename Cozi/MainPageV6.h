@@ -35,8 +35,12 @@
     Profile         *profile;
     User            *user;
     NSMutableArray          *items;
+
+    UIActivityIndicatorView     *waitingLoadHistory;
+    UIActivityIndicatorView     *waitingLoadAvatar;
 }
 
+@property (nonatomic, strong)     UIActivityIndicatorView     *waitingFollow;
 @property (nonatomic, strong) SCNoiseCollectionView *scCollection;
 
 @property (nonatomic) UIEdgeInsets              itemInsets;
@@ -58,7 +62,9 @@
 - (void) initUser:(User*)_user;
 - (void) setNoisesHistory:(NSMutableArray*)_items;
 
-- (void) initMyInfo:(User*)_myUser;
 -(void) drawAvatar:(UIImage*)_imgAvatar;
 - (void) setContentSizeContent:(CGSize)contentSize;
+
+- (void) initButtonFollowUser;
+- (void) initViewFollowing;
 @end

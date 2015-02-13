@@ -56,12 +56,11 @@
         [self addSubview:refreshControl];
         
         spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-        [spinner stopAnimating];
+//        [spinner stopAnimating];
         spinner.hidesWhenStopped = NO;
         spinner.frame = CGRectMake(0, 0, 320, 44);
-        self.tableFooterView = spinner;
+        //self.tableFooterView = spinner;
         
-
     }
     
     items = _data;
@@ -89,7 +88,7 @@
 }
 
 - (UIView *) tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    __weak DataWall *_wall;
+    DataWall *_wall;
     if (type == 0) {
         _wall = [storeIns.walls objectAtIndex:section];
     }else{
@@ -118,7 +117,7 @@
     
     scCell = (SCWallTableViewCellV2*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    __weak DataWall *_wall;
+    DataWall *_wall;
     if (type == 0) {
         _wall = [storeIns.walls objectAtIndex:indexPath.section];
     }else{
@@ -140,11 +139,20 @@
     
     [scCell.vAllComment setTag:3000 + indexPath.section];
     
+    [scCell.vLike setTag:4000 + indexPath.section];
+    
+    UITapGestureRecognizer *tapLikes = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapLikes:)];
+    [tapLikes setNumberOfTapsRequired:1];
+    [tapLikes setNumberOfTouchesRequired:1];
+    [scCell.vLike addGestureRecognizer:tapLikes];
+    
     if (_wall.isLike) {
         [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     }else{
         [scCell.btnLike setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
     }
+    
+    _wall.content = [_wall.content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (_wall.codeType == 1) {  //image and text
         [scCell.vImages setHidden:NO];
@@ -159,8 +167,8 @@
         [scCell setWallData:_wall];
         
         //=========STATUS============
-        NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, _wall.content];
-        [scCell setNickNameText:_wall.fullName];
+        NSString *str = [NSString stringWithFormat:@"%@ %@ %@", _wall.firstName, _wall.lastName, _wall.content];
+        [scCell setNickNameText:[NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName]];
         [scCell setStatusText:_wall.content];
         
         [scCell setTextStatus];
@@ -170,8 +178,14 @@
         CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
 
         if (sizeStatus.height < 40) {
+            if (sizeStatus.height > 20) {
+                [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+            }else{
+                [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 13, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+            }
+
             sizeStatus.height = 40;
-            [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
+
         }else{
             [scCell.imgQuotes setFrame:CGRectMake(scCell.imgQuotes.frame.origin.x, 5, scCell.imgQuotes.bounds.size.width, scCell.imgQuotes.bounds.size.height)];
         }
@@ -217,6 +231,19 @@
                 [tapViewAll setNumberOfTapsRequired:1];
                 [tapViewAll setNumberOfTouchesRequired:1];
                 [scCell.vAllComment addGestureRecognizer:tapViewAll];
+
+                UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapLableAll setNumberOfTapsRequired:1];
+                [tapLableAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapLableAll];
+                
+                [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
+                
+                UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapImageComment setNumberOfTapsRequired:1];
+                [tapImageComment setNumberOfTouchesRequired:1];
+                [scCell.iconViewAllComment addGestureRecognizer:tapImageComment];
+
             }else{
                 
                 [scCell.vAllComment setHidden:YES];
@@ -249,8 +276,8 @@
         [scCell setWallData:_wall];
         
         //=========STATUS============
-        NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, _wall.content];
-        [scCell setNickNameText:_wall.fullName];
+        NSString *str = [NSString stringWithFormat:@"%@ %@ %@", _wall.firstName, _wall.lastName, _wall.content];
+        [scCell setNickNameText:[NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName]];
         [scCell setStatusText:_wall.content];
         
         [scCell setTextStatus];
@@ -353,8 +380,8 @@
         
         //=========STATUS============
         if (![_wall.content isEqualToString:@""]) {
-            NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, _wall.content];
-            [scCell setNickNameText:_wall.fullName];
+            NSString *str = [NSString stringWithFormat:@"%@ %@ %@", _wall.firstName, _wall.lastName, _wall.content];
+            [scCell setNickNameText:[NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName]];
             [scCell setStatusText:_wall.content];
             
             [scCell setTextStatus];
@@ -449,15 +476,24 @@
 //             load help screen
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
             
-            Friend *_friend = [storeIns getFriendByID:[query intValue]];
-            
-            if (_friend != nil) {
-                NSString *key = @"tapFriend";
-                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
-            }else{
+            if ([query intValue] == storeIns.user.userID) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+            }else{
+                NSString *key = @"tapFriend";
+                NSNumber *contentUser = [NSNumber numberWithInt:[query intValue]];
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:contentUser forKey:key];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
             }
+            
+//            Friend *_friend = [storeIns getFriendByID:[query intValue]];
+//            
+//            if (_friend != nil) {
+//                NSString *key = @"tapFriend";
+//                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+//            }else{
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+//            }
             
         } else if ([[url host] hasPrefix:@"show-tag"]) {
             /* load settings screen */
@@ -500,16 +536,6 @@
     }
     
     lastOffset = offset;
-}
-
-- (void) scrollViewDidScroll:(UIScrollView *)scrollView{
-    if ((scrollView.contentOffset.y + scrollView.frame.size.height) > scrollView.contentSize.height) {
-        
-    }
-}
-
-- (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-//    [self loadImagesForOnscreenRows];
 }
 
 - (void) stopLoadWall:(BOOL)_isEndData{
@@ -571,7 +597,7 @@
     CGFloat heightImage = self.bounds.size.width;
     CGFloat hDistance = 0;
     
-    if (_wall.typePost == 1) {
+    if (_wall.codeType == 1) {
         
         if ([_wall.comments count] > 0) {
             int max = 4;
@@ -596,7 +622,7 @@
             }
         }
         
-    }else if (_wall.typePost == 0){
+    }else if (_wall.codeType == 0){
         heightImage = 0;
         sizeStatus.height = sizeStatus.height < 60 ? 60 : sizeStatus.height;
         
@@ -612,7 +638,7 @@
         }else{
             spacingViewAllComment = 0;
         }
-    }else if (_wall.typePost == 2){
+    }else if (_wall.codeType == 2){
         hDistance = 60;
         sizeStatus.height = sizeStatus.height < 60 ? 60 : sizeStatus.height;
         
@@ -727,10 +753,6 @@
     
     NSDate *date = [calendar dateFromComponents:comps];
     
-    
-//    NSTimeInterval countDownTime = [date timeIntervalSinceDate:[NSDate date]];
-//    NSDate *countTime = [date dateByAddingTimeInterval:countDownTime];
-    
     NSDate *fromDate;
     NSDate *toDate;
     
@@ -771,19 +793,43 @@
     NSInteger _tagButton = btnMore.tag;
     NSLog(@"button click: %i", (int)_tagButton);
     
-    NSString *actionSheetTitle = @"Please Select Action"; //Action Sheet Title
-    NSString *destructiveTitle = @"Report Inappropriate"; //Action Sheet Button Titles
-    NSString *other1 = @"Copy Share URL";
-    NSString *cancelTitle = @"Cancel";
+    DataWall *_wall;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:_tagButton];
+    }else{
+        _wall = [items objectAtIndex:_tagButton];
+    }
+
+    if (_wall.userPostID == storeIns.user.userID) {
+        NSString *destructiveTitle = @"Delete"; //Action Sheet Button Titles
+        NSString *other1 = @"Edit";
+        NSString *share = @"Share";
+        NSString *cancelTitle = @"Cancel";
+        
+        UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                                      initWithTitle:nil
+                                      delegate:self
+                                      cancelButtonTitle:cancelTitle
+                                      destructiveButtonTitle:destructiveTitle
+                                      otherButtonTitles:share, other1, nil];
+        
+        [actionSheet showInView:self];
+    }else{
+
+        NSString *destructiveTitle = @"Report Inappropriate"; //Action Sheet Button Titles
+        NSString *other1 = @"Copy Share URL";
+        NSString *cancelTitle = @"Cancel";
+        
+        UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                                      initWithTitle:nil
+                                      delegate:self
+                                      cancelButtonTitle:cancelTitle
+                                      destructiveButtonTitle:destructiveTitle
+                                      otherButtonTitles:other1, nil];
+        
+        [actionSheet showInView:self];
+    }
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc]
-                                  initWithTitle:nil
-                                  delegate:self
-                                  cancelButtonTitle:cancelTitle
-                                  destructiveButtonTitle:destructiveTitle
-                                  otherButtonTitles:other1, nil];
-    
-    [actionSheet showInView:self];
 }
 
 - (void) btnLike:(id)sender{
@@ -848,6 +894,25 @@
         NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_wall forKey:key];
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapAllComment" object:nil userInfo:dictionary];
+    }
+}
+
+- (void) tapLikes:(UIGestureRecognizer*)recognizer{
+    UIView *viewLikes = recognizer.view;
+    
+    NSInteger _tagComment = viewLikes.tag - 4000;
+    DataWall *_wall ;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:_tagComment];
+    }else{
+        _wall = [items objectAtIndex:_tagComment];
+    }
+    
+    if (_wall && _wall.userPostID > 0) {
+        NSString *key = @"tapLikesInfo";
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_wall forKey:key];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapLikes" object:nil userInfo:dictionary];
     }
 }
 

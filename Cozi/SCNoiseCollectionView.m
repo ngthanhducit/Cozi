@@ -35,6 +35,7 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (void) initData:(NSMutableArray*)_data withType:(int)_type{
+    type = _type;
     if (type == 0) {
         refresh = [[UIRefreshControl alloc] init];
         [refresh addTarget:self action:@selector(handleRefresh:) forControlEvents:UIControlEventValueChanged];
@@ -42,7 +43,6 @@ static NSString * const reuseIdentifier = @"Cell";
     }
     
     items = _data;
-    type = _type;
 }
 
 #pragma mark <UICollectionViewDataSource>
@@ -64,12 +64,12 @@ static NSString * const reuseIdentifier = @"Cell";
     SCNoiseCollectionViewCell *scCell = [collectionView dequeueReusableCellWithReuseIdentifier:NoiseCellIdentifier
                                                                                   forIndexPath:indexPath];
     [scCell setBackgroundColor:[UIColor grayColor]];
-    __weak DataWall *_noise;
+    DataWall *_noise;
     if (type == 0) {
         _noise = [storeIns.noises objectAtIndex:indexPath.section];
         
-        if (indexPath.section == ([storeIns.noises count] - 4)) {
-            NSLog(@"load more noise");
+        if (indexPath.section == ([storeIns.noises count] - 4) && !inLoadMoreNoise) {
+            inLoadMoreNoise = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"loadMoreNoise" object:nil];
         }
     }else{
@@ -81,24 +81,6 @@ static NSString * const reuseIdentifier = @"Cell";
     [scCell.imgView setContentMode:UIViewContentModeScaleAspectFill];
     [scCell.imgView setAutoresizingMask:UIViewAutoresizingNone];
     [scCell.imgView setClipsToBounds:YES];
-    
-//    if (_noise.thumb) {
-//        
-//        [scCell.imgView setImage:_noise.thumb];
-//        
-//    }else{
-//        
-//        //Set default image
-//        
-//        [[[AsyncImageDownloader alloc] initWithMediaURL:_noise.urlThumb successBlock:^(UIImage *image) {
-//            
-//            [_noise setThumb:image];
-//            [scCell.imgView setImage:image];
-//            
-//        } failBlock:^(NSError *error) {
-//            
-//        }] startDownload];
-//    }
     
     [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_noise.urlThumb] placeholderImage:[UIImage imageNamed:@"placeholder"]];
     
@@ -134,6 +116,7 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 - (void) stopLoadNoise:(BOOL)_isEnd{
+    inLoadMoreNoise = NO;
     isEndData = _isEnd;
     [refresh endRefreshing];
     

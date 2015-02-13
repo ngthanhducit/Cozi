@@ -14,6 +14,8 @@
 #import <CoreData/CoreData.h>
 #import "Helper.h"
 #import "FollowerUser.h"
+#import "DataWall.h"
+#import "UserSearch.h"
 
 @interface CoziCoreData : NSObject
 {
@@ -22,19 +24,20 @@
 
 + (id) shareInstance;
 
+//Messenger
 - (NSMutableArray *) getMessenger;
 - (NSMutableArray *) getMessengerWithFriendID:(int)_friendID withUserID:(int)_userID;
-- (BOOL) isExistsMessenger:(int)_keyMessenger;
+- (BOOL) isExistsMessenger:(NSString*)_keyMessenger;
 - (BOOL) saveMessenger:(Messenger*)_messenger;
 - (BOOL) updateMessenger:(Messenger*)_messenger;
-- (void) deleteMessenger:(int)_keyMessenger;
+- (void) deleteMessenger:(NSString*)_keyMessenger;
 
 - (NSMutableArray *) getFriends;
 - (NSMutableArray *) getFriendsWithUserID:(int)_userID;
 - (BOOL)isExistsFriend:(int)_friendID withUserID:(int)_userID;
 - (BOOL) saveFriend:(Friend *)_friend;
 - (BOOL) updateFriend:(Friend *)_friend;
-- (void) deleteFriend:(int)_friendID;
+- (void) deleteFriend:(int)_friendID withUserID:(int)_userID;
 
 - (NSMutableArray *) getUser;
 - (NSManagedObject*) getUserByUserID:(int)_userID;
@@ -46,8 +49,26 @@
 - (NSMutableArray*) getFollower;
 - (NSMutableArray*) getFollowerByUserID:(int)_userID;
 - (NSMutableArray*) getFollowerByParentUserID:(int)_userID;
-- (BOOL) isExistsFollower:(int)_userID;
+- (BOOL) isExistsFollower:(int)_userID withParentID:(int)_parentID;
 - (BOOL) saveFollower:(FollowerUser *)_follower;
 - (BOOL) updateFollower:(FollowerUser*)_follower;
 - (void) deleteFollower:(int)_userID;
+
+//POST
+- (NSMutableArray*) getPosts;
+- (NSMutableArray*) getPostsByUserID:(int)_userID;
+- (NSMutableArray*) getPostsByUserID:(int)_userID withClientKey:(NSString*)_clientKey;
+- (BOOL) isExistsPost:(int)_userID withClientKey:(NSString*)_clientKey;
+- (BOOL) savePosts:(DataWall*)_posts;
+- (BOOL) updatePost:(DataWall*)_posts;
+- (BOOL) deletePost:(int)_userID withClientKey:(NSString*)_clientKey;
+
+//Friend Request
+- (NSMutableArray*) getFriendRequest;
+- (NSMutableArray*) getFriendRequestWithUserID:(int)_userID;
+- (NSMutableArray*) getFriendRequestWithID:(int)_userID withFriendRequestID:(int)_friendRequestID;
+- (BOOL) isExistsFriendRequest:(int)_userID withFriendRequestID:(int)_friendRequestID;
+- (BOOL) saveFriendRequest:(UserSearch*)_friendRequest;
+- (BOOL) updateFriendRequest:(UserSearch*)_friendRequest;
+- (void) deleteFriendRequest:(int)_userID withFriendRequestID:(int)_friendRequestID;
 @end

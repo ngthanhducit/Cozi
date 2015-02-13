@@ -13,6 +13,7 @@
 
 @property (nonatomic            ) int            friendID;
 @property (nonatomic            ) int            userID;
+@property (nonatomic, copy)     NSString            *userName;
 @property (nonatomic, copy      ) NSString       *nickName;
 @property (nonatomic, copy      ) NSString       *firstName;
 @property (nonatomic, copy      ) NSString       *lastName;
@@ -23,6 +24,7 @@
 @property (nonatomic, strong    ) UIImage        *thumbnail;
 @property (nonatomic, strong    ) UIImage        *thumbnailOffline;
 @property (nonatomic            ) int            statusFriend;//0: offline - 1: online:
+@property (nonatomic)             int            statusAddFriend; //0: ok - 1: request
 @property (nonatomic            ) CGFloat        leftAvatar;
 @property (nonatomic            ) CGFloat        topAvatar;
 @property (nonatomic            ) CGFloat        widthAvatar;
@@ -30,4 +32,6 @@
 @property (nonatomic            ) CGFloat        scaleAvatar;
 @property (nonatomic, strong    ) NSMutableArray *friendMessage;
 @property (nonatomic, copy      ) NSString       *phoneNumber;
+@property (nonatomic, copy)     NSString            *birthDay;
+@property (nonatomic, copy)     NSString            *relationship;
 @end

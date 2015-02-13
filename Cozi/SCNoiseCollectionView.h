@@ -22,6 +22,7 @@ static NSString * const NoiseCellIdentifier = @"PhotoCell";
     NSMutableArray              *items;
     int                         type;
     BOOL                        isEndData;
+    BOOL                        inLoadMoreNoise;
 }
 
 - (void) initData:(NSMutableArray*)_data withType:(int)_type;

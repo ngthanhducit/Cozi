@@ -18,6 +18,7 @@
 @property (nonatomic, strong) UIView                *_headPanel;
 @property (nonatomic, strong) UIView                *_backView;
 @property (nonatomic, strong) UIImageView                *imgLogoView;
+@property (nonatomic, strong) UILabel               *lblNickName;
 
 -(int) getHeaderHeight;
 - (void) initBackView;

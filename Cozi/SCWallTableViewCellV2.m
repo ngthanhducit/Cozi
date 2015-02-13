@@ -85,9 +85,9 @@
 //    dImageMoreComment = [helperIns getImageSVGContentFile:@"MoreCommentsGreen"];
 //    dIconLike = [helperIns getImageSVGContentFile:@"icon-LikeWhite"];
     
-    dImageLike = [helperIns getImageFromSVGName:@"icon-LikeGreen.svg"];
+    dImageLike = [helperIns getImageFromSVGName:@"icon-LikeGreenv2.svg"];
     dImageMore = [helperIns getImageFromSVGName:@"icon-openMenuGreen.svg"];
-    dImageQuote = [helperIns getImageFromSVGName:@"icon-QuoteGreen.svg"];
+    dImageQuote = [helperIns getImageFromSVGName:@"icon-QuoteGreenv2.svg"];
     dImageQuoteWhite = [helperIns getImageFromSVGName:@"icon-QuoteWhite.svg"];
     dImageMoreComment = [helperIns getImageFromSVGName:@"icon-MoreCommentsGreen.svg"];
     dIconLike = [helperIns getImageFromSVGName:@"icon-LikeWhite.svg"];
@@ -105,6 +105,10 @@
     [self.imgView setClipsToBounds:YES];
     
     [self.vImages addSubview:self.imgView];
+    
+    self.imgWaiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.imgWaiting setFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
+    [self.vImages addSubview:self.imgWaiting];
     
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     [self.spinner setBackgroundColor:[UIColor clearColor]];
@@ -174,13 +178,19 @@
     NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
     [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
     [mutableLinkAttributes setValue:(__bridge id)[[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+    
+    UIFont *baseFont = [helperIns getFontRegular:14.0f];
+    CTFontRef baseFontRef = CTFontCreateWithName((__bridge CFStringRef)baseFont.fontName, baseFont.pointSize, NULL);
+    mutableLinkAttributes[(__bridge NSString *)kCTFontAttributeName] = (__bridge id)baseFontRef;
+    CFRelease(baseFontRef);
+    
     self.lblStatus.linkAttributes = mutableLinkAttributes;
     
     NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
-    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor blueColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
-    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
-    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor blueColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
     self.lblStatus.activeLinkAttributes = mutableActiveLinkAttributes;
@@ -207,12 +217,14 @@
     [bottomLine setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.vAllComment.layer addSublayer:bottomLine];
     
-    UIImageView *iconViewAllComment = [[UIImageView alloc] initWithImage:dImageMoreComment];
-    [iconViewAllComment setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
-    [self.vAllComment addSubview:iconViewAllComment];
+    self.iconViewAllComment = [[UIImageView alloc] initWithImage:dImageMoreComment];
+    [self.iconViewAllComment setUserInteractionEnabled:NO];
+    [self.iconViewAllComment setFrame:CGRectMake(widthBlock - 40, 0, 40, 40)];
+    [self.vAllComment addSubview:self.iconViewAllComment];
     
     //lblView All Comment
-    self.lblViewAllComment = [[UILabel alloc] initWithFrame:CGRectMake(iconViewAllComment.frame.origin.x - (widthBlock - 100), 0, widthBlock - 100, heightDefault)];
+    self.lblViewAllComment = [[UILabel alloc] initWithFrame:CGRectMake(self.iconViewAllComment.frame.origin.x - (widthBlock - 100), 0, widthBlock - 100, heightDefault)];
+    [self.lblViewAllComment setUserInteractionEnabled:NO];
     [self.lblViewAllComment setTextAlignment:NSTextAlignmentRight];
     [self.lblViewAllComment setText:@"view all 70 comment"];
     [self.lblViewAllComment setFont:[helperIns getFontLight:13]];
@@ -287,14 +299,14 @@
 - (void) setTextStatus{
     NSArray *subArray = [self.statusText componentsSeparatedByString:@"^tt^"];
     
-    NSString *str = [[NSString stringWithFormat:@"%@ %@", [self.nickNameText uppercaseString], self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
+    NSString *str = [[NSString stringWithFormat:@"%@ %@", self.nickNameText, self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
     
     [self.lblStatus setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
         
         return mutableAttributedString;
     }];
     
-    NSRange r = [str rangeOfString:[self.nickNameText uppercaseString]];
+    NSRange r = [str rangeOfString:self.nickNameText];
     NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", self.wallData.userPostID];
     strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
     [self.lblStatus addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
@@ -358,11 +370,21 @@
             __weak Friend *_friend = [storeIns getFriendByID:postComment.userCommentId];
             if (_friend != nil) {
                 [imgAvatarComment setImage:_friend.thumbnail];
-            }else{
+            }else if(postComment.userCommentId == storeIns.user.userID){
                 [imgAvatarComment setImage:storeIns.user.thumbnail];
+            }else{
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:postComment.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    
+                    if (image && finished) {
+                        [imgAvatarComment setImage:image];
+                    }
+                    
+                }];
             }
             
-            NSString *strFullName = [[NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName] uppercaseString];
+            NSString *strFullName = [NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName];
             
             NSString *str = [NSString stringWithFormat:@"%@ %@", strFullName, postComment.contentComment];
             CGSize sizeComment = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
@@ -378,6 +400,11 @@
             NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
             [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
             [mutableLinkAttributes setValue:(__bridge id)[[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+            
+            UIFont *baseFont = [helperIns getFontRegular:14.0f];
+            CTFontRef baseFontRef = CTFontCreateWithName((__bridge CFStringRef)baseFont.fontName, baseFont.pointSize, NULL);
+            mutableLinkAttributes[(__bridge NSString *)kCTFontAttributeName] = (__bridge id)baseFontRef;
+            CFRelease(baseFontRef);
             
             _lblComment.linkAttributes = mutableLinkAttributes;
             
@@ -401,7 +428,7 @@
             
             y += sizeComment.height + 20;
             
-            NSRange r = [str rangeOfString:[[NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName] uppercaseString]];
+            NSRange r = [str rangeOfString:[NSString stringWithFormat:@"%@ %@", postComment.firstName, postComment.lastName]];
             NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", postComment.userCommentId];
             strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
             [_lblComment addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
@@ -419,16 +446,26 @@
         if ([[url host] hasPrefix:@"show-profile"]) {
             //             load help screen
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            
-            Friend *_friend = [storeIns getFriendByID:[query intValue]];
-            
-            if (_friend != nil) {
-                NSString *key = @"tapFriend";
-                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
-            }else{
+
+            if ([query intValue] == storeIns.user.userID) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+            }else{
+                NSString *key = @"tapFriend";
+                NSNumber *userCommentID = [NSNumber numberWithInt:[query intValue]];
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:userCommentID forKey:key];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
             }
+            
+//            Friend *_friend = [storeIns getFriendByID:[query intValue]];
+//            
+//            if (_friend != nil) {
+//                NSString *key = @"tapFriend";
+//                NSNumber *userCommentID = [NSNumber numberWithInt:[query intValue]];
+//                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:userCommentID forKey:key];
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+//            }else{
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+//            }
             
         } else if ([[url host] hasPrefix:@"show-tag"]) {
             /* load settings screen */

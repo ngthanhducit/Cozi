@@ -60,10 +60,10 @@
     return messengers;
 }
 
-- (BOOL) isExistsMessenger:(int)_keyMessenger{
+- (BOOL) isExistsMessenger:(NSString*)_keyMessenger{
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"MessengerFriend"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %i)", _keyMessenger];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %@)", _keyMessenger];
     [fetchRequest setPredicate:predicate];
     
     NSMutableArray *messengers = [[managedObjectContext executeFetchRequest:fetchRequest error:nil] mutableCopy];
@@ -109,7 +109,7 @@
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"MessengerFriend"];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %i)", _messenger.keySendMessage];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %@)", _messenger.keySendMessage];
     [fetchRequest setPredicate:predicate];
     
     NSError *error = nil;
@@ -135,11 +135,11 @@
     return YES;
 }
 
-- (void) deleteMessenger:(int)_keyMessenger{
+- (void) deleteMessenger:(NSString*)_keyMessenger{
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"MessengerFriend"];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %i)", _keyMessenger];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(key_send_message = %@)", _keyMessenger];
     [fetchRequest setPredicate:predicate];
     
     NSError *error = nil;
@@ -203,6 +203,8 @@
     [newFriend setValue:[NSNumber numberWithInt:_friend.userID] forKey:@"user_id"];
     [newFriend setValue:[NSNumber numberWithFloat:_friend.widthAvatar] forKey:@"width_avatar"];
     [newFriend setValue:_friend.phoneNumber forKey:@"phone_number"];
+    [newFriend setValue:[NSNumber numberWithInt:_friend.statusAddFriend] forKey:@"status_add_friend"];
+    [newFriend setValue:_friend.userName forKey:@"user_name"];
     
     NSError *error = nil;
     if (![context save:&error]) {
@@ -237,6 +239,8 @@
     [friend setValue:[NSNumber numberWithInt:_friend.userID] forKey:@"user_id"];
     [friend setValue:[NSNumber numberWithFloat:_friend.widthAvatar] forKey:@"width_avatar"];
     [friend setValue:_friend.phoneNumber forKey:@"phone_number"];
+    [friend setValue:[NSNumber numberWithInt:_friend.statusAddFriend] forKey:@"status_add_friend"];
+    [friend setValue:_friend.userName forKey:@"user_name"];
     
     if (![context save:&error]) {
         return NO;
@@ -245,19 +249,27 @@
     return YES;
 }
 
-- (void) deleteFriend:(int)_friendID{
+- (void) deleteFriend:(int)_friendID withUserID:(int)_userID{
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"UserFriend" inManagedObjectContext:context];
     [fetchRequest setEntity:entity];
     // Specify criteria for filtering which objects to fetch
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(friend_id = %i)", _friendID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(friend_id = %i && user_id = %i)", _friendID, _userID];
     [fetchRequest setPredicate:predicate];
+    
     NSError *error = nil;
     NSArray *friends = [context executeFetchRequest:fetchRequest error:&error];
+    
     NSManagedObject *friend = (NSManagedObject*)[friends lastObject];
+    
     if (friend != nil) {
         [context deleteObject:friend];
+    }
+    
+    if (![friend.managedObjectContext save:&error]) {
+        NSLog(@"Unable to save managed object context.");
+        NSLog(@"%@, %@", error, error.localizedDescription);
     }
 }
 
@@ -408,10 +420,10 @@
     return followers;
 }
 
-- (BOOL) isExistsFollower:(int)_userID{
+- (BOOL) isExistsFollower:(int)_userID withParentID:(int)_parentID{
     NSManagedObjectContext *context = [self managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Follower"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i)", _userID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i && parent_id = %i)", _userID, _parentID];
     [fetchRequest setPredicate:predicate];
     
     NSMutableArray *followers = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
@@ -426,10 +438,14 @@
 - (BOOL) saveFollower:(FollowerUser *)_follower{
     NSManagedObjectContext  *context = [self managedObjectContext];
     NSManagedObject *newFollower = [NSEntityDescription insertNewObjectForEntityForName:@"Follower" inManagedObjectContext:context];
+    [newFollower setValue:[NSNumber numberWithInt:_follower.parentUserID] forKey:@"parent_id"];
+    [newFollower setValue:[NSNumber numberWithInt:_follower.userID] forKey:@"user_id"];
     [newFollower setValue:_follower.firstName forKey:@"first_name"];
     [newFollower setValue:_follower.lastName forKey:@"last_name"];
     [newFollower setValue:_follower.urlAvatar forKey:@"url_avatar"];
+    [newFollower setValue:_follower.urlAvatarFull forKey:@"url_avatar_full"];
     [newFollower setValue:[NSNumber numberWithInt:_follower.parentUserID] forKey:@"parent_id"];
+    [newFollower setValue:[NSNumber numberWithInt:_follower.statusFollow] forKey:@"status_follower"];
     
     NSError *error = nil;
     if (![context save:&error]) {
@@ -452,6 +468,8 @@
     [follower setValue:_follower.firstName forKey:@"first_name"];
     [follower setValue:_follower.lastName forKey:@"last_name"];
     [follower setValue:_follower.urlAvatar forKey:@"url_avatar"];
+    [follower setValue:_follower.urlAvatarFull forKey:@"url_avatar_full"];
+    [follower setValue:[NSNumber numberWithInt:_follower.statusFollow] forKey:@"status_follower"];
     
     if (![context save:&error]) {
         return NO;
@@ -471,6 +489,233 @@
     NSManagedObject *follower = (NSManagedObject*)[followers lastObject];
     if (follower != nil) {
         [context deleteObject:follower];
+    }
+}
+
+#pragma -mark POSTS
+- (NSMutableArray*) getPosts{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSMutableArray *result = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return result;
+}
+
+- (NSMutableArray*) getPostsByUserID:(int)_userID{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user_post_id = %i", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *post = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return post;
+}
+
+- (NSMutableArray*) getPostsByUserID:(int)_userID withClientKey:(NSString*)_clientKey{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user_post_id = %i && client_key = %@", _userID, _clientKey];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *posts = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return posts;
+}
+
+- (BOOL) isExistsPost:(int)_userID withClientKey:(NSString*)_clientKey{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user_post_id = %i && client_key = %@", _userID, _clientKey];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *posts = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    NSManagedObject * post = (NSManagedObject*)[posts lastObject];
+    if (post) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL) savePosts:(DataWall*)_posts{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSManagedObject *newPost = [NSEntityDescription insertNewObjectForEntityForName:@"Posts" inManagedObjectContext:context];
+    [newPost setValue:[NSNumber numberWithInt:_posts.userPostID] forKey:@"user_post_id"];
+    [newPost setValue:[NSNumber numberWithInteger:_posts.codeType] forKey:@"code_type"];
+    [newPost setValue:_posts.clientKey forKey:@"client_key"];
+    [newPost setValue:_posts.content forKey:@"content_post"];
+    [newPost setValue:_posts.firstName forKey:@"first_name"];
+    [newPost setValue:_posts.lastName forKey:@"last_name"];
+    [newPost setValue:[NSNumber numberWithBool:_posts.isLike] forKey:@"is_like"];
+    [newPost setValue:[NSString stringWithFormat:@"%@|%@", _posts.longitude, _posts.latitude] forKey:@"location"];
+    [newPost setValue:_posts.time forKey:@"time_post"];
+    [newPost setValue:_posts.timeLike forKey:@"time_like"];
+    [newPost setValue:_posts.urlFull forKey:@"url_image_full"];
+    [newPost setValue:_posts.urlThumb forKey:@"url_image_thumb"];
+    [newPost setValue:_posts.video forKey:@"url_video"];
+    [newPost setValue:[NSNumber numberWithInt:_posts.userPostID] forKey:@"user_post_id"];
+    [newPost setValue:_posts.urlAvatarThumb forKey:@"url_avatar_thumb"];
+    [newPost setValue:_posts.urlAvatarFull forKey:@"url_avatar_full"];
+    
+    NSError *error = nil;
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL) updatePost:(DataWall*)_posts{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_post_id = %i && client_key = %@)", _posts.userPostID, _posts.clientKey];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *posts = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *post = (NSManagedObject*)[posts lastObject];
+    
+    [post setValue:_posts.content forKey:@"content"];
+    [post setValue:_posts.firstName forKey:@"first_name"];
+    [post setValue:_posts.lastName forKey:@"last_name"];
+    [post setValue:[NSNumber numberWithBool:_posts.isLike] forKey:@"is_like"];
+    [post setValue:[NSString stringWithFormat:@"%@|%@", _posts.longitude, _posts.latitude] forKey:@"location"];
+    [post setValue:_posts.time forKey:@"time_post"];
+    [post setValue:_posts.timeLike forKey:@"time_like"];
+    [post setValue:_posts.urlFull forKey:@"url_images_full"];
+    [post setValue:_posts.urlThumb forKey:@"url_images_thumb"];
+    [post setValue:_posts.video forKey:@"url_video"];
+    [post setValue:_posts.urlAvatarThumb forKey:@"url_avatar_thumb"];
+    [post setValue:_posts.urlAvatarFull forKey:@"url_avatar_full"];
+    
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL) deletePost:(int)_userID withClientKey:(NSString*)_clientKey{
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Posts"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_post_id = %i && client_key = %@)", _userID, _clientKey];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *posts = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *post = (NSManagedObject*)[posts lastObject];
+    if (post) {
+        [context delete:post];
+    }
+    
+    return YES;
+}
+
+#pragma -mark Friend Request
+- (NSMutableArray*) getFriendRequest{
+    NSManagedObjectContext  *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSMutableArray *result = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return result;
+}
+
+- (NSMutableArray*) getFriendRequestWithUserID:(int)_userID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i)", _userID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *friendRequest = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return friendRequest;
+}
+
+- (NSMutableArray*) getFriendRequestWithID:(int)_userID withFriendRequestID:(int)_friendRequestID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i && friend_request_id = %i)", _userID, _friendRequestID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *friendRequest = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    
+    return friendRequest;
+}
+
+- (BOOL) isExistsFriendRequest:(int)_userID withFriendRequestID:(int)_friendRequestID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i && friend_request_id = %i)", _userID, _friendRequestID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSMutableArray *friendRequests = [[context executeFetchRequest:fetchRequest error:nil] mutableCopy];
+    NSManagedObject *request = (NSManagedObject*)[friendRequests lastObject];
+    if (request) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL) saveFriendRequest:(UserSearch*)_friendRequest{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSManagedObject *newFriendRequest = [NSEntityDescription insertNewObjectForEntityForName:@"FriendRequest" inManagedObjectContext:context];
+    [newFriendRequest setValue:[NSNumber numberWithInt:_friendRequest.userID] forKey:@"user_id"];
+    [newFriendRequest setValue:[NSNumber numberWithInt:_friendRequest.friendID] forKey:@"friend_request_id"];
+    [newFriendRequest setValue:[NSString stringWithFormat:@"%@ %@", _friendRequest.firstName, _friendRequest.lastName] forKey:@"nick_name"];
+    [newFriendRequest setValue:_friendRequest.urlAvatar forKey:@"url_thumbnail"];
+    [newFriendRequest setValue:_friendRequest.urlAvatarFull forKey:@"url_avatar"];
+    [newFriendRequest setValue:_friendRequest.userName forKey:@"user_name"];
+    
+    NSError *error = nil;
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL) updateFriendRequest:(UserSearch*)_friendRequest{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i && friend_request_id = %i)", _friendRequest.userID, _friendRequest.friendID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *friendRequest = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *request = (NSManagedObject*)[friendRequest lastObject];
+    
+    [request setValue:[NSString stringWithFormat:@"%@ %@", _friendRequest.firstName, _friendRequest.lastName] forKey:@"nick_name"];
+    [request setValue:_friendRequest.urlAvatar forKey:@"url_thumbnail"];
+    [request setValue:_friendRequest.urlAvatarFull forKey:@"url_avatar"];
+    [request setValue:_friendRequest.userName forKey:@"user_name"];
+    
+    if (![context save:&error]) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void) deleteFriendRequest:(int)_userID withFriendRequestID:(int)_friendRequestID{
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"FriendRequest"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(user_id = %i && friend_request_id = %i)", _userID, _friendRequestID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error = nil;
+    NSArray *friendRequest = [context executeFetchRequest:fetchRequest error:&error];
+    NSManagedObject *request = (NSManagedObject*)[friendRequest lastObject];
+    if (request) {
+        [context delete:request];
     }
 }
 @end

@@ -10,7 +10,7 @@
 #import "HPGrowingTextView.h"
 #import "Helper.h"
 
-@interface SCChatToolKitView : UIView <HPGrowingTextViewDelegate, UIGestureRecognizerDelegate>
+@interface SCChatToolKitView : UIView <HPGrowingTextViewDelegate>
 {
     CGPoint                 preTouchLocation;
     CGFloat                 alphaView;
@@ -18,7 +18,9 @@
     Helper                  *helperIns;
 }
 
+@property (nonatomic, strong) UIView                *vTextChat;
 @property (nonatomic, strong) HPGrowingTextView     *hpTextChat;
+@property (nonatomic, strong) UIButton              *btnSendMessage;
 @property (nonatomic, strong) UIView                *vTextView;
 @property (nonatomic, strong) UIView                *vTool;
 @property (nonatomic, strong) UIView                *vLine;

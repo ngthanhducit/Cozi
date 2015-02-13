@@ -12,6 +12,8 @@
 
 @property (nonatomic, strong) NSDate    *dateLike;
 @property (nonatomic        ) NSInteger userLikeId;
+@property (nonatomic, copy) NSString        *urlAvatarThumb;
+@property (nonatomic, copy) NSString        *urlAvatarFull;
 @property (nonatomic, copy  ) NSString  *userNameLike;
 @property (nonatomic, copy  ) NSString  *firstName;
 @property (nonatomic, copy  ) NSString  *lastName;

@@ -14,6 +14,7 @@
     
 }
 
+- (void) drawTrianglePre;
 - (void) drawTriangleSignIn;
 - (void) drawTriangleToolKit;
 - (void) drawTrianDownToolkit;

@@ -24,7 +24,7 @@
 - (void) initVariable{
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
-    imgClock = [helperIns getImageFromSVGName:@"icon-ClockGreen.svg"];
+    imgClock = [helperIns getImageFromSVGName:@"icon-ClockGreen-v2.svg"];
 }
 
 - (void) initWithData:(DataWall*)_data withSection:(NSInteger)section{
@@ -42,17 +42,24 @@
     [view addSubview:imgAvatar];
     
     __weak DataWall *_wall = _data;
+    [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     
-    __weak Friend *_friend = [storeIns getFriendByID:_wall.userPostID];
-    if (_friend) {
-        _wall.fullName = _friend.nickName;
-        __weak UIImage *imgFriendThumb = _friend.thumbnail;
-        [imgAvatar setImage:imgFriendThumb];
+    if (_wall.userPostID == storeIns.user.userID) {
+        if (storeIns.user.thumbnail) {
+            [imgAvatar setImage:storeIns.user.thumbnail];
+        }else{
+            [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+        }
     }else{
-        
-        _wall.fullName = storeIns.user.nickName;
-        __weak UIImage *useThumbnail = storeIns.user.thumbnail;
-        [imgAvatar setImage:useThumbnail];
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            
+        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+            
+            if (image && finished) {
+                [imgAvatar setImage:image];
+            }
+            
+        }];
     }
     
     //calculation height cell + spacing top and bottom
@@ -60,57 +67,79 @@
     CGSize sizeFullName ;
     CGSize sizeLocation ;
     
-    if (_wall.longitude != 0 || _wall.latitude != 0) {
-        
-        /* Create custom view to display section header... */
-        
-        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-        
-        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
-        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-        [lblFullName setTextColor:[UIColor blackColor]];
-        [lblFullName setBackgroundColor:[UIColor clearColor]];
-        
-        __weak NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-        /* Section header is in 0th index... */
-        
-        [lblFullName setText:[string uppercaseString]];
-        
-        [view addSubview:lblFullName];
-        
-        __weak NSString *strLocation = @"LONDON";
-        sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
-        
-        UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
-        //        [imgLocation setBackgroundColor:[UIColor redColor]];
-        [imgLocation setFrame:CGRectMake(47, 22.5, 15, 15)];
-        [imgLocation setContentMode:UIViewContentModeScaleAspectFill];
-        [view addSubview:imgLocation];
-        
-        UILabel *lblLocation = [[UILabel alloc] initWithFrame:CGRectMake(60, 25, sizeLocation.width, 10)];
-        [lblLocation setText:strLocation];
-        [lblLocation setFont:[helperIns getFontLight:10.0f]];
-        [view addSubview:lblLocation];
-        
+    TTTAttributedLabel *lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 5, self.bounds.size.width - 100, 20)];
+    [lblNickName setDelegate:self];
+    [lblNickName setTextAlignment:NSTextAlignmentJustified];
+    lblNickName.font = [helperIns getFontLight:15.0f];
+    lblNickName.textColor = [UIColor blackColor];
+    lblNickName.lineBreakMode = NSLineBreakByCharWrapping;
+    lblNickName.numberOfLines = 0;
+    NSString *string = [NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName];
+    lblNickName.text = string;
+    lblNickName.highlightedTextColor = [UIColor whiteColor];
+    lblNickName.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
+    [lblNickName setFont:[helperIns getFontLight:12.0f]];
+    
+    NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
+    [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+    [mutableLinkAttributes setValue:(__bridge id)[[UIColor blackColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+    lblNickName.linkAttributes = mutableLinkAttributes;
+    
+    NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor blueColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
+//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
+    lblNickName.activeLinkAttributes = mutableActiveLinkAttributes;
+    
+    [view addSubview:lblNickName];
+    
+    NSRange r = [string rangeOfString:lblNickName.text];
+    NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _data.userPostID];
+    strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+    [lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+    
+    if (_wall.longitude && _wall.longitude) {
+        if (![_wall.longitude isEqualToString:@"0"] || ![_wall.latitude isEqualToString:@"0"]) {
+            
+            /* Create custom view to display section header... */
+            
+            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+            
+            [lblNickName setFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
+            
+            NSString *strLocation = @"LONDON";
+            sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+            
+            UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
+            //        [imgLocation setBackgroundColor:[UIColor redColor]];
+            [imgLocation setFrame:CGRectMake(47, 22.5, 15, 15)];
+            [imgLocation setContentMode:UIViewContentModeScaleAspectFill];
+            [view addSubview:imgLocation];
+            
+            UILabel *lblLocation = [[UILabel alloc] initWithFrame:CGRectMake(60, 25, sizeLocation.width, 10)];
+            [lblLocation setText:strLocation];
+            [lblLocation setFont:[helperIns getFontLight:10.0f]];
+            [view addSubview:lblLocation];
+            
+        }else{
+            /* Create custom view to display section header... */
+            
+            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+            
+            [lblNickName setFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
+            
+        }
     }else{
         /* Create custom view to display section header... */
         
-        sizeFullName = [_wall.fullName sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
         
-        UILabel *lblFullName = [[UILabel alloc] initWithFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
-        [lblFullName setFont:[helperIns getFontLight:15.0f]];
-        [lblFullName setTextAlignment:NSTextAlignmentLeft];
-        [lblFullName setTextColor:[UIColor blackColor]];
-        [lblFullName setBackgroundColor:[UIColor clearColor]];
-        
-        NSString *string = [NSString stringWithFormat:@"%@", _wall.fullName];
-        /* Section header is in 0th index... */
-        
-        [lblFullName setText:[string uppercaseString]];
-        
-        [view addSubview:lblFullName];
+        [lblNickName setFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
     }
+
     
     NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
     NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
@@ -159,9 +188,46 @@
     [view addSubview:self.lblTime];
     
     UIImageView *clock = [[UIImageView alloc] initWithImage:imgClock];
-    [clock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20 + 40), 0, 40, 40)];
+    [clock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 10 + 40), 0, 40, 40)];
     [view addSubview:clock];
     
     [self addSubview:view];
+}
+
+#pragma mark - TTTAttributedLabelDelegate
+
+- (void)attributedLabel:(__unused TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+    if ([[url scheme] hasPrefix:@"action"]) {
+        if ([[url host] hasPrefix:@"show-profile"]) {
+            //             load help screen
+            NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            
+            if ([query intValue] == storeIns.user.userID) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+            }else{
+                NSString *key = @"tapFriend";
+                NSNumber *headerUser = [NSNumber numberWithInt:[query intValue]];
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:headerUser forKey:key];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+            }
+            
+//            Friend *_friend = [storeIns getFriendByID:[query intValue]];
+//            
+//            if (_friend != nil) {
+//                NSString *key = @"tapFriend";
+//                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+//            }else{
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+//            }
+            
+        } else if ([[url host] hasPrefix:@"show-tag"]) {
+            /* load settings screen */
+            NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSLog(@"Click Tag %@", query);
+        }
+    } else {
+        /* deal with http links here */
+    }
 }
 @end

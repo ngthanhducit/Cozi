@@ -19,4 +19,5 @@
 @property (nonatomic, retain) UIImageView                   *imgViewCapture;
 
 -(void)setImageCycle:(UIImage*)image;
+- (void) setImagePreview:(UIImage*)image;
 @end

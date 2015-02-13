@@ -82,6 +82,13 @@
         }
     }
     
+    if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
+        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
+    }
+    else {
+        // Handle the failure.
+    }
+    
     if (!isFrontCamera) {
         NSError *error = nil;
         if ([self.backCamera lockForConfiguration:NULL] == YES) {

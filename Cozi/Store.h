@@ -20,6 +20,9 @@
 #import "GPUImageGrayscaleFilter.h"
 #import "DataWall.h"
 #import "FollowerUser.h"
+#import <AddressBook/ABPerson.h>
+#import <AddressBook/AddressBook.h>
+#import "PersonContact.h"
 
 @protocol StoreDelegate <NSObject>
 
@@ -49,11 +52,13 @@
     NSMutableDictionary           *staticImageDictionary;
 }
 
+@property (nonatomic) BOOL              isConnected;
 @property (nonatomic, weak  ) id <StoreDelegate  > delegate;
 @property (nonatomic, strong) User           *user;
 @property (nonatomic, strong) NSMutableArray *recent;
 @property (nonatomic, strong) NSMutableArray *walls;
 @property (nonatomic, strong) NSMutableArray *noises;
+@property (nonatomic, strong) NSMutableArray    *listHistoryPost;
 @property (nonatomic, strong) NSMutableArray *listFollower;
 @property (nonatomic, strong) NSMutableArray *listFollowing;
 @property (nonatomic, strong) NSMutableArray *listFollowRequest;
@@ -63,10 +68,11 @@
 @property (nonatomic, strong) NSMutableArray *receiveLocation;
 @property (nonatomic, strong) NSDate         *timeServer;
 @property (nonatomic, copy  ) NSString       *keyGoogleMaps;
-
+@property (nonatomic, strong) NSMutableArray  *contactList;
 
 + (id) shareInstance;
 
+- (void) addressBookValidation;
 - (NSString*) randomKeyMessenger;
 - (void) setup;
 - (Friend *) getFriendByID:(int)friendID;
@@ -86,7 +92,7 @@
 //Core Data Follower
 - (BOOL) addNewFollower:(FollowerUser*)_follower;
 - (void) loadFollower:(int)_userID;
-- (BOOL) checkFollowerExists:(int)_userID;
+- (BOOL) checkFollowerExists:(int)_userID withParentID:(int)_parentID;
 
 //Core Data
 - (void) loadUser:(int)_userID;
@@ -107,9 +113,20 @@
 - (void) sortMessengerFriend;
 - (NSString*) geturlThumbnailFriend:(NSString*)_phoneNumber;
 
+- (void) getPostHistory:(int)_userPostID;
 - (void) insertWallData:(DataWall*)_dataWall;
 - (void) addWallData:(DataWall *)_dataWall;
 - (void) addNoisesData:(DataWall *)_dataWall;
 - (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
+- (void) updateNoise:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
 - (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID;
+
+- (BOOL) isFollowing:(int)_userID;
+- (BOOL) isFollower:(int)_userID;
+- (BOOL) isFriend:(int)_userID;
+
+//Friend Request
+- (void) loadFriendRequest:(int)_userID;
+- (void) removeFriendRequest:(int)_friendRequestID;
+- (void) progressResultAddFriend:(int)_friendID withIsAllow:(BOOL)_isAllow;
 @end

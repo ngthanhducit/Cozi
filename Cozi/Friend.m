@@ -25,6 +25,9 @@
 @synthesize friendMessage;
 @synthesize userID;
 @synthesize phoneNumber;
+@synthesize statusAddFriend;
+@synthesize birthDay;
+@synthesize relationship;
 
 - (id) init{
     self = [super init];

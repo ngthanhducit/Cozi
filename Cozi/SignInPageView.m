@@ -104,7 +104,7 @@
     [self.txtUserName setPlaceholder:@"PLEASE ENTER USERNAME"];
     [self.txtUserName setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.txtUserName setKeyboardAppearance:UIKeyboardAppearanceDark];
-    [self.txtUserName setText:@"duc@sycomore.vn"];
+    [self.txtUserName setText:@"phu@sycomore.co.uk"];
     [self.userNameView addSubview:self.txtUserName];
     
     CALayer *bottomUserName = [CALayer layer];

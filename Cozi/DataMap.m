@@ -95,8 +95,10 @@
                             
                         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                             
-                            [self.storeIns.user setThumbnail:image];
-                            
+                            if (image && finished) {
+                                [self.storeIns.user setThumbnail:image];
+                            }
+
                         }];
                         
                         [self.storeIns.user setUrlThumbnail:strThumbnail];
@@ -113,14 +115,20 @@
                         
                         NSString *strAvatar = [self.helperIns decode:[subParameter objectAtIndex:14]];
                         
-                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:strAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                            
-                        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                            
-                            [self.storeIns.user setAvatar:image];
+                        if (![strAvatar isEqualToString:@""]) {
+                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:strAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                
+                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                
+                                if (image && finished) {
+                                    [self.storeIns.user setAvatar:image];
+                                    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
+                                }
+                                
+                            }];
+                        }else{
                             [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
-                            
-                        }];
+                        }
                         
                         NSDate *serverDate = [self.helperIns convertStringToDate:[subParameter objectAtIndex:15]];
                         
@@ -143,30 +151,25 @@
                                 Friend *_newFriend = [[Friend alloc] init];
                                 [_newFriend setFriendID:[[subFriend objectAtIndex:0] intValue]];
                                 [_newFriend setNickName:[self.helperIns decode:[subFriend objectAtIndex:1]]];
+                                [_newFriend setUserName:[self.helperIns decode:[subFriend objectAtIndex:1]]];
                                 [_newFriend setGender:[self.helperIns decode:[subFriend objectAtIndex:3]]];
                                 [_newFriend setGender:[self.helperIns decode:[subFriend objectAtIndex:3]]];
+                                [_newFriend setStatusAddFriend:0];
                                 
                                 NSString *strThumbnail = [self.helperIns decode:[subFriend objectAtIndex:2]];
                                 
                                 if (![strThumbnail isEqualToString:@""]) {
                                     
-                                    
-//                                    [[[AsyncImageDownloader alloc] initWithMediaURL:strThumbnail successBlock:^(UIImage *image) {
-//                                        
-//                                        _newFriend.thumbnail = image;
-//                                        if (image != nil) {
-//                                            GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
-//                                            UIImage *grayscaleImage = [grayscaleFilter imageByFilteringImage:image];
-//                                            _newFriend.thumbnailOffline = grayscaleImage;
-//                                        }
-//                                        
-//                                    } failBlock:^(NSError *error) {
-//                                        
-//                                    }] startDownload];
-                                    
+                                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:strThumbnail] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                        
+                                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                        if (image && finished) {
+                                            _newFriend.thumbnail = image;
+                                        }
+                                    }];
                                     
                                 }else{
-                                    UIImage *imgThumbnail = [self.helperIns getImageFromSVGName:@"emptyAvatar.svg"];
+                                    UIImage *imgThumbnail = [self.helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
                                     [_newFriend setThumbnail:imgThumbnail];
                                     [_newFriend setThumbnailOffline:imgThumbnail];
                                 }
@@ -272,7 +275,19 @@
                             NSArray *subFriendRequest = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subFriendRequest count] > 1) {
                                 
+                                UserSearch *_friendRequest = [UserSearch new];
+                                _friendRequest.friendID = [[subFriendRequest objectAtIndex:0] intValue];
+                                _friendRequest.nickName = [self.helperIns decode:[subFriendRequest objectAtIndex:1]];
+                                _friendRequest.urlAvatar = [self.helperIns decode:[subFriendRequest objectAtIndex:2]];
+                                _friendRequest.urlAvatarFull = [self.helperIns decode:[subFriendRequest objectAtIndex:3]];
+                                _friendRequest.userID = self.storeIns.user.userID;
                                 
+                                [self.storeIns.friendsRequest addObject:_friendRequest];
+                                //insert friend request
+//                                BOOL _isExists = [coziCoreDataIns isExistsFriendRequest:self.storeIns.user.userID withFriendRequestID:_friendRequest.friendID];
+//                                if (!_isExists) {
+//                                    [coziCoreDataIns saveFriendRequest:_friendRequest];
+//                                }
                             }
                         }
                     }
@@ -386,9 +401,9 @@
                             if ([subFollower count] > 1) {
                                 FollowerUser *newFollowerUser = [FollowerUser new];
                                 [newFollowerUser setUserID:[[subFollower objectAtIndex:0] intValue]];
-                                [newFollowerUser setFirstName:[subFollower objectAtIndex:1]];
-                                [newFollowerUser setLastName:[subFollower objectAtIndex:2]];
-                                [newFollowerUser setUrlAvatar:[subFollower objectAtIndex:3]];
+                                [newFollowerUser setFirstName:[self.helperIns decode:[subFollower objectAtIndex:1]]];
+                                [newFollowerUser setLastName:[self.helperIns decode:[subFollower objectAtIndex:2]]];
+                                [newFollowerUser setUrlAvatar:[self.helperIns decode:[subFollower objectAtIndex:3]]];
                                 
                                 [self.storeIns.listFollowing addObject:newFollowerUser];
                             }
@@ -440,22 +455,6 @@
                     self.storeIns.timeServer = [self.helperIns convertStringToDate:[subValue objectAtIndex:0]];
                 }
                 
-//                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-//                [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
-//                [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-//                
-//                NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-//                
-//                NSDateComponents *todayComps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:[NSDate date]];
-//                
-//                NSDateComponents *comps = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) fromDate:[dateFormatter dateFromString:[subValue objectAtIndex:0]]];
-//                
-//                comps.minute = todayComps.minute;
-//                comps.second = todayComps.second;
-//
-//                NSDate *date = [calendar dateFromComponents:comps];
-//                NSLog(@"current date: %@ - server date: %@", [dateFormatter stringFromDate:[NSDate date]], [dateFormatter stringFromDate:date]);
-                
                 //Map list message offline
                 if ([[subValue objectAtIndex:1] length] > 1) {
                     NSArray *subParameter = [[subValue objectAtIndex:1] componentsSeparatedByString:@"$"];
@@ -483,8 +482,6 @@
                                 
                                 [self addMessageToFriend:_newMessage];
                                 
-//                                [self.helperIns cacheMessage:_newMessage.senderID withMessage:_newMessage];
-                                
                                 [coziCoreDataIns saveMessenger:_newMessage];
                             }
                         }
@@ -501,20 +498,14 @@
                         for (int i = 0 ; i < count; i++) {
                             NSArray *subPhotoOffline = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subPhotoOffline count] > 1) {
+                                
                                 Messenger *_messagePhoto = [[Messenger alloc] init];
                                 [_messagePhoto setSenderID:[[subPhotoOffline objectAtIndex:0] intValue]];
-                                //                                [_messagePhoto setFriendID:[[subPhotoOffline objectAtIndex:0] intValue]];
                                 [_messagePhoto setStrMessage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
+                                [_messagePhoto setUrlImage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
                                 [_messagePhoto setKeySendMessage:[subPhotoOffline objectAtIndex:2]];
                                 [_messagePhoto setStatusMessage:1];
                                 [_messagePhoto setTypeMessage:1];
-                                
-                                NSURL *imgUrl = [NSURL URLWithString:_messagePhoto.strMessage];
-                                NSData *imgData = [NSData dataWithContentsOfURL:imgUrl];
-                                UIImage *img = [UIImage imageWithData:imgData];
-                                
-                                [_messagePhoto setThumnail:img];
-                                [_messagePhoto setDataImage:imgData];
                                 
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subPhotoOffline objectAtIndex:3]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
@@ -525,7 +516,6 @@
                                 
                                 [self addMessageToFriend:_messagePhoto];
                                 
-//                                [self.helperIns cacheMessage:_messagePhoto.senderID withMessage:_messagePhoto];
                                 [coziCoreDataIns saveMessenger:_messagePhoto];
                             }
                         }
@@ -540,8 +530,21 @@
                         int count = (int)[subParameter count];
                         for (int i = 0; i < count; i++) {
                             NSArray *subFriendRequest = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
-                            if ([subFriendRequest count] > 0) {
+                            if ([subFriendRequest count] > 1) {
                                 
+                                UserSearch *_friendRequest = [UserSearch new];
+                                _friendRequest.friendID = [[subFriendRequest objectAtIndex:0] intValue];
+                                _friendRequest.nickName = [self.helperIns decode:[subFriendRequest objectAtIndex:1]];
+                                _friendRequest.urlAvatar = [self.helperIns decode:[subFriendRequest objectAtIndex:2]];
+                                _friendRequest.urlAvatarFull = [self.helperIns decode:[subFriendRequest objectAtIndex:3]];
+                                _friendRequest.userID = self.storeIns.user.userID;
+                                
+                                [self.storeIns.friendsRequest addObject:_friendRequest];
+//                                //insert friend request
+//                                BOOL _isExists = [coziCoreDataIns isExistsFriendRequest:self.storeIns.user.userID withFriendRequestID:_friendRequest.friendID];
+//                                if (!_isExists) {
+//                                    [coziCoreDataIns saveFriendRequest:_friendRequest];
+//                                }
                                 
                             }
                         }
@@ -638,15 +641,16 @@
                     
                     NSArray *subParameter = [[subValue objectAtIndex:12] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
+                        self.storeIns.listFollowing = [NSMutableArray new];
                         int count = (int)[subParameter count];
                         for (int i = 0; i < count; i++) {
                             NSArray *subFollower = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subFollower count] > 1) {
                                 FollowerUser *newFollowerUser = [FollowerUser new];
                                 [newFollowerUser setUserID:[[subFollower objectAtIndex:0] intValue]];
-                                [newFollowerUser setFirstName:[subFollower objectAtIndex:1]];
-                                [newFollowerUser setLastName:[subFollower objectAtIndex:2]];
-                                [newFollowerUser setUrlAvatar:[subFollower objectAtIndex:3]];
+                                [newFollowerUser setFirstName:[self.helperIns decode:[subFollower objectAtIndex:1]]];
+                                [newFollowerUser setLastName:[self.helperIns decode:[subFollower objectAtIndex:2]]];
+                                [newFollowerUser setUrlAvatar:[self.helperIns decode:[subFollower objectAtIndex:3]]];
                                 
                                 [self.storeIns.listFollowing addObject:newFollowerUser];
                             }
@@ -1109,7 +1113,7 @@
         
         for (int i = 0; i < count; i++) {
             DataWall *newDataWall = [DataWall new];
-            newDataWall.typePost = -1;
+//            newDataWall.typePost = -1;
             
             NSArray *subCommand = [[subData objectAtIndex:i] componentsSeparatedByString:@"}"];
             if ([subCommand count] > 1) {
@@ -1131,7 +1135,6 @@
                 newDataWall.images = [NSMutableArray new];
                 if (![[subCommand objectAtIndex:2] isEqualToString:@""]) {
                     
-                    newDataWall.typePost = 1;
                     NSArray *subImage = [[subCommand objectAtIndex:2] componentsSeparatedByString:@"$"];
                     
                     if ([subImage count] > 0) {
@@ -1146,8 +1149,6 @@
                         }
                     
                     }
-                }else{
-                    newDataWall.typePost = 0;
                 }
                 
                 newDataWall.video = [self.helperIns decode:[subCommand objectAtIndex:3]];
@@ -1157,13 +1158,12 @@
                     
                     NSArray *subLocation = [[subCommand objectAtIndex:4] componentsSeparatedByString:@"|"];
                     if ([subLocation count] == 2) {
-                        if (newDataWall.typePost == -1) {
-                            newDataWall.typePost = 2;
-                        }
-
                         [newDataWall setLongitude:[subLocation objectAtIndex:0]];
                         [newDataWall setLatitude:[subLocation objectAtIndex:1]];
                     }
+                }else{
+                    [newDataWall setLongitude:@"0"];
+                    [newDataWall setLatitude:@"0"];
                 }
                 
                 [newDataWall setTime:[subCommand objectAtIndex:5]];
@@ -1190,7 +1190,16 @@
                                 _newComment.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
                                 _newComment.contentComment = [self.helperIns decode:[subData objectAtIndex:4]];
                                 _newComment.urlImageComment = [self.helperIns decode:[subData objectAtIndex:5]];
+                                //object at index 6
                                 _newComment.commentLikes = [NSMutableArray new];
+                                //object at index 7
+                                //_newComment.isLikeComment
+                                
+                                _newComment.commentClientKey = [self.helperIns decode:[subData objectAtIndex:8]];
+                                _newComment.postClientKey = newDataWall.clientKey;
+                                
+                                _newComment.urlAvatarThumb = [self.helperIns decode:[subData objectAtIndex:9]];
+                                _newComment.urlAvatarFull = [self.helperIns decode:[subData objectAtIndex:10]];
                                 
                                 //Map list like comment
                                 [newDataWall.comments addObject:_newComment];
@@ -1214,6 +1223,8 @@
                                 _newLike.userLikeId = [[subData objectAtIndex:1] integerValue];
                                 _newLike.firstName = [self.helperIns decode:[subData objectAtIndex:2]];
                                 _newLike.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
+                                _newLike.urlAvatarThumb = [self.helperIns decode:[subData objectAtIndex:4]];
+                                _newLike.urlAvatarFull = [self.helperIns decode:[subData objectAtIndex:5]];
                                 
                                 [newDataWall.likes addObject:_newLike];
                             }
@@ -1228,6 +1239,9 @@
                 }
                 
                 newDataWall.codeType = [[subCommand objectAtIndex:12] intValue];
+                
+                [newDataWall setUrlAvatarThumb:[self.helperIns decode:[subCommand objectAtIndex:13]]];
+                [newDataWall setUrlAvatarFull:[self.helperIns decode:[subCommand objectAtIndex:14]]];
                 
                 if (type == 0) {
                     [self.storeIns addWallData:newDataWall];
@@ -1282,7 +1296,6 @@
                 newDataWall.images = [NSMutableArray new];
                 if (![[subCommand objectAtIndex:2] isEqualToString:@""]) {
                     
-                    newDataWall.typePost = 1;
                     NSArray *subImage = [[subCommand objectAtIndex:2] componentsSeparatedByString:@"$"];
                     
                     if ([subImage count] > 0) {
@@ -1297,8 +1310,6 @@
                         }
                         
                     }
-                }else{
-                    newDataWall.typePost = 0;
                 }
                 
                 newDataWall.video = [self.helperIns decode:[subCommand objectAtIndex:3]];
@@ -1336,9 +1347,13 @@
                                 _newComment.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
                                 _newComment.contentComment = [self.helperIns decode:[subData objectAtIndex:4]];
                                 _newComment.urlImageComment = [self.helperIns decode:[subData objectAtIndex:5]];
-                                _newComment.commentLikes = [NSMutableArray new];
+                                _newComment.commentLikes = [NSMutableArray new];    //Objectatindex 6
                                 
-                                //Map list like comment
+                                _newComment.isLikeComment = [[subData objectAtIndex:7] boolValue];
+                                _newComment.commentClientKey = [self.helperIns decode:[subData objectAtIndex:8]];
+                                _newComment.urlAvatarThumb = [self.helperIns decode:[subData objectAtIndex:9]];
+                                _newComment.urlAvatarFull = [self.helperIns decode:[subData objectAtIndex:10]];
+                                
                                 [newDataWall.comments addObject:_newComment];
                             }
                             
@@ -1349,7 +1364,7 @@
                 if (![[subCommand objectAtIndex:10] isEqualToString:@"0"]) {
                     //list like
                     
-                    NSArray *subListLike = [[subCommand objectAtIndex:10] componentsSeparatedByString:@"$"];
+                    NSArray *subListLike = [[subCommand objectAtIndex:10] componentsSeparatedByString:@"["];
                     if ([subListLike count] > 0) {
                         int count = (int)[subListLike count];
                         for (int i = 0; i < count; i++) {
@@ -1359,6 +1374,8 @@
                             _newLike.userLikeId = [[subData objectAtIndex:1] integerValue];
                             _newLike.firstName = [self.helperIns decode:[subData objectAtIndex:2]];
                             _newLike.lastName = [self.helperIns decode:[subData objectAtIndex:3]];
+                            _newLike.urlAvatarThumb = [self.helperIns decode:[subData objectAtIndex:4]];
+                            _newLike.urlAvatarFull = [self.helperIns decode:[subData objectAtIndex:5]];
                             
                             [newDataWall.likes addObject:_newLike];
                         }
@@ -1372,6 +1389,9 @@
                 }
                 
                 [newDataWall setCodeType:[[subCommand objectAtIndex:12] intValue]];
+                
+                [newDataWall setUrlAvatarThumb:[self.helperIns decode:[subCommand objectAtIndex:13]]];
+                [newDataWall setUrlAvatarFull:[self.helperIns decode:[subCommand objectAtIndex:14]]];
                 
                 [self.storeIns addNoisesData:newDataWall];
                 

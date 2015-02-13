@@ -23,19 +23,38 @@ static NSString         *dataNetwork;
 @synthesize lblNickName;
 @synthesize shareMenu;
 
+#define SWIPE_LEFT_CHAT -800.0f
+#define SWIPE_RIGHT_CHAT 800.0f
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
 }
 
+- (void) viewWillAppear:(BOOL)animated{
+    if (self.wallPageV8) {
+        [self.wallPageV8 reloadData];
+    }
+}
+
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        
+//        for (NSString* family in [UIFont familyNames])
+//        {
+//            NSLog(@"%@", family);
+//            
+//            for (NSString* name in [UIFont fontNamesForFamilyName: family])
+//            {
+//                NSLog(@"  %@", name);
+//            }
+//        }
+        
         [self setupNetworkStatus];
         [self initVariable];
-//        [self addressBookValidation];
-        [self initView];
         [self registerNotifications];
+        [self initView];
     }
     
     return self;
@@ -58,6 +77,7 @@ static NSString         *dataNetwork;
     heightHeader = 40;
     widthMenu = (self.view.bounds.size.width / 4) * 3;
     
+    self.helperIns = [Helper shareInstance];
     BOOL _isConnected  = [self.helperIns checkConnected];
     if (_isConnected) {
         isConnected = 1;
@@ -73,7 +93,7 @@ static NSString         *dataNetwork;
     self.storeIns = [Store shareInstance];
     self.coziCoreDataIns = [CoziCoreData shareInstance];
     [self.storeIns setDelegate:self];
-    self.helperIns = [Helper shareInstance];
+
     self.dataMapIns = [DataMap shareInstance];
     netController = [NetworkController shareInstance];
     
@@ -92,21 +112,33 @@ static NSString         *dataNetwork;
         [self.storeIns loadUser:(int)_userID];
         [self.storeIns loadFriend:(int)_userID];
         [self.storeIns loadFollower:(int)_userID];
+        [self.storeIns getPostHistory:(int)_userID];
+//        [self.storeIns loadFriendRequest:(int)_userID];
         
         [self setup];
+        
+        [self loadUserComplete:nil];
         
         [self initializeGestures];
         
     }else{
-        NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
-        [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+//        NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+//        [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+//        
+//        self.loginPage = [[LoginPage alloc] initWithFrame:self.view.bounds];
+//        [self.loginPage.signInView.btnSignInView addTarget:self action:@selector(btnSignInTouches) forControlEvents:UIControlEventTouchUpInside];
+//        [self.loginPage.enterPhoneView.btnSendPhoneNumber addTarget:self action:@selector(btnEnterPhoneTouches) forControlEvents:UIControlEventTouchUpInside];
+//        [self.loginPage.enterCodeView.btnSendCode addTarget:self action:@selector(btnEnterAuthCodeTouches) forControlEvents:UIControlEventTouchUpInside];
+//        [self.loginPage.joinNowView.btnJoinNow addTarget:self action:@selector(btnJoinNowTouches) forControlEvents:UIControlEventTouchUpInside];
+//        [self.view addSubview:self.loginPage];
         
-        self.loginPage = [[LoginPage alloc] initWithFrame:self.view.bounds];
-        [self.loginPage.signInView.btnSignInView addTarget:self action:@selector(btnSignInTouches) forControlEvents:UIControlEventTouchUpInside];
-        [self.loginPage.enterPhoneView.btnSendPhoneNumber addTarget:self action:@selector(btnEnterPhoneTouches) forControlEvents:UIControlEventTouchUpInside];
-        [self.loginPage.enterCodeView.btnSendCode addTarget:self action:@selector(btnEnterAuthCodeTouches) forControlEvents:UIControlEventTouchUpInside];
-        [self.loginPage.joinNowView.btnJoinNow addTarget:self action:@selector(btnJoinNowTouches) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:self.loginPage];
+        self.loginPageV3 = [[SCLoginPageV3 alloc] initWithNibName:nil bundle:nil];
+        [self.loginPageV3.view setFrame:self.view.bounds];
+        
+        [self addChildViewController:self.loginPageV3];
+        [self.view addSubview:self.loginPageV3.view];
+        [self.loginPageV3 didMoveToParentViewController:self];
+        
     }
 }
 
@@ -148,104 +180,10 @@ static NSString         *dataNetwork;
     
 //    notificationTapAllComment
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationSelectAllComment:) name:@"notificationTapAllComment" object:nil];
-}
-
-- (void) addressBookValidation{
-    NSUserDefaults *prefs=[NSUserDefaults standardUserDefaults];
-    ABAddressBookRef addressbook;
-
-    if ([[UIDevice currentDevice].systemVersion floatValue] >= 6.0) {
-        addressbook = ABAddressBookCreateWithOptions(nil, nil);
-        ABAddressBookRequestAccessWithCompletion(addressbook, ^(bool granted, CFErrorRef error) {
-            
-        });
-    }else{
-        addressbook = ABAddressBookCreate();
-    }
     
-    __block BOOL accessGranted = NO;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationSelectLikes:) name:@"notificationTapLikes" object:nil];
     
-    if (ABAddressBookRequestAccessWithCompletion != NULL)
-    {
-        if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined)
-        {
-            dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-            ABAddressBookRequestAccessWithCompletion(addressbook, ^(bool granted, CFErrorRef error)
-                                                     {
-                                                         accessGranted = granted;
-                                                         dispatch_semaphore_signal(sema);
-                                                     });
-            dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        }
-        else if(ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized)
-        {
-            accessGranted = YES;
-        }
-        else if (ABAddressBookGetAuthorizationStatus()==kABAuthorizationStatusDenied)
-        {
-            accessGranted = NO;
-        }
-        else if (ABAddressBookGetAuthorizationStatus()==kABAuthorizationStatusRestricted){
-            accessGranted = NO;
-        }
-        else
-        {
-            accessGranted = YES;
-        }
-    }
-    else
-    {
-        accessGranted = YES;
-    }
-    
-    if (accessGranted) {
-        
-        ABAddressBookRef _addressBookRef = ABAddressBookCreate ();
-        NSArray* allPeople = (__bridge NSArray *)ABAddressBookCopyArrayOfAllPeople(_addressBookRef);
-        
-        NSMutableArray* _allItems = [[NSMutableArray alloc] initWithCapacity:[allPeople count]]; // capacity is only a rough guess, but better than nothing
-        for (id record in allPeople) {
-            CFTypeRef phoneProperty = ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonPhoneProperty);
-            CFTypeRef lastName = ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonLastNameProperty);
-            NSString *strLastName = (__bridge NSString*)lastName;
-            NSString *strFirstName = (__bridge NSString*)ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonFirstNameProperty);
-            NSString *strMidleName = (__bridge NSString*)ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonMiddleNameProperty);
-            
-            if (strMidleName == nil) {
-                strMidleName = @"";
-            }
-            
-            if (strFirstName == nil) {
-                strFirstName = @"";
-            }
-            
-            if (strLastName == nil) {
-                strLastName = @"";
-            }
-            
-            NSArray *phones = (__bridge NSArray *)ABMultiValueCopyArrayOfAllValues(phoneProperty);
-            CFRelease(phoneProperty);
-            for (NSString *phone in phones) {
-                NSString* compositeName = (__bridge NSString *)ABRecordCopyCompositeName((__bridge ABRecordRef)record);
-                
-                PersonContact *newPerson = [[PersonContact alloc] init];
-                [newPerson setFirstName:strFirstName];
-                [newPerson setLastName:strLastName];
-                [newPerson setMidName:strMidleName];
-                [newPerson setFullName:[NSString stringWithFormat:@"%@ %@ %@", strFirstName, strMidleName, strLastName]];
-                [newPerson setPhone:phone];
-                
-                [contactList addObject:newPerson];
-                
-                NSString *field = [NSString stringWithFormat:@"%@: %@", compositeName, phone];
-                [_allItems addObject:field];
-            }
-        }
-        
-        [prefs synchronize];
-        CFRelease(addressbook);
-        
-    }
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationReloadListFriend:) name:@"notificationReloadListFriend" object:nil];
 }
 
 #pragma mark- setup UIView MainPage
@@ -255,7 +193,7 @@ static NSString         *dataNetwork;
     blurView = [[UIView alloc] initWithFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height)];
     [blurView setUserInteractionEnabled:NO];
     [blurView setAlpha:0.0f];
-    [blurView setBackgroundColor:[UIColor whiteColor]];
+    [blurView setBackgroundColor:[UIColor blackColor]];
     [blurView setUserInteractionEnabled:YES];
     
     blurImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
@@ -277,41 +215,28 @@ static NSString         *dataNetwork;
     [headerView setBackgroundColor:[UIColor blackColor]];
     [self.view addSubview:headerView];
     
-    leftView = [[UIView alloc] initWithFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, self.view.bounds.size.height - heightHeader)];
-    [leftView setBackgroundColor:[UIColor blackColor]];
-    
-    leftView.layer.shadowColor = [UIColor blackColor].CGColor;
-    leftView.layer.shadowOffset = CGSizeMake(3, 0);
-    leftView.layer.shadowOpacity = 0.3f;
-    leftView.layer.shadowRadius = 1;
-    
-    [self.view addSubview:leftView];
-    
-    rightView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height - 30)];
-    [rightView setBackgroundColor:[UIColor grayColor]];
-    
-    rightView.layer.shadowColor = [UIColor blackColor].CGColor;
-    rightView.layer.shadowOffset = CGSizeMake(-3, 0);
-    rightView.layer.shadowOpacity = 0.3f;
-    rightView.layer.shadowRadius = 1;
-    
-    [self.view addSubview:rightView];
+    waitingReconnect = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [waitingReconnect setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+    [waitingReconnect setBackgroundColor:[UIColor blackColor]];
+    [waitingReconnect setAlpha:0.6];
+    [waitingReconnect startAnimating];
+    [self.view addSubview:waitingReconnect];
     
     mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
-//    [mainScroll setDirectionalLockEnabled:YES];
+    [mainScroll setDirectionalLockEnabled:NO];
     [mainScroll setBackgroundColor:[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248.0/255.0f alpha:1]];
     [mainScroll setPagingEnabled:YES];
-    [mainScroll setContentSize:CGSizeMake(self.view.bounds.size.width * 4, self.view.bounds.size.height - heightHeader)];
+    [mainScroll setContentSize:CGSizeMake(self.view.bounds.size.width * 3, self.view.bounds.size.height - heightHeader)];
 //    [mainScroll setUserInteractionEnabled:YES];
     [mainScroll setShowsHorizontalScrollIndicator:NO];
     [mainScroll setShowsVerticalScrollIndicator:NO];
     [mainScroll setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-//    [mainScroll setBounces:YES];
-    [mainScroll setDelaysContentTouches:NO];
+    [mainScroll setBounces:NO];
+    [mainScroll setDelaysContentTouches:YES];
     [mainScroll setDelegate:self];
     
     scrollHeader = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, heightHeader)];
-    [scrollHeader setContentSize:CGSizeMake(self.view.bounds.size.width * 4, heightHeader)];
+    [scrollHeader setContentSize:CGSizeMake(self.view.bounds.size.width * 3, heightHeader)];
     [scrollHeader setBackgroundColor:[UIColor blackColor]];
     [scrollHeader setScrollEnabled:NO];
     
@@ -320,14 +245,14 @@ static NSString         *dataNetwork;
     [self.lblNickName setTextAlignment:NSTextAlignmentCenter];
     [self.lblNickName setTextColor:[UIColor whiteColor]];
     [self.lblNickName setFont:[self.helperIns getFontLight:15.0f]];
-    [scrollHeader addSubview:self.lblNickName];
+//    [scrollHeader addSubview:self.lblNickName];
     
     [self initHeaderRecents];
     
     //===========================WALL HEADER
     [self initHeaderWall];
     
-    UILabel *lblNoise = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 3, 0, self.view.bounds.size.width, heightHeader)];
+    UILabel *lblNoise = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 2, 0, self.view.bounds.size.width, heightHeader)];
     [lblNoise setText:@"NOISE"];
     [lblNoise setTextAlignment:NSTextAlignmentCenter];
     [lblNoise setTextColor:[UIColor whiteColor]];
@@ -336,28 +261,39 @@ static NSString         *dataNetwork;
     
     [self.view addSubview:scrollHeader];
     
-    self.chatViewPage = [[ChatView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
-//    [self.chatViewPage initFriendInfo:nil];
-    [self.chatViewPage initBackView];
-    [mainScroll addSubview:self.chatViewPage];
+    self.chatViewPage = [[ChatView alloc] initWithFrame:CGRectMake(-self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    [self.chatViewPage setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
+    [self.view addSubview:self.chatViewPage];
     
-    UISwipeGestureRecognizer *swipeRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeChatToRight:)];
-    [swipeRight setDelegate:self];
-    [swipeRight setDirection:UISwipeGestureRecognizerDirectionLeft];
-    [self.chatViewPage.tbView addGestureRecognizer:swipeRight];
+    UIPanGestureRecognizer      *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panChatView:)];
+    [self.chatViewPage addGestureRecognizer:pan];
 
-    self.homePageV6 = [[MainPageV7 alloc] initWithFrame:CGRectMake(1 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+    self.homePageV6 = [[MainPageV7 alloc] initWithFrame:CGRectMake(0 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
     [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
     [mainScroll addSubview:self.homePageV6];
     
-    self.wallPageV8 = [[SCWallTableViewV2 alloc] initWithFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height) style:UITableViewStylePlain];
+    self.wallPageV8 = [[SCWallTableViewV2 alloc] initWithFrame:CGRectMake(1 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height) style:UITableViewStylePlain];
     [self.wallPageV8 initWithData:nil withType:0];
     [mainScroll addSubview:self.wallPageV8];
     
-    self.noisePageV6 = [[NoisesPage alloc] initWithFrame:CGRectMake(3 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+    waitingWall = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [waitingWall setFrame:CGRectMake(1 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+    [waitingWall setBackgroundColor:[UIColor blackColor]];
+    [waitingWall setAlpha:0.6];
+    [waitingWall startAnimating];
+    [mainScroll addSubview:waitingWall];
+    
+    self.noisePageV6 = [[NoisesPage alloc] initWithFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
     [self.noisePageV6 setBackgroundColor:[UIColor clearColor]];
     [self.noisePageV6.scCollection initData:nil withType:0];
     [mainScroll addSubview:self.noisePageV6];
+    
+    waitingNoise = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [waitingNoise setFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+    [waitingNoise setBackgroundColor:[UIColor blackColor]];
+    [waitingNoise setAlpha:0.6];
+    [waitingNoise startAnimating];
+    [mainScroll addSubview:waitingNoise];
     
     [self.view addSubview:mainScroll];
     
@@ -377,7 +313,7 @@ static NSString         *dataNetwork;
     
     [self.view addSubview:viewStatusConnect];
 
-    [mainScroll setContentOffset:CGPointMake(self.view.bounds.size.width, 0) animated:NO];
+//    [mainScroll setContentOffset:CGPointMake(self.view.bounds.size.width, 0) animated:NO];
     
     [self.homePageV6 setAlpha:1.0f];
     
@@ -400,19 +336,19 @@ static NSString         *dataNetwork;
 }
 
 - (void) initHeaderRecents{
-    UIView *viewChat = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, 0, self.view.bounds.size.width, heightHeader)];
+    UIView *viewChat = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, heightHeader)];
     
     UIImage *imgContact = [self.helperIns getImageFromSVGName:@"icon-openMenu.svg"];
-    UIImageView *imgContactSearch = [[UIImageView alloc] initWithImage:imgContact];
-    [imgContactSearch setUserInteractionEnabled:YES];
-    [imgContactSearch setFrame:CGRectMake(0, 0, 40, 40)];
-    [imgContactSearch setContentMode:UIViewContentModeCenter];
-    [viewChat addSubview:imgContactSearch];
+    imgMyInfo = [[UIImageView alloc] initWithImage:imgContact];
+    [imgMyInfo setUserInteractionEnabled:YES];
+    [imgMyInfo setFrame:CGRectMake(0, 0, 40, 40)];
+    [imgMyInfo setContentMode:UIViewContentModeCenter];
+    [viewChat addSubview:imgMyInfo];
     
     UITapGestureRecognizer *tapContactSearch = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showHiddenLeftMenu)];
     [tapContactSearch setNumberOfTapsRequired:1];
     [tapContactSearch setNumberOfTouchesRequired:1];
-    [imgContactSearch addGestureRecognizer:tapContactSearch];
+    [imgMyInfo addGestureRecognizer:tapContactSearch];
     
     UILabel *lblChat = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, heightHeader)];
     [lblChat setText:@"CHAT"];
@@ -437,7 +373,7 @@ static NSString         *dataNetwork;
 }
 
 - (void) initHeaderWall{
-    UIView *viewWall = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 2, 0, self.view.bounds.size.width, heightHeader)];
+    UIView *viewWall = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, 0, self.view.bounds.size.width, heightHeader)];
     
     UIImageView *imgLeftMenuWall = [[UIImageView alloc] initWithImage:[self.helperIns getImageFromSVGName:@"icon-openMenu.svg"]];
     [imgLeftMenuWall setUserInteractionEnabled:YES];
@@ -475,14 +411,28 @@ static NSString         *dataNetwork;
     [scrollHeader addSubview:viewWall];
 }
 
-
 /**
  *  Init Left Menu
  */
 - (void) initLeftMenu{
     
-    GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
-    UIImage *imgWhite = [grayscaleFilter imageByFilteringImage:self.storeIns.user.avatar];
+    leftView = [[UIView alloc] initWithFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, self.view.bounds.size.height - heightHeader)];
+    [leftView setBackgroundColor:[UIColor blackColor]];
+    
+    leftView.layer.shadowColor = [UIColor blackColor].CGColor;
+    leftView.layer.shadowOffset = CGSizeMake(3, 0);
+    leftView.layer.shadowOpacity = 0.3f;
+    leftView.layer.shadowRadius = 1;
+    
+    [self.view addSubview:leftView];
+    
+    UIImage *imgWhite;
+    if (self.storeIns.user.avatar) {
+        GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
+        imgWhite = [grayscaleFilter imageByFilteringImage:self.storeIns.user.avatar];
+    }else{
+        imgWhite = [self.helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
+    }
     
     UIImageView *imgAvatar = [[UIImageView alloc] initWithImage:imgWhite];
     [imgAvatar setFrame:CGRectMake(0, 0, widthMenu, self.view.bounds.size.height / 3)];
@@ -542,7 +492,7 @@ static NSString         *dataNetwork;
 
     UIButton *btnTakePhoto = [UIButton buttonWithType:UIButtonTypeCustom];
     [btnTakePhoto setFrame:CGRectMake(0, btnNewChat.frame.origin.y + btnNewChat.bounds.size.height, widthMenu, heightRowLeftMenu)];
-    [btnTakePhoto setTitle:@"TAKE A PHOTO" forState:UIControlStateNormal];
+    [btnTakePhoto setTitle:@"FRIEND REQUESTS" forState:UIControlStateNormal];
     [btnTakePhoto.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
     [btnTakePhoto setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
     [btnTakePhoto setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
@@ -553,7 +503,7 @@ static NSString         *dataNetwork;
     [btnTakePhoto setImage:imgShareToWall forState:UIControlStateNormal];
     [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
     [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
-    
+    [btnTakePhoto addTarget:self action:@selector(btnShowFriendRequest:) forControlEvents:UIControlEventTouchUpInside];
     [leftView addSubview:btnTakePhoto];
 
     UIButton *btnLookAround = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -588,24 +538,25 @@ static NSString         *dataNetwork;
     
     [leftView addSubview:btnLocation];
 
-    UIButton *btnSetting = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btnSetting setFrame:CGRectMake(0, btnLocation.frame.origin.y + btnLocation.bounds.size.height, widthMenu, heightRowLeftMenu)];
-    [btnSetting setTitle:@"SETTINGS" forState:UIControlStateNormal];
-    [btnSetting.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
-    [btnSetting setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-    [btnSetting setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [btnSetting setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [btnSetting setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-    [btnSetting setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [btnSetting setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [btnSetting setImage:imgShareToWall forState:UIControlStateNormal];
-    [btnSetting setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
-    [btnSetting setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
-    
-    [leftView addSubview:btnSetting];
+//    UIButton *btnSetting = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [btnSetting setFrame:CGRectMake(0, btnLocation.frame.origin.y + btnLocation.bounds.size.height, widthMenu, heightRowLeftMenu)];
+//    [btnSetting setTitle:@"SETTINGS" forState:UIControlStateNormal];
+//    [btnSetting.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
+//    [btnSetting setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+//    [btnSetting setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+//    [btnSetting setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    [btnSetting setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+//    [btnSetting setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [btnSetting setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+//    [btnSetting setImage:imgShareToWall forState:UIControlStateNormal];
+//    [btnSetting setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
+//    [btnSetting setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
+//    
+//    [leftView addSubview:btnSetting];
     
     UIButton *btnLogout = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btnLogout setFrame:CGRectMake(0, btnSetting.frame.origin.y + btnSetting.bounds.size.height, widthMenu, heightRowLeftMenu)];
+//    [btnLogout setFrame:CGRectMake(0, btnSetting.frame.origin.y + btnSetting.bounds.size.height, widthMenu, heightRowLeftMenu)];
+    [btnLogout setFrame:CGRectMake(0, btnLocation.frame.origin.y + btnLocation.bounds.size.height, widthMenu, heightRowLeftMenu)];
     [btnLogout setTitle:@"LOGOUT" forState:UIControlStateNormal];
     [btnLogout.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
     [btnLogout setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
@@ -627,27 +578,46 @@ static NSString         *dataNetwork;
  */
 - (void) initRightMenu{
     
-    searchRightMenu = [[SCSearchBar alloc] initWithFrame:CGRectMake(0, 0, rightView.bounds.size.width, 29)];
-    [searchRightMenu setPlaceholder:@"SEARCH NAME / NUMBER / EMAIL"];
-    [searchRightMenu setBackgroundColor:[UIColor lightGrayColor]];
-    [searchRightMenu setTintColor:[UIColor lightGrayColor]];
+    rightView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height - 30)];
+    [rightView setBackgroundColor:[UIColor grayColor]];
+    
+    rightView.layer.shadowColor = [UIColor blackColor].CGColor;
+    rightView.layer.shadowOffset = CGSizeMake(-3, 0);
+    rightView.layer.shadowOpacity = 0.3f;
+    rightView.layer.shadowRadius = 1;
+    
+    [self.view addSubview:rightView];
+    
+    searchRightMenu = [[SCSearchBar alloc] initWithFrame:CGRectMake(0, 0, rightView.bounds.size.width - 49, 39)];
+    [searchRightMenu setPlaceholder:@"SEARCH NAME"];
+    [searchRightMenu setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
+    [searchRightMenu setTintColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
+//    [searchRightMenu setUserInteractionEnabled:NO];
+    [searchRightMenu setDelegate:self];
+    [searchRightMenu setKeyboardAppearance:UIKeyboardAppearanceDark];
+    [searchRightMenu setReturnKeyType:UIReturnKeySearch];
     
     [rightView addSubview:searchRightMenu];
     
+    //init Button
+    btnSearchFriend = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnSearchFriend setFrame:CGRectMake(rightView.bounds.size.width - 50, 0, 50, 39)];
+    [btnSearchFriend setTitle:@"+" forState:UIControlStateNormal];
+    [btnSearchFriend.titleLabel setFont:[self.helperIns getFontLight:18.0f]];
+    [btnSearchFriend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnSearchFriend setBackgroundColor:[UIColor orangeColor]];
+    [btnSearchFriend addTarget:self action:@selector(btnSearchFriend:) forControlEvents:UIControlEventTouchUpInside];
+    [rightView addSubview:btnSearchFriend];
+
     CALayer *bottomSearch = [CALayer layer];
-    [bottomSearch setFrame:CGRectMake(0.0f, 29.5, rightView.bounds.size.width, 0.5f)];
+    [bottomSearch setFrame:CGRectMake(0.0f, 39.5, rightView.bounds.size.width, 0.5f)];
     [bottomSearch setBackgroundColor:[UIColor whiteColor].CGColor];
     [rightView.layer addSublayer:bottomSearch];
     
-//    rmScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 30, rightView.bounds.size.width, rightView.bounds.size.height - 30)];
-//    [rmScrollView setContentSize:CGSizeMake(rightView.bounds.size.width, rightView.bounds.size.height - 30)];
-//    [rmScrollView setPagingEnabled:YES];
-//    [rmScrollView setDelegate:self];
-//    [rightView addSubview:rmScrollView];
-    
-    tbContact = [[SCContactTableView alloc] initWithFrame:CGRectMake(0, 30, rightView.bounds.size.width, rightView.bounds.size.height - 110) style:UITableViewStylePlain];
-    __weak NSMutableArray   *items = self.storeIns.friends;
-    [tbContact initData:items];
+    tbContact = [[SCContactTableView alloc] initWithFrame:CGRectMake(0, 40, rightView.bounds.size.width, rightView.bounds.size.height - 120) style:UITableViewStylePlain];
+//    NSMutableArray   *items = self.storeIns.friends;
+    [tbContact setKeyboardDismissMode:UIScrollViewKeyboardDismissModeInteractive | UIScrollViewKeyboardDismissModeOnDrag];
+    [tbContact initData:self.storeIns.friends];
     [tbContact reloadData];
     [rightView addSubview:tbContact];
     
@@ -696,10 +666,10 @@ static NSString         *dataNetwork;
 }
 
 #pragma -mark  GestureRecognizer Delegate
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-    return YES;
-}
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+//{
+//    return YES;
+//}
 //
 //- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 //{
@@ -1081,10 +1051,68 @@ static NSString         *dataNetwork;
     
 }
 
-- (void) swipeChatToRight:(UIGestureRecognizer*)recognizer{
-    NSLog(@"swip chat");
-    [mainScroll setScrollEnabled:YES];
-    [mainScroll setContentOffset:CGPointMake(self.view.bounds.size.width, 0) animated:YES];
+- (void) panChatView:(UIPanGestureRecognizer*)recognizer{
+
+    // Get the translation in the view
+    CGPoint t = [recognizer translationInView:recognizer.view];
+    [recognizer setTranslation:CGPointZero inView:recognizer.view];
+    
+    // TODO: Here, you should translate your target view using this translation
+    CGFloat deltaMove = self.chatViewPage.frame.origin.x + t.x;
+    
+    if (deltaMove < 0) {
+        self.chatViewPage.center = CGPointMake(self.chatViewPage.center.x + t.x, self.chatViewPage.center.y);
+        mainScroll.center = CGPointMake(mainScroll.center.x + t.x, mainScroll.center.y);
+        scrollHeader.center = CGPointMake(scrollHeader.center.x + t.x, scrollHeader.center.y);
+        [self.view endEditing:YES];
+        
+        // But also, detect the swipe gesture
+        if (recognizer.state == UIGestureRecognizerStateEnded)
+        {
+            CGPoint vel = [recognizer velocityInView:recognizer.view];
+            
+            if (vel.x < SWIPE_LEFT_CHAT)
+            {
+                //move to left
+                //reset move
+                [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                    [self.chatViewPage setFrame:CGRectMake(-self.view.bounds.size.width, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+                    [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+                    [scrollHeader setFrame:CGRectMake(0, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+                } completion:^(BOOL finished) {
+                    [self.homePageV6.scCollection reloadData];
+                }];
+            }
+            else if (vel.x > SWIPE_RIGHT_CHAT)
+            {
+                //move to right
+                
+            }else{
+                if (mainScroll.frame.origin.x < self.view.bounds.size.width / 2) {
+                    //reset move
+                    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                        [self.chatViewPage setFrame:CGRectMake(-self.view.bounds.size.width, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+                        [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+                        [scrollHeader setFrame:CGRectMake(0, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+                    } completion:^(BOOL finished) {
+                        [self.homePageV6.scCollection reloadData];
+                    }];
+                }else{
+                    //reset to right
+                    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                        [self.chatViewPage setFrame:CGRectMake(0, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+                        [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+                        [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+                    } completion:^(BOOL finished) {
+                        
+                    }];
+                }
+            }
+            
+        }
+    }
+    
+
 }
 
 #pragma -mark Touch Delegate
@@ -1094,7 +1122,13 @@ static NSString         *dataNetwork;
     CGPoint touchLocation = [touch locationInView:self.view];
     
     if (touch.view == vBlurShareMenu) {
+        [self.view endEditing:YES];
         [self showShareMenu];
+    }
+    
+    if (touch.view == blurView) {
+        [self.view endEditing:YES];
+        [self hiddenMenu];
     }
     
     preTouchLocation = touchLocation;
@@ -1274,8 +1308,8 @@ static NSString         *dataNetwork;
 }
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView{
-    
-    if ([scrollView isEqual: mainScroll]) {
+
+    if ([scrollView isMemberOfClass:[mainScroll class]]) {
         
         [scrollHeader setContentOffset:scrollView.contentOffset];
         
@@ -1285,33 +1319,25 @@ static NSString         *dataNetwork;
         int cPage = floor((mainScroll.contentOffset.x - (pageWidth / 2)) / pageWidth) + 1;
         
         page = cPage;
-        if (scrollView.contentOffset.x < self.view.bounds.size.width && page == 1) {
-            [mainScroll setScrollEnabled:NO];
-        }else{
-            [mainScroll setScrollEnabled:YES];
-        }
         
         //get current page
         switch (currentPage) {
-            case 0:
-                
-                break;
-                
-            case 1:{
+            case 0:{
                 [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
                     
                     CGFloat deltaMove = scrollView.contentOffset.x - preScrollLocation.x;
                     CGFloat deltaAlpha = (alphatView * deltaMove) / self.view.bounds.size.width;
-
+                    
                     [self.homePageV6 setAlpha:(self.homePageV6.alpha - deltaAlpha)];
                     
                 } completion:^(BOOL finished) {
                     
                 }];
             }
+                
                 break;
                 
-            case 2:{
+            case 1:{
                 [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
                     
                     
@@ -1332,7 +1358,7 @@ static NSString         *dataNetwork;
             }
                 break;
                 
-            case 3:{
+            case 2:{
                 [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
                     
                     
@@ -1352,6 +1378,11 @@ static NSString         *dataNetwork;
                 }];
             }
                 break;
+                
+            case 3:{
+                
+            }
+                break;
         }
         
         if (scrollView.contentOffset.x >= 0) {
@@ -1368,43 +1399,13 @@ static NSString         *dataNetwork;
 }
 
 - (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
-    
+
 }
 
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     
     CGFloat pageWidth = scrollView.frame.size.width;
     currentPage = floor((scrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-    
-//    NSLog(@"current page");
-//    
-//    switch (currentPage) {
-//        case 0:
-//            
-//            break;
-//        
-//        case 1:
-//            [self.wallPageV8 removeFromSuperview];
-//            [self.noisePageV6 removeFromSuperview];
-////            [self.wallPageV8 setHidden:YES];
-////            [self.noisePageV6 setHidden:YES];
-//            break;
-//            
-//        case 2:
-//            [mainScroll addSubview:self.wallPageV8];
-//            [self.noisePageV6 removeFromSuperview];
-//            break;
-//            
-//        case 3:
-//            [self.wallPageV8 removeFromSuperview];
-//            [mainScroll addSubview:self.noisePageV6];
-////            [self.wallPageV8 setHidden:YES];
-////            [self.noisePageV6 setHidden:NO];
-//            break;
-//            
-//        default:
-//            break;
-//    }
     
     [self.homePageV6.scCollection reloadData];
     
@@ -1459,6 +1460,46 @@ static NSString         *dataNetwork;
         }else{
 
 
+        }
+    }
+}
+
+- (void) btnSignInTouchesV3{
+    
+    [self.loginPage startLoadingView];
+    
+    [self.loginPage.txtUserName resignFirstResponder];
+    [self.loginPage.txtPassword resignFirstResponder];
+    
+    NSString *strUserName = self.loginPageV3.txtUserNameSignIn.text;
+    NSString *strPassword = self.loginPageV3.txtPasswordSignIn.text;
+    
+    if (![strPassword isEqualToString:@""] && ![strUserName isEqualToString:@""]) {
+        
+        BOOL isValidEmail = [self.helperIns validateEmail:strUserName];
+        if (isValidEmail) {
+            NSString *strUserNameEncode = [self.helperIns encodedBase64:[strUserName dataUsingEncoding:NSUTF8StringEncoding]];
+            NSString *strPasswordEncode = [self.helperIns encoded:strPassword];
+            
+            [[NSUserDefaults standardUserDefaults] setObject:strPassword forKey:@"password"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
+            NSString *_deviceToken = @"c5d46419d7e93ce0c6cd3cb0b01d1f9c1d41fb16e05a73ef8969efdaf91d5e24";
+            
+            if (token != nil) {
+                _deviceToken = [NSString stringWithFormat:@"%@", token];
+                _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@" " withString:@""];
+                _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
+                _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@">" withString:@""];
+            }
+            
+            NSString *cmdLogin = [self.dataMapIns loginCommand:strUserNameEncode withHashPass:strPasswordEncode withToken:_deviceToken withLongitude:[self.storeIns getLongitude] withLatitude:[self.storeIns getlatitude]];
+            
+            [self.networkIns sendData:cmdLogin];
+        }else{
+            
+            
         }
     }
 }
@@ -1618,7 +1659,7 @@ static NSString         *dataNetwork;
             BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
             
             if (isDelete) {
-                [self.coziCoreDataIns deleteMessenger:(int)keyMessage];
+                [self.coziCoreDataIns deleteMessenger:keyMessage];
             }
             
         }else{
@@ -1640,7 +1681,7 @@ static NSString         *dataNetwork;
         inShowShareMenu = NO;
         
         SCPostViewController *post = [[SCPostViewController alloc] init];
-        
+        [post showHiddenBack:YES];
         UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
         
         [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
@@ -1667,7 +1708,7 @@ static NSString         *dataNetwork;
         inShowShareMenu = NO;
         
         SCPostPhotoViewController *post = [[SCPostPhotoViewController alloc] init];
-        
+        [post showHiddenBack:YES];
         UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
         
         [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
@@ -1693,7 +1734,7 @@ static NSString         *dataNetwork;
         inShowShareMenu = NO;
         
         SCPostLocationViewController *post = [[SCPostLocationViewController alloc] init];
-        
+        [post showHiddenBack:YES];
         UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
         
         [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
@@ -1719,7 +1760,7 @@ static NSString         *dataNetwork;
         inShowShareMenu = NO;
         
         SCMoodPostViewController *post = [[SCMoodPostViewController alloc] init];
-        
+        [post showHiddenBack:YES];
         UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
         
         [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
@@ -1733,12 +1774,36 @@ static NSString         *dataNetwork;
     
 }
 
+- (void) btnSearchFriend:(id)sender{
+//    [self showHiddenRightMenu];
+    SCSearchFriendViewController *post = [[SCSearchFriendViewController alloc] init];
+    [post showHiddenClose:YES];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
+- (void) btnShowFriendRequest:(id)sender{
+    SCFriendRequestViewController *post = [[SCFriendRequestViewController alloc] init];
+    [post showHiddenClose:YES];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
 #pragma -mark StoreDelegate
 - (void) reloadChatView{
     [self.chatViewPage autoScrollTbView];
     
     [self.homePageV6.scCollection initWithData:self.storeIns.recent withType:0];
     [self.homePageV6.scCollection reloadData];
+}
+
+#pragma -mark UISearchBar Delegate
+- (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
+    if (searchBar == searchRightMenu) {
+        NSLog(@"enter text search");
+    }
 }
 
 - (void)didReceiveMemoryWarning {

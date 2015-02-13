@@ -10,8 +10,10 @@
 #import "DataWall.h"
 #import "Store.h"
 #import "Helper.h"
+#import "TTTAttributedLabel.h"
+#import "SDWebImage/UIImageView+WebCache.h"
 
-@interface SCHeaderFooterView : UITableViewHeaderFooterView
+@interface SCHeaderFooterView : UITableViewHeaderFooterView <TTTAttributedLabelDelegate>
 {
     Store               *storeIns;
     Helper              *helperIns;

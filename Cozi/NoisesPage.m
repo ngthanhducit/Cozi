@@ -27,9 +27,9 @@
     
 //    self.storeIns = [Store shareInstance];
     
-    self.itemInsets = UIEdgeInsetsMake(0.0f, 1.0f, 0.0f, 1.0f);
+    self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.itemSize = CGSizeMake(100.0f, 100.0f);
-    self.interItemSpacingY = 0.0f;
+    self.interItemSpacingY = 4.0f;
     self.numberOfColumns = 3;
 }
 
@@ -45,7 +45,7 @@
         _columnResult = _columnFlood;
     }
     
-    CGFloat widthCell = (self.bounds.size.width / _columnResult);
+    CGFloat widthCell = ((self.bounds.size.width - 8) / _columnResult);
     widthCell = widthCell < 100 ? 100 : widthCell;
     
     self.itemSize = CGSizeMake(widthCell, widthCell);

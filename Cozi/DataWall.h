@@ -29,10 +29,12 @@
 @property (nonatomic, copy   ) NSString       *lastName;
 @property (nonatomic, strong ) NSMutableArray *comments;
 @property (nonatomic, strong ) NSMutableArray *likes;
-@property (nonatomic, assign ) int            typePost;//0: image with title or not - 1: title
+//@property (nonatomic, assign ) int            typePost;//0: image with title or not - 1: title
 @property (nonatomic, assign ) BOOL           isLike;
 @property (nonatomic, copy   ) NSString       *timeLike;
 @property (nonatomic, copy   ) NSString       *urlFull;
 @property (nonatomic, copy   ) NSString       *urlThumb;
 @property (nonatomic, assign ) int            codeType;
+@property (nonatomic, strong) NSString        *urlAvatarThumb;
+@property (nonatomic, strong) NSString        *urlAvatarFull;
 @end

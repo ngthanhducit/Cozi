@@ -32,16 +32,16 @@ const CGSize        sizeIconContact = { 35 , 35};
         CGRect boundMain = [[UIScreen mainScreen] bounds];
         CGFloat wContact = (boundMain.size.width / 4) * 3;
         
-        UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickGrey.svg"];
+        UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickWhite-V2.svg"];
         self.imgViewCheck = [[UIImageView alloc] initWithImage:img];
-        [self.imgViewCheck setFrame:CGRectMake(wContact - 40, 5, 40, 40)];
+        [self.imgViewCheck setFrame:CGRectMake(wContact - 40, 0, 40, self.bounds.size.height)];
         [self.imgViewCheck setContentMode:UIViewContentModeCenter];
         [self.imgViewCheck setHidden:YES];
         [self.contentView addSubview:self.imgViewCheck];
         
         self.iconContact = [[UIImageView alloc] initWithFrame:CGRectZero];
         [self.iconContact setFrame:CGRectMake(10, (self.bounds.size.height / 2) - (sizeIconContact.height / 2), sizeIconContact.width, sizeIconContact.height)];
-        [self.iconContact setBackgroundColor:[UIColor lightGrayColor]];
+        [self.iconContact setBackgroundColor:[UIColor clearColor]];
         [self.iconContact setContentMode:UIViewContentModeScaleAspectFill];
         [self.iconContact setAutoresizingMask:UIViewAutoresizingNone];
         self.iconContact.layer.borderWidth = 0.0f;
@@ -52,7 +52,7 @@ const CGSize        sizeIconContact = { 35 , 35};
         self.lblFullName = [[UILabel alloc] initWithFrame:CGRectZero];
         [self.lblFullName setBackgroundColor:[UIColor clearColor]];
         [self.lblFullName setFont:[hp getFontLight:13.0f]];
-        [self.lblFullName setTextColor:[UIColor purpleColor]];
+        [self.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
         [self.lblFullName setFrame:CGRectMake(60, 0, wContact - 100, self.bounds.size.height)];
         [self.contentView addSubview:self.lblFullName];
     }

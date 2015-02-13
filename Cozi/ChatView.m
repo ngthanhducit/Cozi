@@ -70,7 +70,9 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) setup{
+    
     self.backgroundColor = [UIColor clearColor];
+    hHeader = 40;
     
     lastPhotoSelected = -1;
     self.storeIns = [Store shareInstance];
@@ -79,8 +81,20 @@ const CGSize sizeButtonSend = { 30, 30 };
     self.networkIns = [NetworkCommunication shareInstance];
     self.dataMapIns = [DataMap shareInstance];
     
+    vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, hHeader)];
+    [vHeader setBackgroundColor:[UIColor blackColor]];
+    [self addSubview:vHeader];
+    
+    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, vHeader.bounds.size.width, vHeader.bounds.size.height)];
+    [self.lblNickName setText:@"NICK NAME"];
+    [self.lblNickName setTextAlignment:NSTextAlignmentCenter];
+    [self.lblNickName setTextColor:[UIColor whiteColor]];
+    [self.lblNickName setFont:[self.helperIns getFontLight:16.0f]];
+    [vHeader addSubview:self.lblNickName];
+    
     self.tbView = [[SCMessageTableViewV2 alloc] initWithFrame:self.frame style:UITableViewStylePlain];
-    [self.tbView setFrame:CGRectMake(0, [self getHeaderHeight], self.bounds.size.width, self.bounds.size.height - [self getHeaderHeight] - heightTextField - heightToolkitNormal)];
+    [self.tbView setFrame:CGRectMake(0, hHeader, self.bounds.size.width, self.bounds.size.height - 40 - heightTextField - heightToolkitNormal)];
+    
     [self.tbView setScMessageTableViewDelegate:self];
     [self.tbView setContentOffset:CGPointMake(20, 0) animated:NO];
     self.tbView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag | UIScrollViewKeyboardDismissModeInteractive;
@@ -93,12 +107,13 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self.chatToolKit setBackgroundColor:[UIColor clearColor]];
     [self.viewSendMessage addSubview:self.chatToolKit];
     
-    //register event
+    //register event    
     [self.chatToolKit.btnText addTarget:self action:@selector(btnTextTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.chatToolKit.btnPing addTarget:self action:@selector(btnPingTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.chatToolKit.btnCamera addTarget:self action:@selector(btnTakePhotoTap) forControlEvents:UIControlEventTouchUpInside];
     [self.chatToolKit.btnPhoto addTarget:self action:@selector(btnPhotoLibraryTap) forControlEvents:UIControlEventTouchUpInside];
     [self.chatToolKit.btnLocation addTarget:self action:@selector(btnSendLocationTap) forControlEvents:UIControlEventTouchUpInside];
+    [self.chatToolKit.btnSendMessage addTarget:self action:@selector(btnSendMessageTap:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.chatToolKit.hpTextChat setDelegate:self];
     
@@ -109,7 +124,6 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self addSubview:viewLibrary];
     
     [self setupCamera];
-    
 }
 
 - (void) setupCamera{
@@ -245,8 +259,12 @@ const CGSize sizeButtonSend = { 30, 30 };
         
         btnShowLibrary = [UIButton buttonWithType:UIButtonTypeCustom];
         [btnShowLibrary setFrame:CGRectMake(20, self.bounds.size.height - 70, 50, 50)];
-        [btnShowLibrary setBackgroundColor:[UIColor orangeColor]];
-        [btnShowLibrary setTitle:@"Show" forState:UIControlStateNormal];
+//        [btnShowLibrary setBackgroundColor:[UIColor orangeColor]];
+//        [btnShowLibrary setTitle:@"Show" forState:UIControlStateNormal];
+        [btnShowLibrary setImage:[self.helperIns getImageFromSVGName:@"icon-Chat-ViewAll-V3.svg"] forState:UIControlStateNormal];
+        [btnShowLibrary setClipsToBounds:YES];
+        [btnShowLibrary setContentMode:UIViewContentModeScaleAspectFill];
+        btnShowLibrary.layer.cornerRadius = btnShowLibrary.bounds.size.width / 2;
         [btnShowLibrary addTarget:self action:@selector(showImageLibrary:) forControlEvents:UIControlEventTouchUpInside];
         [btnShowLibrary setHidden:YES];
         [self addSubview:btnShowLibrary];
@@ -411,6 +429,12 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self.chatToolKit.hpTextChat becomeFirstResponder];
     
     [self.chatToolKit showTextField];
+}
+
+- (void) btnSendMessageTap:(id)sender{
+    if (![self.chatToolKit.hpTextChat.text isEqualToString:@""]) {
+        [self sendMessage:self.chatToolKit.hpTextChat.text];
+    }
 }
 
 - (void) btnPingTap:(id)sender{
@@ -742,13 +766,16 @@ const CGSize sizeButtonSend = { 30, 30 };
     isShowKeyboar = YES;
     NSDictionary *userInfo = [notification userInfo];
     CGSize kbSize = [[userInfo objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
-//    CGRect frameSendVIew = self.viewSendMessage.frame;
-    
-//    frameSendVIew.origin.y = kbSize.height;
+    NSLog(@"height text chat: %f", self.chatToolKit.hpTextChat.bounds.size.height);
+
+    CGFloat hTextChat = heightTextField < self.chatToolKit.hpTextChat.bounds.size.height ? self.chatToolKit.hpTextChat.bounds.size.height : heightTextField;
+    [self.viewSendMessage setBackgroundColor:[UIColor clearColor]];
     [UIView animateWithDuration:0.1 animations:^{
-        [self.viewSendMessage setFrame:CGRectMake(0, self.bounds.size.height - kbSize.height - heightTextField, self.bounds.size.width, heightTextField)];
+        [self.viewSendMessage setFrame:CGRectMake(0, self.bounds.size.height - kbSize.height - hTextChat - 2, self.bounds.size.width, hTextChat)];
         
-        [self.tbView setFrame:CGRectMake(0, [self getHeaderHeight], self.bounds.size.width, self.frame.size.height - kbSize.height - [self getHeaderHeight] - heightTextField)];
+        [self.chatToolKit.hpTextChat setFrame:CGRectMake(0, 0, self.chatToolKit.hpTextChat.bounds.size.width, self.chatToolKit.hpTextChat.bounds.size.height)];
+        
+        [self.tbView setFrame:CGRectMake(0, [self getHeaderHeight], self.bounds.size.width, self.frame.size.height - kbSize.height - [self getHeaderHeight] - hTextChat - 2)];
         
         [self scrollToBottom];
         
@@ -762,6 +789,8 @@ const CGSize sizeButtonSend = { 30, 30 };
     
     CGRect frameSendView = self.viewSendMessage.frame;
     frameSendView.origin.y += kbSize.height;
+    
+    [self hiddenToolkit];
     
     [UIView animateWithDuration:0.0 animations:^{
         
@@ -818,7 +847,7 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) touchesInTableView{
-//    [self resetUI];
+    [self resetUI];
     
     isTouchTableView = YES;
 }
@@ -936,6 +965,10 @@ const CGSize sizeButtonSend = { 30, 30 };
         [self.tbView setFrame:CGRectMake(0, self.tbView.frame.origin.y, self.tbView.bounds.size.width, self.viewSendMessage.frame.origin.y - [self getHeaderHeight])];
     }];
 
+}
+
+- (CGFloat) getHeaderHeight{
+    return hHeader;
 }
 
 - (void) textViewDidChange:(UITextView *)textView{

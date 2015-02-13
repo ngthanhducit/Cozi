@@ -268,9 +268,9 @@ const NSString                  *_cKey = @"PTCSYC22";
         delta = (ratio*image.size.height - ratio*image.size.width);
         offset = CGPointMake(0, delta/2);
     }
-    //CGImageCreateImageInRect
+    
     //make the final clipping rect based on the calculated values
-    CGRect clipRect = CGRectMake(-offset.x, -offset.y / 2,
+    CGRect clipRect = CGRectMake(-offset.x, -offset.y,
                                  (ratio * image.size.width) + delta,
                                  (ratio * image.size.height) + delta);
     
@@ -282,7 +282,6 @@ const NSString                  *_cKey = @"PTCSYC22";
     } else {
         UIGraphicsBeginImageContext(sz);
     }
-    
     UIRectClip(clipRect);
     [image drawInRect:clipRect];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -291,8 +290,10 @@ const NSString                  *_cKey = @"PTCSYC22";
     return newImage;
 }
 
-- (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize
+- (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize;
 {
+    NSLog(@"size image width: %f - height: %f", _img.size.width, _img.size.height);
+    
     UIImage *sourceImage = _img;
     UIImage *newImage = nil;
     CGSize imageSize = sourceImage.size;
@@ -325,8 +326,7 @@ const NSString                  *_cKey = @"PTCSYC22";
         // center the image
         if (widthFactor > heightFactor)
         {
-            thumbnailPoint.y = ((targetHeight - scaledHeight) * 0.5) / 2;
-//            thumbnailPoint.y = 0;
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
         }
         else
         {
@@ -341,6 +341,12 @@ const NSString                  *_cKey = @"PTCSYC22";
     
     CGRect thumbnailRect = CGRectZero;
     thumbnailRect.origin = thumbnailPoint;
+    if ([[UIScreen mainScreen] bounds].size.height >= 568){
+        thumbnailRect.origin.y = -40;
+    }else{
+        thumbnailRect.origin.y = thumbnailRect.origin.y / 2;
+    }
+
     thumbnailRect.size.width  = scaledWidth;
     thumbnailRect.size.height = scaledHeight;
     
@@ -358,6 +364,89 @@ const NSString                  *_cKey = @"PTCSYC22";
     
     return newImage;
 }
+
+//- (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize
+//{
+//    UIImage *sourceImage = _img;
+//    UIImage *newImage = nil;
+//    CGSize imageSize = sourceImage.size;
+//    CGFloat width = imageSize.width;
+//    CGFloat height = imageSize.height;
+//    CGFloat targetWidth = targetSize.width;
+//    CGFloat targetHeight = targetSize.height;
+//    CGFloat scaleFactor = 0.0;
+//    CGFloat scaledWidth = targetWidth;
+//    CGFloat scaledHeight = targetHeight;
+//    CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+//    
+//    if (CGSizeEqualToSize(imageSize, targetSize) == NO)
+//    {
+//        CGFloat widthFactor = targetWidth / width;
+//        CGFloat heightFactor = targetHeight / height;
+//        
+//        if (widthFactor > heightFactor)
+//        {
+//            scaleFactor = widthFactor; // scale to fit height
+//        }
+//        else
+//        {
+//            scaleFactor = heightFactor; // scale to fit width
+//        }
+//        
+//        scaledWidth  = width * scaleFactor;
+//        scaledHeight = height * scaleFactor;
+//        
+//        // center the image
+//        if (widthFactor > heightFactor)
+//        {
+//            thumbnailPoint.y = ((targetHeight - scaledHeight) * 0.5) / 2;
+////            thumbnailPoint.y = 0;
+//        }
+//        else
+//        {
+//            if (widthFactor < heightFactor)
+//            {
+//                thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+//            }
+//        }
+//    }
+//    
+//    UIGraphicsBeginImageContext(targetSize); // this will crop
+//    
+//    CGRect thumbnailRect = CGRectZero;
+//    if ([[UIScreen mainScreen] bounds].size.height == 568)
+//    {
+//        //iphone 5
+//        thumbnailRect.origin = CGPointMake(0, 0);
+////        thumbnailRect.size = targetSize;
+////        thumbnailRect.origin = thumbnailPoint;
+//        thumbnailRect.size.width  = scaledWidth;
+//        thumbnailRect.size.height = scaledHeight;
+//    }
+//    else
+//    {
+//        thumbnailRect.origin = CGPointMake(0, 0);
+//        thumbnailRect.size = targetSize;
+//        thumbnailRect.origin = thumbnailPoint;
+//        thumbnailRect.size.width  = scaledWidth;
+//        thumbnailRect.size.height = scaledHeight;
+//
+//    }
+//    
+//    [sourceImage drawInRect:thumbnailRect];
+//    
+//    newImage = UIGraphicsGetImageFromCurrentImageContext();
+//    
+//    if(newImage == nil)
+//    {
+//        NSLog(@"could not scale image");
+//    }
+//    
+//    //pop the context to get back to the default
+//    UIGraphicsEndImageContext();
+//    
+//    return newImage;
+//}
 
 - (NSData *) compressionImage:(UIImage *)img{
     CGFloat compression = 0.7f;
@@ -457,6 +546,10 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (UIFont *) getFontThin:(CGFloat)size{
     return [UIFont fontWithName:@"Roboto-Thin" size:size];
+}
+
+- (UIFont *) getFontRegular:(CGFloat)size{
+    return [UIFont fontWithName:@"Roboto-Regular" size:size];
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size{
@@ -634,5 +727,79 @@ const NSString                  *_cKey = @"PTCSYC22";
     
     // Save image.
     return [UIImagePNGRepresentation(_img) writeToFile:filePath atomically:YES];
+}
+
+#pragma mark - private function
+
+- (int) uploadAvatarAmazon:(AmazonInfo *)info withImage:(NSData *)imgData{
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:info.url]];
+    [request setHTTPMethod:@"POST"];
+    
+    NSMutableData *body = [NSMutableData data];
+    
+    NSString *boundary = @"***";
+    NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+    [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
+    
+    // key
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"key\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithString:info.key] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // content-type
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"content-type\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"image/jpeg" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // AWSAccessKeyId
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"AWSAccessKeyId\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithString:info.accessKey] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // acl
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"acl\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"public-read" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // policy
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"policy\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithString:info.policy] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // signature
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"signature\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithString:info.signature] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"demo" ofType:@"jpg"];
+    //    NSData *imageData = [NSData dataWithContentsOfFile:filePath];
+    
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"Content-Disposition: form-data; name=\"file\"; filename=\"ios.jpg\"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[NSData dataWithData:imgData]];
+    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // close form
+    [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // set request body
+    [request setHTTPBody:body];
+    
+    //return and test
+    NSHTTPURLResponse *response=nil;
+    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
+    
+    int code = (int)[response statusCode];
+    
+    return code;
 }
 @end

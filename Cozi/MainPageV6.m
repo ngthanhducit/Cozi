@@ -46,13 +46,18 @@
 - (void) initVariable{
     self.storeIns = [Store shareInstance];
     
-    self.itemInsets = UIEdgeInsetsMake(0.0f, 1.0f, 0.0f, 1.0f);
+    self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.itemSize = CGSizeMake(100.0f, 100.0f);
-    self.interItemSpacingY = 0.0f;
-    self.numberOfColumns = 2;
+    self.interItemSpacingY = 4.0f;
+    self.numberOfColumns = 3;
 }
 
 - (void) initFriend:(Profile *)_profile{
+    waitingLoadAvatar = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [waitingLoadAvatar setFrame:CGRectMake(0, _top, self.bounds.size.width, _avartaH)];
+    [self addSubview:waitingLoadAvatar];
+    [waitingLoadAvatar startAnimating];
+    
     profile = _profile;
     if (profile.imgAvatar) {
         [self drawAvatar:profile.imgAvatar];
@@ -71,33 +76,27 @@
         }];
     }
     
+    //check is profile public then render post history
+    //else then show private history
+    
     [self drawFriend];
     
     [lblFollowers setText:[NSString stringWithFormat:@"%i", profile.countFollower]];
     [lblFollowing setText:[NSString stringWithFormat:@"%i", profile.countFollowing]];
     [lblPosts setText:[NSString stringWithFormat:@"%i", profile.countPost]];
     
-    if (storeIns.listFollowing && [storeIns.listFollowing count] > 0) {
-        int count = (int)[storeIns.listFollowing count];
-        BOOL isFollowing = FALSE;
-        for (int i = 0; i < count; i++) {
-            if ([[storeIns.listFollowing objectAtIndex:i] userID] == profile.userID) {
-                isFollowing = YES;
-                break;
-            }
-        }
-        
-        [self initViewFollowing];
-        [self initButtonFollowUser];
-        
-        if (isFollowing) {
-            [self.btnFollow setHidden:YES];
-            [self.vFollowingUser setHidden:NO];
-        }else{
-            [self.btnFollow setHidden:NO];
-            [self.vFollowingUser setHidden:YES];
-        }
+    [self initViewFollowing];
+    [self initButtonFollowUser];
+    
+    BOOL isFollowing = [storeIns isFollowing:profile.userID];
+    if (isFollowing) {
+        [self.btnFollow setHidden:YES];
+        [self.vFollowingUser setHidden:NO];
+    }else{
+        [self.btnFollow setHidden:NO];
+        [self.vFollowingUser setHidden:YES];
     }
+    
 }
 
 - (void) initUser:(User *)_user{
@@ -115,6 +114,7 @@
 }
 
 - (void) setNoisesHistory:(NSMutableArray*)_items{
+    [waitingLoadHistory stopAnimating];
     
     items = _items;
     
@@ -130,21 +130,21 @@
         _columnResult = _columnFlood;
     }
     
-    CGFloat widthCell = (friendView.bounds.size.width / _columnResult);
+    CGFloat widthCell = ((friendView.bounds.size.width - 8) / _columnResult);
     widthCell = widthCell < 100 ? 100 : widthCell;
     
     self.itemSize = CGSizeMake(widthCell, widthCell);
 
     double row = round([items count] / _columnResult);
-    
-    CGFloat hContent = row * widthCell;
+    row += 2;
+    CGFloat hContent = ((row) * widthCell);
     if (hContent < fViewH) {
         hContent = fViewH;
     }
     
     SCCollectionViewLayout *layout = [[SCCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:_columnResult];
     
-    self.scCollection = [[SCNoiseCollectionView alloc] initWithFrame: CGRectMake(0, 0, self.bounds.size.width, fViewH + 10) collectionViewLayout:layout];
+    self.scCollection = [[SCNoiseCollectionView alloc] initWithFrame: CGRectMake(0, 0, self.bounds.size.width, hContent) collectionViewLayout:layout];
     [self.scCollection setFrame:CGRectMake(0, 0, self.bounds.size.width, hContent)];
     [self.scCollection initData:items withType:1];
     [self.scCollection setBackgroundColor:[UIColor whiteColor]];
@@ -154,19 +154,25 @@
     
     [friendView addSubview:self.scCollection];
     
+    [friendView setFrame:CGRectMake(friendView.frame.origin.x, friendView.frame.origin.y, friendView.bounds.size.width, hContent)];
+    
     [self setContentSizeContent:CGSizeMake(self.bounds.size.width, hContent)];
+    
+    [_mScroll setContentSize:CGSizeMake(self.bounds.size.width, _avartaH + _searchH + hContent)];
     
     [self.scCollection reloadData];
 }
 
 -(void) drawAvatar:(UIImage*)_imgAvatar{
-    
+
     _avarta=[[UIImageView alloc] initWithFrame:CGRectMake(0, _top, self.bounds.size.width, _avartaH)];
     if (_avarta != nil) {
         [_avarta setImage:_imgAvatar];
         _avarta.layer.zPosition = -1;
         [self addSubview:_avarta];
     }
+    
+    [waitingLoadAvatar stopAnimating];
 }
 
 -(void) drawFriend
@@ -186,7 +192,14 @@
     [_mScroll addSubview:transView];
     
     friendView=[[UIView alloc] initWithFrame:CGRectMake(0, _avartaH + _searchH, self.bounds.size.width, fViewH)];
+    [friendView setBackgroundColor:[UIColor whiteColor]];
     [_mScroll addSubview:friendView];
+    
+    waitingLoadHistory = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [waitingLoadHistory setFrame:friendView.bounds];
+    [waitingLoadHistory setBackgroundColor:[UIColor clearColor]];
+    [friendView addSubview:waitingLoadHistory];
+    [waitingLoadHistory startAnimating];
     
     [self initFollow];
     
@@ -199,7 +212,7 @@
     Helper *hp = [Helper shareInstance];
     
     _followInfo=[[UIView alloc] initWithFrame:CGRectMake(0, _avartaH, self.bounds.size.width, _searchH)];
-    _followInfo.backgroundColor=[UIColor yellowColor];
+    _followInfo.backgroundColor=[UIColor clearColor];
     [_mScroll addSubview:_followInfo];
     
     UIView *vFollow = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, (_searchH / 2) - 20)];
@@ -209,6 +222,11 @@
     vFollowers = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width / 3, vFollow.bounds.size.height)];
     [vFollowers setBackgroundColor:[UIColor clearColor]];
     [vFollow addSubview:vFollowers];
+    
+    UITapGestureRecognizer *tapFollowers = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(followersTap:)];
+    [tapFollowers setNumberOfTapsRequired:1];
+    [tapFollowers setNumberOfTouchesRequired:1];
+    [vFollowers addGestureRecognizer:tapFollowers];
     
     CGSize size = { self.bounds.size.width, self.bounds.size.height };
     CGSize sizeTotalFollower = [@"198" sizeWithFont:[hp getFontLight:25.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
@@ -233,6 +251,11 @@
     [vFollowing setBackgroundColor:[UIColor clearColor]];
     [vFollow addSubview:vFollowing];
     
+    UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(followingTap:)];
+    [tapFollowing setNumberOfTouchesRequired:1];
+    [tapFollowing setNumberOfTapsRequired:1];
+    [vFollowing addGestureRecognizer:tapFollowing];
+    
     lblFollowing = [[UILabel alloc] initWithFrame:CGRectMake(0, (vFollowing.bounds.size.height / 2) - (h / 2), vFollowing.bounds.size.width, sizeTotalFollower.height)];
     [lblFollowing setTextAlignment:NSTextAlignmentCenter];
     [lblFollowing setText:@"12"];
@@ -251,6 +274,11 @@
     [vPosts setBackgroundColor:[UIColor clearColor]];
     [vFollow addSubview:vPosts];
     
+    UITapGestureRecognizer *tapPosts = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(postsTap:)];
+    [tapPosts setNumberOfTapsRequired:1];
+    [tapPosts setNumberOfTouchesRequired:1];
+    [vPosts addGestureRecognizer:tapPosts];
+    
     lblPosts = [[UILabel alloc] initWithFrame:CGRectMake(0, (vPosts.bounds.size.height / 2) - (h / 2), vPosts.bounds.size.width, sizeTotalFollower.height)];
     [lblPosts setTextAlignment:NSTextAlignmentCenter];
     [lblPosts setText:@"69"];
@@ -264,7 +292,6 @@
     [lblTextPost setTextColor:[UIColor whiteColor]];
     [lblTextPost setFont:[hp getFontLight:13.0f]];
     [vPosts addSubview:lblTextPost];
-    
     
     vAddFollow = [[UIView alloc] initWithFrame:CGRectMake(0, (_searchH / 2) - 20, self.bounds.size.width, (_searchH / 2) - 20)];
     [vAddFollow setBackgroundColor:[UIColor whiteColor]];
@@ -291,7 +318,7 @@
     [lblTitleFB setBackgroundColor:[UIColor clearColor]];
     [vFollowingUser addSubview:lblTitleFB];
     
-    UIImageView *imgSelectFB = [[UIImageView alloc] initWithImage:[hp getImageFromSVGName:@"icon-TickGrey.svg"]];
+    UIImageView *imgSelectFB = [[UIImageView alloc] initWithImage:[hp getImageFromSVGName:@"icon-TickWhite-V2.svg"]];
     [imgSelectFB setFrame:CGRectMake(lblTitleFB.frame.origin.x + sizeFollowing.width, vFollowingUser.bounds.size.height / 2 - 15, 30, 30)];
     [vFollowingUser addSubview:imgSelectFB];
 }
@@ -319,9 +346,13 @@
     [self.btnFollow setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
     self.btnFollow.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
     
-    [self.btnFollow setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [self.btnFollow setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
     
     [vAddFollow addSubview:self.btnFollow];
+    
+    self.waitingFollow = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self.waitingFollow setFrame:vAddFollow.bounds];
+    [vAddFollow addSubview:self.waitingFollow];
 }
 
 - (void) initEditProfile{
@@ -375,7 +406,6 @@
 
 - (void) setContentSizeContent:(CGSize)contentSize{
     if (contentSize.height >= self.bounds.size.height) {
-//        [friendView setFrame:CGRectMake(0, _avartaH+_searchH, self.bounds.size.width, contentSize.height)];
         [self.scCollection setFrame:CGRectMake(0, 0, self.bounds.size.width, contentSize.height)];
         [_mScroll setContentSize:CGSizeMake(self.bounds.size.width, _avartaH+_searchH+contentSize.height)];
     }
@@ -407,62 +437,20 @@
     }
 }
 
-- (void) initMyInfo:(User *)_myUser{
-    Helper *hp=[Helper shareInstance];
-    [self.viewInfo removeFromSuperview];
-    
-    self.userIns = _myUser;
-    
-    self.viewInfo = [[UIView alloc] init];
-    [self.viewInfo setBackgroundColor:[UIColor clearColor]];
-    
-    CGSize textSize = { 260.0, 10000.0 };
-    
-    self.lblFirstName = [[UILabel alloc] init];
-    [self.lblFirstName setBackgroundColor:[UIColor clearColor]];
-    [self.lblFirstName setTextColor:[UIColor whiteColor]];
-    [self.lblFirstName setTextAlignment:NSTextAlignmentLeft];
-    [self.lblFirstName setText:[_myUser.firstname uppercaseString]];
-    [self.lblFirstName setFont:[hp getFontThin:23.0f]];
-    
-    CGSize sizeFirstName = [[self.lblFirstName.text uppercaseString] sizeWithFont:[hp getFontThin:23.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-    [self.viewInfo addSubview:self.lblFirstName];
-    
-    [self.lblFirstName setFrame:CGRectMake(0, 0, sizeFirstName.width, sizeFirstName.height)];
-    
-    self.lblLastName= [[UILabel alloc] init];
-    [self.lblLastName setBackgroundColor:[UIColor clearColor]];
-    [self.lblLastName setTextAlignment:NSTextAlignmentRight];
-    [self.lblLastName setTextColor:[UIColor whiteColor]];
-    [self.lblLastName setFont:[hp getFontThin:23.0f]];
-    [self.lblLastName setText:[_myUser.lastName uppercaseString]];
-    
-    CGSize sizeLastName = [[self.lblLastName.text uppercaseString] sizeWithFont:[hp getFontThin:23.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
-    [self.viewInfo addSubview:self.lblLastName];
-    
-    [self.lblLastName setFrame:CGRectMake(self.lblFirstName.bounds.size.width + 3, 0, sizeLastName.width, sizeLastName.height)];
-    
-    NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
-    [DateFormatter setDateFormat:@"LLLL d"];
-    NSString *strTime = [[DateFormatter stringFromDate:[NSDate date]] uppercaseString];
-    
-    self.lblLocationInfo = [[UILabel alloc] init];
-    [self.lblLocationInfo setBackgroundColor:[UIColor clearColor]];
-    [self.lblLocationInfo setTextColor:[UIColor whiteColor]];
-    [self.lblLocationInfo setTextAlignment:NSTextAlignmentLeft];
-    [self.lblLocationInfo setFont:[hp getFontThin:15.0f]];
-    [self.lblLocationInfo setText:[NSString stringWithFormat:@"%@ | HO CHI MINH CITY", strTime]];
-    
-    CGSize sizeLocationInfo = [[self.lblLocationInfo.text uppercaseString] sizeWithFont:[hp getFontThin:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
-    [self.lblLocationInfo setFrame:CGRectMake(0, self.lblFirstName.bounds.size.height, sizeLocationInfo.width, sizeLocationInfo.height)];
-    
-    [self.viewInfo addSubview:self.lblLocationInfo];
-    
-    CGFloat h = self.lblFirstName.bounds.size.height + self.lblLocationInfo.bounds.size.height;
-    CGFloat margin = (self._headPanel.bounds.size.height - h) / 2;
-    [self.viewInfo setFrame:CGRectMake(70, margin, self.bounds.size.width - 70, self.lblFirstName.bounds.size.height + self.lblLocationInfo.bounds.size.height)];
-    
-    [self._headPanel addSubview:self.viewInfo];
+- (void) followersTap:(UITapGestureRecognizer*)recognizer{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapFollowers" object:nil];
 }
 
+- (void) followingTap:(UITapGestureRecognizer*)recognizer{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapFollowing" object:nil];
+}
+
+- (void) postsTap:(UITapGestureRecognizer*)recognizer{
+    NSLog(@"tap posts");
+//    [_mScroll setContentOffset:CGPointMake(0, 0) animated:YES];
+    [_followInfo setTransform:CGAffineTransformMakeTranslation(0, 0)];
+//    [UIView animateWithDuration:0.2 animations:^{
+//        [_followInfo setFrame:CGRectMake(0, 0, _followInfo.bounds.size.width, _followInfo.bounds.size.height)];
+//    }];
+}
 @end

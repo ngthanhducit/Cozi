@@ -26,6 +26,19 @@
     return self;
 }
 
+- (void) drawTrianglePre{
+    CAShapeLayer *cusLayer=[CAShapeLayer layer];
+    UIBezierPath *p=[UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(0, CGRectGetMidY(self.bounds))];
+    [p setLineWidth:0.0f];
+    [p addLineToPoint:CGPointMake(CGRectGetMaxX(self.bounds), CGRectGetMinY(self.bounds))];
+    [p addLineToPoint:CGPointMake(CGRectGetMaxX(self.bounds), CGRectGetMaxY(self.bounds))];
+    [p addLineToPoint:CGPointMake(0, CGRectGetMidY(self.bounds))];
+    [p stroke];
+    cusLayer.path=p.CGPath;
+    self.layer.mask=cusLayer;
+}
+
 - (void) drawTriangleSignIn{
     
     CAShapeLayer *cusLayer=[CAShapeLayer layer];

@@ -13,6 +13,7 @@
 
 @synthesize user;
 @synthesize friends;
+@synthesize walls;
 @synthesize friendsRequest;
 @synthesize sendAmazon;
 @synthesize recent;
@@ -44,8 +45,11 @@
     helperIns = [Helper shareInstance];
     coziCoreDataIns = [CoziCoreData shareInstance];
     
+    self.isConnected = NO;
+    
     dataLocation = [[NSMutableData alloc] init];
-    self.walls = [NSMutableArray new];
+//    self.walls = [NSMutableArray new];
+    self.listHistoryPost = [NSMutableArray new];
     self.noises = [NSMutableArray new];
     self.listFollower = [NSMutableArray new];
     self.listFollowing = [NSMutableArray new];
@@ -56,11 +60,14 @@
     self.user = [[User alloc] init];
     self.friends = [[NSMutableArray alloc] init];
     self.friendsRequest = [[NSMutableArray alloc] init];
+    self.contactList = [NSMutableArray new];
     
     urlAssetsImage = [[NSMutableArray alloc] init];
     assetsThumbnail = [[NSMutableArray alloc] init];
     
     [self loadAssets];
+    
+    [self addressBookValidation];
     
     _longitude = [[NSUserDefaults standardUserDefaults] stringForKey:@"Longitude"];
     _latitude = [[NSUserDefaults standardUserDefaults] stringForKey:@"Latitude"];
@@ -134,16 +141,102 @@
     });
 }
 
-//- (NSInteger) getKeyMessage{
-//    return self.user.keySendMessenger;
-//}
-//
-//- (NSString*) incrementKeyMessage:(int)friendID{
-//    long long timeInterval = (long long)[[NSDate date] timeIntervalSince1970] * 1000.0;
-//    NSString *_key = [NSString stringWithFormat:@"%i%lld", self.user.userID, timeInterval];
-//    
-//    return _key;
-//}
+- (void) addressBookValidation{
+    NSUserDefaults *prefs=[NSUserDefaults standardUserDefaults];
+    ABAddressBookRef addressbook;
+    
+    //    __block BOOL accessGranted = NO;
+    addressbook = ABAddressBookCreateWithOptions(nil, nil);
+    ABAddressBookRequestAccessWithCompletion(addressbook, ^(bool granted, CFErrorRef error) {
+        if (granted) {
+            CFErrorRef error = nil;
+            ABAddressBookRef _addressBookRef = ABAddressBookCreateWithOptions(nil, &error);
+            
+            NSArray* allPeople = (__bridge NSArray *)ABAddressBookCopyArrayOfAllPeople(_addressBookRef);
+            
+            NSMutableArray* _allItems = [[NSMutableArray alloc] initWithCapacity:[allPeople count]]; // capacity is only a rough guess, but better than nothing
+            for (id record in allPeople) {
+                CFTypeRef phoneProperty = ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonPhoneProperty);
+                CFTypeRef lastName = ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonLastNameProperty);
+                NSString *strLastName = (__bridge NSString*)lastName;
+                NSString *strFirstName = (__bridge NSString*)ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonFirstNameProperty);
+                NSString *strMidleName = (__bridge NSString*)ABRecordCopyValue((__bridge ABRecordRef)record, kABPersonMiddleNameProperty);
+                
+                if (strMidleName == nil) {
+                    strMidleName = @"";
+                }
+                
+                if (strFirstName == nil) {
+                    strFirstName = @"";
+                }
+                
+                if (strLastName == nil) {
+                    strLastName = @"";
+                }
+                
+                NSArray *phones = (__bridge NSArray *)ABMultiValueCopyArrayOfAllValues(phoneProperty);
+                CFRelease(phoneProperty);
+                for (NSString *phone in phones) {
+                    NSString* compositeName = (__bridge NSString *)ABRecordCopyCompositeName((__bridge ABRecordRef)record);
+                    
+                    PersonContact *newPerson = [[PersonContact alloc] init];
+                    [newPerson setFirstName:strFirstName];
+                    [newPerson setLastName:strLastName];
+                    [newPerson setMidName:strMidleName];
+                    [newPerson setFullName:[NSString stringWithFormat:@"%@ %@ %@", strFirstName, strMidleName, strLastName]];
+                    [newPerson setPhone:phone];
+                    
+                    [self.contactList addObject:newPerson];
+                    
+                    NSString *field = [NSString stringWithFormat:@"%@: %@", compositeName, phone];
+                    [_allItems addObject:field];
+                }
+            }
+            
+            [prefs synchronize];
+            CFRelease(addressbook);
+            
+        }
+    });
+    
+    //    if (ABAddressBookRequestAccessWithCompletion != NULL)
+    //    {
+    //        if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined)
+    //        {
+    //            dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    //            ABAddressBookRequestAccessWithCompletion(addressbook, ^(bool granted, CFErrorRef error)
+    //                                                     {
+    //                                                         accessGranted = granted;
+    //                                                         dispatch_semaphore_signal(sema);
+    //                                                     });
+    //            dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    //        }
+    //        else if(ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized)
+    //        {
+    //            accessGranted = YES;
+    //        }
+    //        else if (ABAddressBookGetAuthorizationStatus()==kABAuthorizationStatusDenied)
+    //        {
+    //            accessGranted = NO;
+    //        }
+    //        else if (ABAddressBookGetAuthorizationStatus()==kABAuthorizationStatusRestricted){
+    //            accessGranted = NO;
+    //        }
+    //        else
+    //        {
+    //            accessGranted = YES;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        accessGranted = YES;
+    //    }
+    //    
+    //    if (accessGranted) {
+    //        
+    //        
+    //    }
+}
 
 - (NSString*) randomKeyMessenger{
     
@@ -423,7 +516,7 @@
 #pragma mark- Follower Core Data
 
 - (BOOL) addNewFollower:(FollowerUser*)_follower{
-    BOOL isExists = [coziCoreDataIns isExistsFollower:_follower.userID];
+    BOOL isExists = [coziCoreDataIns isExistsFollower:_follower.userID withParentID:_follower.parentUserID];
     if (!isExists) {
         return [coziCoreDataIns saveFollower:_follower];
     }
@@ -443,6 +536,7 @@
             [_newFollower setFirstName:[_follower valueForKey:@"first_name"]];
             [_newFollower setLastName:[_follower valueForKey:@"last_name"]];
             [_newFollower setUrlAvatar:[_follower valueForKey:@"url_avatar"]];
+            [_newFollower setUrlAvatarFull:[_follower valueForKey:@"url_avatar_full"]];
             
             [self.listFollower addObject:_newFollower];
         }
@@ -450,8 +544,8 @@
 
 }
 
-- (BOOL) checkFollowerExists:(int)_userID{
-    return [coziCoreDataIns isExistsFollower:_userID];
+- (BOOL) checkFollowerExists:(int)_userID withParentID:(int)_parentID{
+    return [coziCoreDataIns isExistsFollower:_userID withParentID:_parentID];
 }
 
 #pragma -makr Process Data in sqlite
@@ -488,7 +582,7 @@
                 int countMessenger = (int)[_friend.friendMessage count];
                 for (int j = 0; j < countMessenger; j++) {
                     Messenger *_messenger = [_friend.friendMessage objectAtIndex:j];
-                    BOOL _isExistsMessenger = [coziCoreDataIns isExistsMessenger:(int)_messenger.keySendMessage];
+                    BOOL _isExistsMessenger = [coziCoreDataIns isExistsMessenger:_messenger.keySendMessage];
                     if (_isExistsMessenger) {
                         //Update Messenger
                     }else{
@@ -519,16 +613,18 @@
         [self.user setUrlAvatar:[_user valueForKey:@"url_avatar"]];
         [self.user setKeySendMessenger:[[_user valueForKey:@"key_send_messenger"] integerValue]];
         
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-            
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            
-            [self.user setAvatar:image];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
-            });
-            
-        }];
+        if (![self.user.urlAvatar isEqualToString:@""]) {
+            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                
+            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                
+                if (image && finished) {
+                    [self.user setAvatar:image];
+                }
+                
+            }];
+
+        }
         
         [self.user setUrlThumbnail:[_user valueForKey:@"url_thumbnail"]];
         
@@ -548,7 +644,7 @@
     NSMutableArray *_friendsDB = [coziCoreDataIns getFriendsWithUserID:_userID];
     if (_friendsDB != nil) {
         int count = (int)[_friendsDB count];
-        UIImage *imgEmptyAvatar = [helperIns getImageFromSVGName:@"emptyAvatar.svg"];
+        UIImage *imgEmptyAvatar = [helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
         for (int i = 0; i < count; i++) {
             NSManagedObject *_friend = (NSManagedObject*)[_friendsDB objectAtIndex:i];
             Friend *_newFriend = [Friend new];
@@ -565,6 +661,8 @@
             [_newFriend setUrlAvatar:[_friend valueForKey:@"url_avatar"]];
             [_newFriend setUrlThumbnail:[_friend valueForKey:@"url_thumbnail"]];
             [_newFriend setPhoneNumber:[_friend valueForKey:@"phone_number"]];
+            [_newFriend setStatusAddFriend:[[_friend valueForKey:@"status_add_friend"] intValue]];
+            [_newFriend setUserName:[_friend valueForKey:@"user_name"]];
 
             if (![_newFriend.urlThumbnail isEqualToString:@""]) {
                 
@@ -572,7 +670,7 @@
                     
                 } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                     
-                    if (finished) {
+                    if (image && finished) {
                         _newFriend.thumbnail = image;
                     }
                     
@@ -1042,8 +1140,10 @@
 //                NSLog(@"%@", error.debugDescription);
 //            }
 //            
-//            [locationManager stopUpdatingLocation];
+
 //        }];
+        
+        [locationManager stopUpdatingLocation];
     }
 }
 
@@ -1137,6 +1237,40 @@
     return _url;
 }
 
+- (void) getPostHistory:(int)_userPostID{
+    NSMutableArray *result = [coziCoreDataIns getPostsByUserID:_userPostID];
+    if (result) {
+        int count = (int)[result count];
+        for (int i = 0; i < count; i++) {
+            NSManagedObject *_post = [result objectAtIndex:i];
+            DataWall *_newPost = [DataWall new];
+            [_newPost setUserPostID:[[_post valueForKey:@"user_post_id"] intValue]];
+            [_newPost setClientKey:[_post valueForKey:@"client_key"]];
+            [_newPost setCodeType:[[_post valueForKey:@"code_type"] intValue]];
+            [_newPost setContent:[_post valueForKey:@"content_post"]];
+            [_newPost setFirstName:[_post valueForKey:@"first_name"]];
+            [_newPost setIsLike:[[_post valueForKey:@"is_like"] boolValue]];
+            [_newPost setLastName:[_post valueForKey:@"last_name"]];
+            NSString *location = [_post valueForKey:@"location"];
+            NSArray *subLocation = [location componentsSeparatedByString:@"|"];
+            if ([subLocation count] == 2) {
+                _newPost.longitude = [subLocation objectAtIndex:0];
+                _newPost.latitude = [subLocation objectAtIndex:1];
+            }
+
+            [_newPost setTimeLike:[_post valueForKey:@"time_like"]];
+            [_newPost setTime:[_post valueForKey:@"time_post"]];
+            [_newPost setUrlAvatarFull:[_post valueForKey:@"url_avatar_full"]];
+            [_newPost setUrlAvatarThumb:[_post valueForKey:@"url_avatar_thumb"]];
+            [_newPost setUrlFull:[_post valueForKey:@"url_image_full"]];
+            [_newPost setUrlThumb:[_post valueForKey:@"url_image_thumb"]];
+            [_newPost setVideo:[_post valueForKey:@"url_video"]];
+
+            [self.listHistoryPost insertObject:_newPost atIndex:0];
+        }
+    }
+}
+
 - (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID{
     DataWall *result = nil;
     if (self.walls != nil) {
@@ -1169,6 +1303,8 @@
         
         if (!isExits) {
             [self.walls insertObject:_dataWall atIndex:0];
+            //insert to coredata
+            [coziCoreDataIns savePosts:_dataWall];
         }
     }
 }
@@ -1230,9 +1366,146 @@
                 [[self.walls objectAtIndex:i] setLastName:_wall.lastName];
                 [[self.walls objectAtIndex:i] setComments:_wall.comments];
                 [[self.walls objectAtIndex:i] setLikes:_wall.likes];
-                [[self.walls objectAtIndex:i] setTypePost:_wall.typePost];
+//                [[self.walls objectAtIndex:i] setTypePost:_wall.codeType];
                 [[self.walls objectAtIndex:i] setIsLike:_wall.isLike];
                 [[self.walls objectAtIndex:i] setTimeLike:_wall.timeLike];
+                
+                break;
+                
+            }
+        }
+    }
+}
+
+- (void) updateNoise:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall{
+    if (self.noises != nil) {
+        int count = (int)[self.noises count];
+        for (int i = 0; i < count; i++) {
+            if ([[[self.noises objectAtIndex:i] clientKey] isEqualToString:_clientKey] && [[self.noises objectAtIndex:i] userPostID] == _userPostID) {
+                
+                [[self.noises objectAtIndex:i] setUserPostID:_wall.userPostID];
+                [[self.noises objectAtIndex:i] setContent:_wall.content];
+                [[self.noises objectAtIndex:i] setImages:_wall.images];
+                [[self.noises objectAtIndex:i] setVideo:_wall.video];
+                [[self.noises objectAtIndex:i] setLongitude:_wall.longitude];
+                [[self.noises objectAtIndex:i] setLatitude:_wall.latitude];
+                [[self.noises objectAtIndex:i] setTime:_wall.time];
+                [[self.noises objectAtIndex:i] setClientKey:_wall.clientKey];
+                [[self.noises objectAtIndex:i] setFirstName:_wall.firstName];
+                [[self.noises objectAtIndex:i] setLastName:_wall.lastName];
+                [[self.noises objectAtIndex:i] setComments:_wall.comments];
+                [[self.noises objectAtIndex:i] setLikes:_wall.likes];
+//                [[self.noises objectAtIndex:i] setTypePost:_wall.codeType];
+                [[self.noises objectAtIndex:i] setIsLike:_wall.isLike];
+                [[self.noises objectAtIndex:i] setTimeLike:_wall.timeLike];
+                
+                break;
+                
+            }
+        }
+    }
+}
+
+- (BOOL) isFollowing:(int)_userID{
+
+    if (self.listFollowing) {
+        int count = (int)[self.listFollowing count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.listFollowing objectAtIndex:i] userID] == _userID) {
+                
+                
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
+- (BOOL) isFollower:(int)_userID{
+    
+    if (self.listFollower) {
+        int count = (int)[self.listFollower count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.listFollower objectAtIndex:i] userID] == _userID) {
+                
+                
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
+- (BOOL) isFriend:(int)_userID{
+    if (self.friends) {
+        int count = (int)[self.friends count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.friends objectAtIndex:i] friendID] == _userID) {
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
+- (void) loadFriendRequest:(int)_userID{
+    NSMutableArray *_friendRequest = [coziCoreDataIns getFriendRequestWithUserID:_userID];
+    if (_friendRequest) {
+        int count = (int)[_friendRequest count];
+        for (int i = 0; i < count; i++) {
+            NSManagedObject *_friend = (NSManagedObject*)[_friendRequest objectAtIndex:i];
+            UserSearch *_request = [UserSearch new];
+            [_request setUserID:[[_friend valueForKey:@"user_id"] intValue]];
+            [_request setFriendID:[[_friend valueForKey:@"friend_request_id"] intValue]];
+            [_request setNickName:[_friend valueForKey:@"nick_name"]];
+            [_request setFirstName:@""];
+            [_request setLastName:@""];
+            [_request setUrlAvatar:[_friend valueForKey:@"url_thumbnail"]];
+            [_request setUrlAvatarFull:[_friend valueForKey:@"url_avatar"]];
+            [_request setUserName:[_friend valueForKey:@"user_name"]];
+            
+            [self.friendsRequest addObject:_request];
+        }
+    }
+}
+
+- (void) removeFriendRequest:(int)_friendRequestID{
+    if (self.friendsRequest) {
+        int count = (int)[self.friendsRequest count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.friendsRequest objectAtIndex:i] friendID] == _friendRequestID) {
+                [self.friendsRequest removeObjectAtIndex:i];
+                
+                break;
+            }
+        }
+    }
+}
+
+- (void) progressResultAddFriend:(int)_friendID withIsAllow:(BOOL)_isAllow{
+    if (self.friends) {
+        int count = (int)[self.friends count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.friends objectAtIndex:i] friendID] == _friendID) {
+                
+                if ([[self.friends objectAtIndex:i] statusAddFriend] == 1) { //check Status add friend in request
+                    
+                    if (_isAllow) {
+                        [[self.friends objectAtIndex:i] setStatusAddFriend:0];
+                        
+                        [coziCoreDataIns updateFriend:[self.friends objectAtIndex:i]];
+                    }
+                    
+                    if (!_isAllow) {
+                        [coziCoreDataIns deleteFriend:_friendID withUserID:self.user.userID];
+                        
+                        [self.friends removeObjectAtIndex:i];
+                    }
+                    
+                }
                 
                 break;
                 

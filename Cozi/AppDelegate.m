@@ -22,11 +22,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     [Store shareInstance];
-//    [application setApplicationIconBadgeNumber:0];
-//    [self reloadDeviceToken];
+    [application setApplicationIconBadgeNumber:0];
+    [self reloadDeviceToken];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
     
     viewController  = [[ViewController alloc] initWithNibName:nil bundle:nil];
     self.naviController = [[UINavigationController alloc] initWithRootViewController:viewController];

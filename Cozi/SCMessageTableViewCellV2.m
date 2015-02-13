@@ -37,11 +37,21 @@
         helperIns = [Helper shareInstance];
         self.selectionStyle = UITableViewCellAccessoryNone;
         
+        self.vMainShadow = [[UIView alloc] initWithFrame:CGRectZero];
+        self.vMainShadow.layer.shadowColor = [UIColor lightGrayColor].CGColor;
+        self.vMainShadow.layer.shadowOffset = CGSizeMake(1, 1);
+        self.vMainShadow.layer.shadowOpacity = 1;
+        self.vMainShadow.layer.shadowRadius = 1.0;
+        [self.contentView addSubview:self.vMainShadow];
+        
         self.viewMain = [[UIView alloc] initWithFrame:CGRectZero];
-        self.viewMain.layer.shadowColor = [UIColor lightGrayColor].CGColor;
-        self.viewMain.layer.shadowOffset = CGSizeMake(1, 1);
-        self.viewMain.layer.shadowOpacity = 1;
-        self.viewMain.layer.shadowRadius = 1.0;
+//        self.viewMain.layer.shadowColor = [UIColor lightGrayColor].CGColor;
+//        self.viewMain.layer.shadowOffset = CGSizeMake(1, 1);
+//        self.viewMain.layer.shadowOpacity = 1;
+//        self.viewMain.layer.shadowRadius = 1.0;
+        
+        [self.viewMain.layer setMasksToBounds:YES];
+        self.viewMain.layer.cornerRadius = 3.0f;
         [self.contentView addSubview:self.viewMain];
         
         self.vTriangle = [[TriangleView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
@@ -55,15 +65,16 @@
         [self.contentView addSubview:self.blackTriangle];
         
         self.lblTime = [[UILabel alloc] initWithFrame:CGRectZero];
-        [self.lblTime setFont:[helperIns getFontLight:8]];
+        [self.lblTime setFont:[helperIns getFontLight:9]];
         [self.lblTime setTextAlignment:NSTextAlignmentLeft];
         [self.viewMain addSubview:self.lblTime];
         
         self.txtMessageContent = [[UITextView alloc] init];
         [self.txtMessageContent setBackgroundColor:[UIColor clearColor]];
-        [self.txtMessageContent setFont:[helperIns getFontLight:15]];
+        [self.txtMessageContent setFont:[helperIns getFontLight:16.0f]];
         [self.txtMessageContent setTextAlignment:NSTextAlignmentLeft];
         [self.txtMessageContent setEditable:NO];
+        [self.txtMessageContent setContentInset:UIEdgeInsetsMake(4, 0, 0, 0)];
         [self.txtMessageContent setScrollEnabled:NO];
         [self.txtMessageContent sizeToFit];
         [self.txtMessageContent setTextContainerInset:UIEdgeInsetsMake(-4, -4, 0, 0)];
@@ -72,7 +83,7 @@
         [self.viewMain addSubview:self.txtMessageContent];
         
         self.imgStatusMessage = [[UIImageView alloc] initWithFrame:CGRectZero];
-        [self.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey.svg"]];
+        [self.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
         [self.viewMain addSubview:self.imgStatusMessage];
         
         self.smsImage = [[UIImageView alloc] initWithFrame:CGRectZero];
@@ -98,12 +109,12 @@
         
         self.lblTimeMessengerImage = [[UILabel alloc] initWithFrame:CGRectZero];
         [self.lblTimeMessengerImage setTextAlignment:NSTextAlignmentLeft];
-        [self.lblTimeMessengerImage setFont:[helperIns getFontLight:11.0f]];
+        [self.lblTimeMessengerImage setFont:[helperIns getFontLight:9.0f]];
         [self.lblTimeMessengerImage setTextColor:[UIColor lightGrayColor]];
         [self.contentView addSubview:self.lblTimeMessengerImage];
         
         self.imgStatusMessengerImage = [[UIImageView alloc] initWithFrame:CGRectZero];
-        [self.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey.svg"]];
+        [self.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
         [self.contentView addSubview:self.imgStatusMessengerImage];
         
         self.viewImage = [[UIView alloc] initWithFrame:CGRectMake(0, 0, wViewMessenger - 5, 160)];

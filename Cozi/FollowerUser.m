@@ -15,6 +15,7 @@
 @synthesize firstName;
 @synthesize lastName;
 @synthesize urlAvatar;
+@synthesize urlAvatarFull;
 @synthesize statusFollow;
 
 @end

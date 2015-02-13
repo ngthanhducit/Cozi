@@ -17,5 +17,7 @@
 @synthesize contentComment;
 @synthesize urlImageComment;
 @synthesize commentLikes;
+@synthesize commentClientKey;
+@synthesize postClientKey;
 
 @end

@@ -40,8 +40,10 @@
     UIImage             *dImageMoreComment;
     UIImage             *dIconLike;
     UIImage             *dIconComment;
+
 }
 
+@property (nonatomic, strong) UIActivityIndicatorView         *imgWaiting;
 @property (nonatomic, strong ) UIView                  *mainView;
 @property (nonatomic, strong ) UIView                  *vImages;
 @property (nonatomic, strong ) UIView                  *vLike;
@@ -57,7 +59,7 @@
 
 @property (nonatomic, strong ) UIButton                *btnLike;
 @property (nonatomic, strong ) UIButton                *btnComment;
-
+@property (nonatomic, strong)  UIImageView             *iconViewAllComment;
 @property (nonatomic, strong ) UIImageView             *imgView;
 @property (nonatomic, strong ) UIButton                *btnMore;
 @property (nonatomic, strong ) UIImageView             *imgQuotes;

@@ -57,8 +57,8 @@
         searchField.leftView  = nil;
     }
     
-    [self setBackgroundColor:[UIColor blackColor]];
-    [self setBarTintColor:[UIColor blackColor]];
+//    [self setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
+//    [self setBarTintColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
 
     [super layoutSubviews];
 }

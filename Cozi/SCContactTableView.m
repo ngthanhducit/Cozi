@@ -111,13 +111,16 @@
         cell = [[SCContactTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-//    [cell setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
-    [cell setBackgroundColor:[UIColor lightGrayColor]];
+    [cell setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1]];
+//    [cell setBackgroundColor:[UIColor lightGrayColor]];
     
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
     __weak Friend *_friend = [sectionContacts objectAtIndex:indexPath.row];
 
+    if (_friend.statusAddFriend == 1) {
+        [cell setBackgroundColor:[UIColor orangeColor]];
+    }
 //    if (_friend.statusFriend == 0) {
 //        [cell.iconContact setImage:_friend.thumbnailOffline];
 //    }else{
@@ -127,7 +130,8 @@
     if (![_friend.urlThumbnail isEqualToString:@""]) {
         [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail]];
     }else{
-        
+//        [cell.iconContact setImage:_friend.thumbnail];
+        [cell.iconContact setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     }
 
     [cell.lblFullName setText:_friend.nickName];
@@ -147,7 +151,7 @@
 
 -(void) generateSectionTitles {
     
-    NSArray *alphaArray = [NSArray arrayWithObjects:@"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H", @"I", @"J", @"K", @"L", @"M", @"N", @"O", @"P", @"Q", @"R", @"S", @"T", @"U", @"V", @"W", @"X", @"Y", @"Z", nil];
+    NSArray *alphaArray = [NSArray arrayWithObjects:@"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H", @"I", @"J", @"K", @"L", @"M", @"N", @"O", @"P", @"Q", @"R", @"S", @"T", @"U", @"V", @"W", @"X", @"Y", @"Z", @"0", @"1", @"2", @"3", @"4", @"5", @"6", @"7", @"8", @"9", nil];
     
     contactIndex = [[NSMutableArray alloc] init];
     
@@ -188,9 +192,9 @@
         [cell.imgViewCheck setHidden:NO];
         [cell.lblFullName setTextColor:[UIColor whiteColor]];
     }else{
-        [self setCellColor:[UIColor lightGrayColor] ForCell:cell];
+        [self setCellColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f] ForCell:cell];
         [cell.imgViewCheck setHidden:YES];
-        [cell.lblFullName setTextColor:[UIColor purpleColor]];
+        [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
     }
     
     NSString *key = @"countSelect";
@@ -241,9 +245,10 @@
         int count = (int)[selectCell count];
         for (int i = 0; i < count; i++) {
             SCContactTableViewCell *cell = (SCContactTableViewCell*)[selectCell objectAtIndex:i];
-            [self setCellColor:[UIColor lightGrayColor] ForCell:cell];
+            
+            [self setCellColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f] ForCell:cell];
             [cell.imgViewCheck setHidden:YES];
-            [cell.lblFullName setTextColor:[UIColor purpleColor]];
+            [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
         }
     }
     

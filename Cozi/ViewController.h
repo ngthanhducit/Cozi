@@ -9,8 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import <AudioToolbox/AudioToolbox.h>
-#import <AddressBook/ABPerson.h>
-#import <AddressBook/AddressBook.h>
 #import <AVFoundation/AVFoundation.h>
 #import "SVGKImage.h"
 #import "LoginPage.h"
@@ -20,7 +18,6 @@
 #import "NetworkCommunication.h"
 #import "MainPageV6.h"
 #import "ChatView.h"
-#import "PersonContact.h"
 #import "HPGrowingTextView.h"
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
@@ -45,8 +42,12 @@
 #import "SCFriendProfileViewController.h"
 #import "SCSinglePostViewController.h"
 #import "SCCommentViewController.h"
+#import "SCLikeViewController.h"
+#import "SCLoginPageV3.h"
+#import "SCSearchFriendViewController.h"
+#import "SCFriendRequestViewController.h"
 
-@interface ViewController : UIViewController <UIScrollViewDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate>
+@interface ViewController : UIViewController <UIScrollViewDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate, UISearchBarDelegate>
 {
     BOOL                                        isEndScroll;
     BOOL                                        isValidCondition;
@@ -73,7 +74,7 @@
     CGPoint                                     beginScroll;
     
     UIPanGestureRecognizer *panGestureRecognizer;
-    LoginPage                   *_loginPage;
+    LoginPage                                   *_loginPage;
     BOOL                                        isEnterBackground;
     BOOL    isBecomeActive;
     BOOL        isActiveFromBackground;
@@ -126,7 +127,9 @@
     CGPoint                                     preLocation;
     CGPoint                                     preTouchLocation;
     
+    UIImageView                         *imgMyInfo;
     SCSearchBar                         *searchRightMenu;
+    UIButton                        *btnSearchFriend;
     
     CGFloat                     widthMenu;
     CGFloat                     deltaLeft;
@@ -144,6 +147,10 @@
     
     CGFloat                     alphatView;
     NetworkController           *netController;
+    
+    UIActivityIndicatorView     *waitingReconnect;
+    UIActivityIndicatorView     *waitingWall;
+    UIActivityIndicatorView     *waitingNoise;
 }
 
 @property (nonatomic, strong) UILabel              *lblNickName;
@@ -155,6 +162,7 @@
 @property (nonatomic        ) NetworkCommunication *networkIns;
 
 @property (nonatomic, strong) LoginPage            *loginPage;
+@property (nonatomic, strong) SCLoginPageV3            *loginPageV3;
 @property (nonatomic, strong) SCWallTableViewV2       *wallPageV8;
 @property (nonatomic, strong) NoisesPage               *noisePageV6;
 @property (nonatomic, strong) ChatView             *chatViewPage;

@@ -18,6 +18,7 @@
 
 @property (nonatomic, strong) TriangleView                    *vTriangle;
 @property (nonatomic, strong) TriangleView              *blackTriangle;
+@property (nonatomic, strong) UIView                    *vMainShadow;
 @property (nonatomic, strong) UIView                    *viewMain;
 @property (nonatomic, strong) UIView                    *viewImage;
 @property (nonatomic, strong) UIView                    *vMessengerImageShadow;

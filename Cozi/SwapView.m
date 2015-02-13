@@ -46,6 +46,14 @@
     self._headPanel=[[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, _headerH)];
     self._headPanel.backgroundColor=[hp colorWithHex:[hp getHexIntColorWithKey:@"GrayColor"]];
     [self addSubview:self._headPanel];
+    
+    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self._headPanel.bounds.size.width, self._headPanel.bounds.size.height)];
+    [self.lblNickName setText:@"NICK NAME"];
+    [self.lblNickName setTextAlignment:NSTextAlignmentCenter];
+    [self.lblNickName setTextColor:[UIColor whiteColor]];
+    [self.lblNickName setFont:[hp getFontLight:18.0f]];
+    [self._headPanel addSubview:self.lblNickName];
+
 }
 
 - (void) initBackView{
