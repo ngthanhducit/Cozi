@@ -35,40 +35,28 @@
     storeIns = [Store shareInstance];
     networkControllerIns = [NetworkController shareInstance];
     
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setAmazoneUpload:) name:@"setAmazoneUpload" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultUpload:) name:@"setResultUpload" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultAddWall:) name:@"setResultAddWall" object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setAmazoneUpload:) name:@"setAmazoneUpload" object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultUpload:) name:@"setResultUpload" object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultAddWall:) name:@"setResultAddWall" object:nil];
+}
+
+- (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.lblTitle setText:@"POST TO WALL"];
+    [networkControllerIns addListener:self];
+}
+
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [networkControllerIns removeListener:self];
 }
 
 - (void) setupUI{
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    
-//    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-//    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-//    [self.view addSubview:self.vHeader];
-//    
-//    UILabel *lblPhotoDetails = [[UILabel alloc] initWithFrame:CGRectMake(hHeader, 0, self.view.bounds.size.width - (hHeader * 2), hHeader)];
-//    [lblPhotoDetails setText:@"PHOTO DETAILS"];
-//    [lblPhotoDetails setFont:[helperIns getFontLight:18.0f]];
-//    [lblPhotoDetails setTextColor:[UIColor whiteColor]];
-//    [lblPhotoDetails setTextAlignment:NSTextAlignmentCenter];
-//    [self.vHeader addSubview:lblPhotoDetails];
-//    
-//    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-//    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-//    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-//    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-//    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-//    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
-//    [self.btnClose addTarget:self action:@selector(btnCloseClick) forControlEvents:UIControlEventTouchUpInside];
-//    [self.vHeader addSubview:self.btnClose];
     
     self.imgPost = [[UIImageView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, (self.view.bounds.size.height / 3))];
     
@@ -130,7 +118,6 @@
 
 - (void) initAddFB{
     self.vAddFacebook = [[UIView alloc] initWithFrame:CGRectMake(0, imgQuotes.bounds.size.height + 30 + self.txtCaption.bounds.size.height, self.view.bounds.size.width, 60)];
-//    [self.vAddFacebook setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.vAddFacebook setBackgroundColor:[UIColor grayColor]];
     [self.vCaption addSubview:self.vAddFacebook];
     
@@ -161,10 +148,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-//- (void) btnCloseClick{
-//    [self.navigationController popToRootViewControllerAnimated:YES];
-//}
-
 - (void) setImagePost:(UIImage*)_imagePost{
     [self.imgPost setImage:_imagePost];
 }
@@ -180,6 +163,7 @@
         [imgSelectFB setHidden:NO];
         isSelectFB = YES;
     }
+    
 }
 
 #pragma -mark keyboardDelegate
@@ -188,14 +172,9 @@
     NSDictionary *userInfo = [notification userInfo];
     CGSize kbSize = [[userInfo objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
     NSLog(@"heigth keyboard: %f", kbSize.height);
-    //CGRect frame = self.vCaption.frame;
-    
-    //CGFloat keyboardPos = self.view.bounds.size.height - kbSize.height;
     
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-//        [self.vCaption setFrame:CGRectMake(0, posI, self.vCaption.bounds.size.width, self.vCaption.bounds.size.height)];
-//        [self.vAddFacebook setFrame:CGRectMake(0, self.btnPostPhoto.frame.origin.y - (self.vAddFacebook.bounds.size.height), self.vAddFacebook.bounds.size.width, self.vAddFacebook.bounds.size.height)];
-        
+
         [self.vAddFacebook setFrame:CGRectMake(0, self.vCaption.bounds.size.height, self.vAddFacebook.bounds.size.width, self.vAddFacebook.bounds.size.height)];
         [self.btnPostPhoto setFrame:CGRectMake(0, self.vCaption.bounds.size.height, self.btnPostPhoto.bounds.size.width, self.btnPostPhoto.bounds.size.height)];
     } completion:^(BOOL finished) {
@@ -212,12 +191,11 @@
     frameSendView.origin.y += kbSize.height;
     
     [UIView animateWithDuration:0.0 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-//        [self.vCaption setFrame:CGRectMake(0, (self.view.bounds.size.height / 3) + (hHeader - 10), self.vCaption.bounds.size.width, self.vCaption.bounds.size.height)];
-//        [self.vAddFacebook setFrame:CGRectMake(0, imgQuotes.bounds.size.height + 30 + self.txtCaption.bounds.size.height, self.view.bounds.size.width, 60)];
-        
+
         [self.vAddFacebook setFrame:CGRectMake(0, imgQuotes.bounds.size.height + 30 + self.txtCaption.bounds.size.height, self.view.bounds.size.width, 60)];
         CGFloat temp = self.vCaption.bounds.size.height - 100;
         [self.btnPostPhoto setFrame:CGRectMake(0, temp, self.btnPostPhoto.bounds.size.width, 100)];
+        
     } completion:^(BOOL finished) {
         
     }];
@@ -229,7 +207,7 @@
 }
 
 - (void) keyboarddidBeHidden:(NSNotification *)notification{
-    NSLog(@"did hidden");
+
 }
 
 - (void)growingTextView:(HPGrowingTextView *)growingTextView willChangeHeight:(float)height{
@@ -248,10 +226,6 @@
 
 - (void) btnPostPhoto:(id)sender{
     if (self.imgPost.image != nil && ![self.txtCaption.text isEqualToString:@""]) {
-//        vLoading = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
-//        [vLoading setBackgroundColor:[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:0.5]];
-//        [self.view addSubview:vLoading];
-        
         vLoading = [[SCWaitingView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
         [self.view addSubview:vLoading];
         
@@ -259,32 +233,115 @@
     }
 }
 
-- (void) setAmazoneUpload:(NSNotification*)notification{
-    NSDictionary *userInfo = [notification userInfo];
-    amazonInfomation = (AmazonInfoPost*)[userInfo objectForKey:@"GETUPLOADPOSTURL"];
-    AmazonInfo *thumb = [AmazonInfo new];
-    thumb.key = amazonInfomation.keyThumb;
-    thumb.policy = amazonInfomation.policyThumb;
-    thumb.signature = amazonInfomation.signatureThumb;
-    thumb.accessKey = amazonInfomation.accessKeyThumb;
-    thumb.url = amazonInfomation.url;
+- (void) setResult:(NSString *)_strResult{
+    _strResult = [_strResult stringByReplacingOccurrencesOfString:@"<EOF>" withString:@""];
     
-    AmazonInfo *full = [AmazonInfo new];
-    full.key = amazonInfomation.key;
-    full.policy = amazonInfomation.policy;
-    full.signature = amazonInfomation.signature;
-    full.accessKey = amazonInfomation.accessKey;
-    full.url = amazonInfomation.url;
-    
-    UIImage *imgThumb = [helperIns resizeImage:imgPost.image resizeSize:CGSizeMake(160, 160)];
-    UIImage *imgFull = [helperIns resizeImage:imgPost.image resizeSize:CGSizeMake(640, 640)];
-    NSData *compressImage = [helperIns compressionImage:imgFull];
-    NSData *compressThumb = [helperIns compressionImage:imgThumb];
-    
-    int code = [self uploadAvatarAmazon:full withImage:compressImage];
-    int codeThumb = [self uploadAvatarAmazon:thumb withImage:compressThumb];
-    
-    [networkControllerIns resultUploadImagePost:code withCodeThumb:codeThumb];
+    NSArray *subData = [_strResult componentsSeparatedByString:@"{"];
+    if ([subData count] == 2) {
+        /* @code: get Url upload amazon */
+        if ([[subData objectAtIndex:0] isEqualToString:@"GETUPLOADPOSTURL"]) {
+//            NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
+            DataMap *dm = [DataMap shareInstance];
+            
+            amazonInfomation = [dm mapAmazonUploadPost:[subData objectAtIndex:1]];
+            
+            AmazonInfo *thumb = [AmazonInfo new];
+            thumb.key = amazonInfomation.keyThumb;
+            thumb.policy = amazonInfomation.policyThumb;
+            thumb.signature = amazonInfomation.signatureThumb;
+            thumb.accessKey = amazonInfomation.accessKeyThumb;
+            thumb.url = amazonInfomation.url;
+            
+            AmazonInfo *full = [AmazonInfo new];
+            full.key = amazonInfomation.key;
+            full.policy = amazonInfomation.policy;
+            full.signature = amazonInfomation.signature;
+            full.accessKey = amazonInfomation.accessKey;
+            full.url = amazonInfomation.url;
+            
+            UIImage *imgThumb = [helperIns resizeImage:imgPost.image resizeSize:CGSizeMake(160, 160)];
+            UIImage *imgFull = [helperIns resizeImage:imgPost.image resizeSize:CGSizeMake(640, 640)];
+            NSData *compressImage = [helperIns compressionImage:imgFull];
+            NSData *compressThumb = [helperIns compressionImage:imgThumb];
+            
+            int code = [self uploadAvatarAmazon:full withImage:compressImage];
+            int codeThumb = [self uploadAvatarAmazon:thumb withImage:compressThumb];
+            
+            [networkControllerIns resultUploadImagePost:code withCodeThumb:codeThumb];
+        }
+
+        if ([[subData objectAtIndex:0] isEqualToString:@"RESULTUPLOADPOSTIMAGE"]) {
+            
+            NSArray *subResult = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
+            if ([subResult count] == 2) {
+                if ([[subResult objectAtIndex:0] intValue] == 0 && [[subResult objectAtIndex:1] intValue] == 0) {
+                    //add to wall
+                    NSString *contentEncode = [helperIns encodedBase64:[self.txtCaption.text dataUsingEncoding:NSUTF8StringEncoding]];
+                    NSString *imageEncode = [helperIns encodedBase64:[amazonInfomation.key dataUsingEncoding:NSUTF8StringEncoding]];
+                    _clientKeyID = [storeIns randomKeyMessenger];
+                    NSString *imgThumbEncode = [helperIns encodedBase64:[amazonInfomation.keyThumb dataUsingEncoding:NSUTF8StringEncoding]];
+                    
+                    NSString *tempClientKey = [helperIns encodedBase64:[_clientKeyID dataUsingEncoding:NSUTF8StringEncoding]];
+                    
+                    [networkControllerIns addPost:contentEncode withImage:imageEncode withImageThumb:imgThumbEncode withVideo:@"" withLocation:@"" withClientKey:tempClientKey withCode:1];
+                }else{
+                    //Error
+                    //Error upload phot try again and up wall
+                    [vLoading removeFromSuperview];
+                }
+            }else{
+                //Error
+                //Error upload phot try again and up wall
+                [vLoading removeFromSuperview];
+            }
+        }
+        
+        if ([[subData objectAtIndex:0] isEqualToString:@"ADDPOST"]) {
+            
+            NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
+            if ([subCommand count] == 2) {
+                NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
+                if (key > 0) {
+                    
+                    DataWall *_newWall = [DataWall new];
+                    _newWall.userPostID = storeIns.user.userID;
+                    _newWall.content = self.txtCaption.text;
+                    _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+                    _newWall.firstName = storeIns.user.firstname;
+                    _newWall.lastName = storeIns.user.lastName;
+                    _newWall.urlFull = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.key];
+                    _newWall.urlThumb = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.keyThumb];
+                    _newWall.urlAvatarThumb = storeIns.user.urlThumbnail;
+                    _newWall.urlAvatarFull = storeIns.user.urlAvatar;
+                    _newWall.video = @"";
+                    _newWall.longitude = @"0";
+                    _newWall.latitude = @"0";
+                    _newWall.time = [subCommand objectAtIndex:0];
+                    _newWall.codeType = 1;
+                    _newWall.clientKey = _clientKeyID;
+                    _newWall.comments = [NSMutableArray new];
+                    _newWall.likes = [NSMutableArray new];
+                    
+                    [storeIns insertWallData:_newWall];
+                    [storeIns insertNoisesData:_newWall];
+                    
+                    [storeIns.listHistoryPost addObject:_newWall];
+                    
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
+                    
+                }else{
+                    //Error add post
+                }
+            }
+            
+            [vLoading removeFromSuperview];
+            
+            [self dismissViewControllerAnimated:YES completion:^{
+                
+            }];
+        }
+        
+    }
 }
 
 - (int) uploadAvatarAmazon:(AmazonInfo *)info withImage:(NSData *)imgData{
@@ -357,81 +414,6 @@
     int code = (int)[response statusCode];
     
     return code;
-}
-
-- (void) setResultUpload:(NSNotification*)notification{
-    NSDictionary *userInfo = [notification userInfo];
-//    NSNumber *_result = (NSNumber*)[userInfo objectForKey:@"RESULTUPLOADPOSTIMAGE"];
-    NSString *_result = (NSString*)[userInfo objectForKey:@"RESULTUPLOADPOSTIMAGE"];
-    NSArray *subResult = [_result componentsSeparatedByString:@"}"];
-    if ([subResult count] == 2) {
-        if ([[subResult objectAtIndex:0] intValue] == 0 && [[subResult objectAtIndex:1] intValue] == 0) {
-            //add to wall
-            NSString *contentEncode = [helperIns encodedBase64:[self.txtCaption.text dataUsingEncoding:NSUTF8StringEncoding]];
-            NSString *imageEncode = [helperIns encodedBase64:[amazonInfomation.key dataUsingEncoding:NSUTF8StringEncoding]];
-            _clientKeyID = [storeIns randomKeyMessenger];
-            NSString *imgThumbEncode = [helperIns encodedBase64:[amazonInfomation.keyThumb dataUsingEncoding:NSUTF8StringEncoding]];
-            
-            NSString *tempClientKey = [helperIns encodedBase64:[_clientKeyID dataUsingEncoding:NSUTF8StringEncoding]];
-            
-            [networkControllerIns addPost:contentEncode withImage:imageEncode withImageThumb:imgThumbEncode withVideo:@"" withLocation:@"" withClientKey:tempClientKey withCode:1];
-        }else{
-            //Error
-            //Error upload phot try again and up wall
-            [vLoading removeFromSuperview];
-        }
-    }else{
-        //Error
-        //Error upload phot try again and up wall
-        [vLoading removeFromSuperview];
-    }
-    
-}
-
-- (void) setResultAddWall:(NSNotification*)notification{
-    NSDictionary *userInfo = [notification userInfo];
-    NSString *_strResult = (NSString*)[userInfo objectForKey:@"ADDPOST"];
-    
-    NSArray *subCommand = [_strResult componentsSeparatedByString:@"}"];
-    if ([subCommand count] == 2) {
-        NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
-        if (key > 0) {
-            
-            DataWall *_newWall = [DataWall new];
-            _newWall.userPostID = storeIns.user.userID;
-            _newWall.content = self.txtCaption.text;
-//            __weak NSString *strFullName = storeIns.user.nickName;
-            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
-            _newWall.firstName = storeIns.user.firstname;
-            _newWall.lastName = storeIns.user.lastName;
-            _newWall.urlFull = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.key];
-            _newWall.urlThumb = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.keyThumb];
-            _newWall.urlAvatarThumb = storeIns.user.urlThumbnail;
-            _newWall.urlAvatarFull = storeIns.user.urlAvatar;
-            _newWall.video = @"";
-            _newWall.longitude = @"0";
-            _newWall.latitude = @"0";
-            _newWall.time = [subCommand objectAtIndex:0];
-//            _newWall.typePost = 1;
-            _newWall.codeType = 1;
-            _newWall.clientKey = _clientKeyID;
-            _newWall.comments = [NSMutableArray new];
-            _newWall.likes = [NSMutableArray new];
-            
-            [storeIns insertWallData:_newWall];
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
-            
-        }else{
-            //Error add post
-        }
-    }
-    
-    [vLoading removeFromSuperview];
-    
-    [self dismissViewControllerAnimated:YES completion:^{
-
-    }];
-    
 }
 
 /*

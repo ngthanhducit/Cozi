@@ -58,7 +58,9 @@
         }
         
         if ([[subData objectAtIndex:0] isEqualToString:@"REMOVEPOSTLIKE"]) {
+            
             [self.singleWall reloadData];
+            
         }
         
     }
@@ -69,7 +71,7 @@
     [super viewWillAppear:YES];
     [self.singleWall reloadData];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    [self.lblTitle setText:@"SINGLE WALL"];
+    [self.lblTitle setText:@"PHOTO"];
     [netControllerIns addListener:self];
 }
 

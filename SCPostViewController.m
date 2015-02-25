@@ -36,6 +36,14 @@
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.lblTitle setText:@"TAKE A SHOT"];
+}
+
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+
+//    [self.cameraCapture removeFromSuperview];
+//    self.cameraCapture = nil;
 }
 
 - (void) setupVariable{
@@ -75,18 +83,17 @@
     
 //    CGFloat xDelta = (self.view.bounds.size.width / 3) - yLineTool;
 //    CGFloat hButton = (yLineTool - (xDelta / 2));
-    CGFloat hButton = 0;
-    if ([[UIScreen mainScreen] bounds].size.height == 568)
-    {
-        hButton = 45;
-        //iphone 5
-    }
-    else
-    {
-        hButton = 35;
-        //iphone 3.5 inch screen iphone 3g,4s
-    }
-    
+    CGFloat hButton = 40;
+//    if ([[UIScreen mainScreen] bounds].size.height == 568)
+//    {
+//        hButton = 45;
+//        //iphone 5
+//    }
+//    else
+//    {
+//        hButton = 35;
+//        //iphone 3.5 inch screen iphone 3g,4s
+//    }
     
     self.btnGrid = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnGrid setBackgroundColor:[UIColor blackColor]];
@@ -154,23 +161,44 @@
     [triangleJoinNow drawTriangleSignIn];
     UIImage *imgJoinNow = [helperIns imageWithView:triangleJoinNow];
     
+//    self.btnTakePhoto = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [self.btnTakePhoto setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+//    [self.btnTakePhoto setImage:imgJoinNow forState:UIControlStateNormal];
+//    [self.btnTakePhoto.titleLabel setTextAlignment:NSTextAlignmentLeft];
+//    [self.btnTakePhoto setContentMode:UIViewContentModeCenter];
+//    [self.btnTakePhoto setFrame:CGRectMake(0, 0, self.view.bounds.size.width, vTakePhoto.bounds.size.height)];
+//    [self.btnTakePhoto setTitle:@"TAKE A SHOT" forState:UIControlStateNormal];
+//    [self.btnTakePhoto addTarget:self action:@selector(btnTakePhotoTap:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.btnTakePhoto.titleLabel setFont:[helperIns getFontLight:15.0f]];
+//    
+//    CGSize sizeTitleLable = [self.btnTakePhoto.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+//    [self.btnTakePhoto setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
+//    self.btnTakePhoto.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
+//    
+//    [self.btnTakePhoto setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    
+//    [self.btnTakePhoto setAlpha:0.8];
+//    [vTakePhoto addSubview:self.btnTakePhoto];
+    
+    UIView *vBorder = [[UIView alloc] initWithFrame:CGRectMake((vTakePhoto.bounds.size.width / 2) - ((vTakePhoto.bounds.size.height / 2) - 10), 10, vTakePhoto.bounds.size.height - 20, vTakePhoto.bounds.size.height - 20)];
+    vBorder.clipsToBounds = YES;
+    vBorder.layer.borderColor = [helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
+    vBorder.layer.borderWidth = 1.0f;
+    [vBorder setBackgroundColor:[UIColor clearColor]];
+    vBorder.layer.cornerRadius = vBorder.bounds.size.width / 2;
+    vBorder.contentMode = UIViewContentModeScaleAspectFill;
+    [vTakePhoto addSubview:vBorder];
+    
     self.btnTakePhoto = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnTakePhoto setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
-    [self.btnTakePhoto setImage:imgJoinNow forState:UIControlStateNormal];
+    [self.btnTakePhoto setBackgroundColor:[UIColor whiteColor]];
     [self.btnTakePhoto.titleLabel setTextAlignment:NSTextAlignmentLeft];
-    [self.btnTakePhoto setContentMode:UIViewContentModeCenter];
-    [self.btnTakePhoto setFrame:CGRectMake(0, 0, self.view.bounds.size.width, vTakePhoto.bounds.size.height)];
+    [self.btnTakePhoto setFrame:CGRectMake((vTakePhoto.bounds.size.width / 2) - ((vTakePhoto.bounds.size.height / 2) - 15), 15, vTakePhoto.bounds.size.height - 30, vTakePhoto.bounds.size.height - 30)];
+    self.btnTakePhoto.layer.cornerRadius = self.btnTakePhoto.bounds.size.width / 2;
+    self.btnTakePhoto.clipsToBounds = YES;
+    self.btnTakePhoto.contentMode = UIViewContentModeScaleAspectFill;
     [self.btnTakePhoto setTitle:@"TAKE A SHOT" forState:UIControlStateNormal];
     [self.btnTakePhoto addTarget:self action:@selector(btnTakePhotoTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnTakePhoto.titleLabel setFont:[helperIns getFontLight:15.0f]];
-    
-    CGSize sizeTitleLable = [self.btnTakePhoto.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
-    [self.btnTakePhoto setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
-    self.btnTakePhoto.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
-    
-    [self.btnTakePhoto setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    
-    [self.btnTakePhoto setAlpha:0.8];
     [vTakePhoto addSubview:self.btnTakePhoto];
     
     self.vGridLine = [[SCGridView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.width)];
@@ -191,9 +219,11 @@
 
 - (void) nsCompleteCapture{
     UIImage *img = [self.cameraCapture getImageCapture];
-    UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
+//    UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
     
-    UIImage *_newImage1 = [helperIns squareImageWithImage:img scaledToSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
+//    UIImage *_newImage1 = [helperIns squareImageWithImage:img scaledToSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
+    
+    UIImage *_newImage = [helperIns cropImage:img withFrame:CGRectMake(0, 0, self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
     
     SCPostDetailsViewController *post = [[SCPostDetailsViewController alloc] initWithNibName:nil bundle:nil];
     [post showHiddenClose:YES];

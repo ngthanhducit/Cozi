@@ -161,49 +161,97 @@
     }
 }
 
-- (void) setResultAddWall:(NSNotification*)notification{
-    NSDictionary *userInfo = [notification userInfo];
-    NSString *_strResult = (NSString*)[userInfo objectForKey:@"ADDPOST"];
+//- (void) setResultAddWall:(NSNotification*)notification{
+//    NSDictionary *userInfo = [notification userInfo];
+//    NSString *_strResult = (NSString*)[userInfo objectForKey:@"ADDPOST"];
+//    
+//    NSArray *subCommand = [_strResult componentsSeparatedByString:@"}"];
+//    if ([subCommand count] == 2) {
+//        NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
+//        if (key > 0) {
+//            
+//            DataWall *_newWall = [DataWall new];
+//            _newWall.userPostID = storeIns.user.userID;
+//            _newWall.content = self.txtCaption.text;
+//            _newWall.images = [NSMutableArray new];
+//            _newWall.video = @"";
+//            _newWall.longitude = @"";
+//            _newWall.latitude = @"";
+////            __weak NSString *strFullName = storeIns.user.nickName;
+//            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+//            _newWall.firstName = storeIns.user.firstname;
+//            _newWall.lastName = storeIns.user.lastName;
+//            _newWall.time = [subCommand objectAtIndex:0];
+////            _newWall.typePost = 0;
+//            _newWall.codeType = 0;
+//            _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
+//            
+//            [storeIns insertWallData:_newWall];
+//            
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
+//        }else{
+//            //Error add post
+//        }
+//    }
+//    
+//    [self dismissViewControllerAnimated:YES completion:^{
+//        
+//    }];
+//    
+//}
+
+- (void) setResult:(NSString *)_strResult{
+    _strResult = [_strResult stringByReplacingOccurrencesOfString:@"<EOF>" withString:@""];
     
-    NSArray *subCommand = [_strResult componentsSeparatedByString:@"}"];
-    if ([subCommand count] == 2) {
-        NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
-        if (key > 0) {
-            
-            DataWall *_newWall = [DataWall new];
-            _newWall.userPostID = storeIns.user.userID;
-            _newWall.content = self.txtCaption.text;
-            _newWall.images = [NSMutableArray new];
-            _newWall.video = @"";
-            _newWall.longitude = @"";
-            _newWall.latitude = @"";
-//            __weak NSString *strFullName = storeIns.user.nickName;
-            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
-            _newWall.firstName = storeIns.user.firstname;
-            _newWall.lastName = storeIns.user.lastName;
-            _newWall.time = [subCommand objectAtIndex:0];
-//            _newWall.typePost = 0;
-            _newWall.codeType = 0;
-            _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
-            
-            [storeIns insertWallData:_newWall];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
-        }else{
-            //Error add post
+    NSArray *subData = [_strResult componentsSeparatedByString:@"{"];
+    if ([subData count] == 2) {
+        NSArray *subCommand = [[subData objectAtIndex:1] componentsSeparatedByString:@"}"];
+        if ([subCommand count] == 2) {
+            NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
+            if (key > 0) {
+                
+                DataWall *_newWall = [DataWall new];
+                _newWall.userPostID = storeIns.user.userID;
+                _newWall.content = self.txtCaption.text;
+                _newWall.images = [NSMutableArray new];
+                _newWall.video = @"";
+                _newWall.longitude = @"0";
+                _newWall.latitude = @"0";
+                _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+                _newWall.firstName = storeIns.user.firstname;
+                _newWall.lastName = storeIns.user.lastName;
+                _newWall.time = [subCommand objectAtIndex:0];
+                _newWall.codeType = 0;
+                _newWall.clientKey = _clientKeyID;
+                _newWall.urlAvatarThumb = storeIns.user.urlThumbnail;
+                _newWall.urlAvatarFull = storeIns.user.urlAvatar;
+                
+                [storeIns insertWallData:_newWall];
+                [storeIns.listHistoryPost addObject:_newWall];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
+            }else{
+                //Error add post
+            }
         }
+
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
     }
-    
-    [self dismissViewControllerAnimated:YES completion:^{
-        
-    }];
-    
 }
 
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.lblTitle setText:@"ADD MOOD"];
+    [networkControllerIns addListener:self];
+}
+
+- (void) viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    [networkControllerIns removeListener:self];
 }
 
 - (void)didReceiveMemoryWarning {

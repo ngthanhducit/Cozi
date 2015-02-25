@@ -10,6 +10,7 @@
 #import "CameraCaptureV6.h"
 #import "Helper.h"
 #import "SCCameraCaptureV7.h"
+#import "CameraCaptureV6.h"
 #import "SCPostDetailsViewController.h"
 #import "TriangleView.h"
 #import "SCGridView.h"
@@ -28,6 +29,7 @@
 
 //@property (nonatomic, strong) UIButton          *btnClose;
 @property (nonatomic, strong) SCCameraCaptureV7 *cameraCapture;
+//@property (nonatomic, strong) CameraCaptureV6 *cameraCapture;
 
 @property (nonatomic, strong) SCGridView        *vGridLine;
 @property (nonatomic, strong) UIButton          *btnGrid;

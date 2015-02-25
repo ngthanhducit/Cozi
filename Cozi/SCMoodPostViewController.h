@@ -11,8 +11,9 @@
 #import "HPGrowingTextView.h"
 #import "TriangleView.h"
 #import "NetworkController.h"
+#import "PNetworkCommunication.h"
 
-@interface SCMoodPostViewController : SCPostParentViewController <HPGrowingTextViewDelegate>
+@interface SCMoodPostViewController : SCPostParentViewController <HPGrowingTextViewDelegate, PNetworkCommunication>
 {
     UIImageView         *imgSelectFB;
     BOOL                isSelectFB;

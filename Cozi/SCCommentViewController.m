@@ -23,6 +23,7 @@
 }
 
 - (void) setupVariable{
+    inComment = NO;
     hHeader = 40;
     hViewAddComment = 40;
     helperIns = [Helper shareInstance];
@@ -77,20 +78,23 @@
     [self.tbComment reloadData];
     
     if (typeDisplay == 0) {
-        [self.txtComment becomeFirstResponder];
+//        [self.txtComment becomeFirstResponder];
     }
     
     [self scrollToBottom];
 }
 
-//- (void) btnCloseTap:(id)sender{
-//    
-//    [self.navigationController popViewControllerAnimated:YES];
-//}
+- (void) viewDidAppear:(BOOL)animated{
+    [self.txtComment becomeFirstResponder];
+}
 
 - (void) btnSendComment:(id)sender{
     
+    if (inComment) {
+        return;
+    }
     if (![self.txtComment.text isEqualToString:@""]) {
+        inComment = YES;
         NSString *_clientKey = wallItems.clientKey;
         NSString *_commentKey = [storeIns randomKeyMessenger];
         [netControllerIns addComment:self.txtComment.text withImageName:@"" withPostClientKey:_clientKey withCommentClientKey:_commentKey withUserPostID:wallItems.userPostID];
@@ -102,11 +106,8 @@
 - (void) keyboardWillShow:(NSNotification *)notification{
     NSDictionary *userInfo = [notification userInfo];
     CGSize kbSize = [[userInfo objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
-    //    CGRect frameSendVIew = self.viewSendMessage.frame;
     
-    //    frameSendVIew.origin.y = kbSize.height;
-    
-    [UIView animateWithDuration:0.1 animations:^{
+    [UIView animateWithDuration:0.2 animations:^{
         [self.vAddComment setFrame:CGRectMake(0, self.view.bounds.size.height - kbSize.height - self.txtComment.bounds.size.height, self.view.bounds.size.width, self.txtComment.bounds.size.height)];
         
         [self.tbComment setFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - kbSize.height - hHeader - self.txtComment.bounds.size.height)];
@@ -125,7 +126,7 @@
     
     NSLog(@"%f", self.txtComment.bounds.size.height);
     
-    [UIView animateWithDuration:0.0 animations:^{
+    [UIView animateWithDuration:0.2 animations:^{
         
         [self.vAddComment setFrame:CGRectMake(0, self.view.bounds.size.height - self.txtComment.bounds.size.height, self.view.bounds.size.width, self.txtComment.bounds.size.height)];
         
@@ -183,13 +184,19 @@
                 _newComment.commentClientKey = [helperIns decode:[subCommand objectAtIndex:2]];
                 _newComment.commentLikes = [NSMutableArray new];
                 
+                if (wallItems.comments == nil) {
+                    wallItems.comments = [NSMutableArray new];
+                }
+
                 //Map list like comment
                 [wallItems.comments addObject:_newComment];
                 
                 self.txtComment.text = @"";
-//                [self.navigationController popViewControllerAnimated:YES];
+                inComment = NO;
                 
                 [self.tbComment reloadData];
+                [self.view endEditing:YES];
+                [self scrollToBottom];
             }
     
         }

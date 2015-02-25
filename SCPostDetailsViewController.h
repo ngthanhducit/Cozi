@@ -18,12 +18,12 @@
 #import "NetworkController.h"
 #import "SCPostParentViewController.h"
 #import "SCWaitingView.h"
+#import "PNetworkCommunication.h"
+#import "DataMap.h"
+#import "AmazonInfoPost.h"
 
-@interface SCPostDetailsViewController : SCPostParentViewController <HPGrowingTextViewDelegate>
+@interface SCPostDetailsViewController : SCPostParentViewController <HPGrowingTextViewDelegate, PNetworkCommunication>
 {
-//    CGFloat             hHeader;
-//    Helper              *helperIns;
-//    Store               *storeIns;
     NetworkController *networkControllerIns;
     UIImageView         *imgQuotes;
     UIImageView         *imgSelectFB;
@@ -33,8 +33,6 @@
     SCWaitingView         *vLoading;
 }
 
-//@property (nonatomic, strong) UIView             *vHeader;
-//@property (nonatomic, strong) UIButton           *btnClose;
 @property (nonatomic, strong) UIImageView        *imgPost;
 @property (nonatomic, strong) SCPhotoDetailsView *vCaption;
 @property (nonatomic, strong) UIView             *vAddFacebook;
@@ -42,8 +40,5 @@
 @property (nonatomic, strong) UIButton           *btnPostPhoto;
 
 - (void) setImagePost:(UIImage*)_imagePost;
-//- (void) setAmazoneUpload:(AmazonInfo*)_amazon;
-//- (void) setResultUpload:(int)_result;
-//- (void) setResultAddWall:(NSString*)_strResult;
 
 @end

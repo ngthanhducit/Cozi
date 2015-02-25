@@ -28,6 +28,7 @@
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.lblTitle setText:@"SELECT PHOTO"];
 }
 
 - (void) initUI{

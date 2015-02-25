@@ -25,6 +25,7 @@
 //    Store                   *storeIns;
     int                     typeDisplay;
     NetworkController       *netControllerIns;
+    BOOL                    inComment;
 }
 
 //@property (nonatomic, strong) UILabel           *lblTitle;

@@ -66,33 +66,26 @@
     
     [vSearch addSubview:searchBar];
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height), self.view.bounds.size.width, self.view.bounds.size.height / 3)];
-        [self.vMaps setBackgroundColor:[UIColor clearColor]];
-        [self.view addSubview:self.vMaps];
-        
-        RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithMapID:@"ngthanhducit.kok79pln"];
-        mapView = [[RMMapView alloc] initWithFrame:self.vMaps.bounds andTilesource:tileSource];
-        [mapView setShowsUserLocation:YES];
-        
-        [mapView setDelegate:self];
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
-        [mapView setCenterCoordinate:center];
-        mapView.zoom = 15;
-        
-        [self.vMaps addSubview:mapView];
-        
-        self.vMarket = [[UIView alloc] initWithFrame:self.vMaps.bounds];
-        [self.vMarket setBackgroundColor:[UIColor clearColor]];
-        [self.vMarket setUserInteractionEnabled:NO];
-        [self.vMarket setAlpha:0.5];
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.vMaps addSubview:self.vMarket];
-        });
-        
-    });
+    self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height), self.view.bounds.size.width, self.view.bounds.size.height / 3)];
+    [self.vMaps setBackgroundColor:[UIColor clearColor]];
+    [self.view addSubview:self.vMaps];
     
+    RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithMapID:@"ngthanhducit.kok79pln"];
+    mapView = [[RMMapView alloc] initWithFrame:self.vMaps.bounds andTilesource:tileSource];
+//    [mapView setShowsUserLocation:YES];
+    [mapView setDelegate:self];
+    CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
+    [mapView setCenterCoordinate:center];
+    mapView.zoom = 12;
+    
+    [self.vMaps addSubview:mapView];
+    
+    self.vMarket = [[UIView alloc] initWithFrame:mapView.bounds];
+    [self.vMarket setBackgroundColor:[UIColor clearColor]];
+    [self.vMarket setUserInteractionEnabled:NO];
+    [self.vMarket setAlpha:0.5];
+    
+    [self.vMaps addSubview:self.vMarket];
     UIImage *img = [helperIns getImageFromSVGName:@"icon-LocationGreen.svg"];
     self.imgMarket = [[UIImageView alloc] initWithImage:img];
     [self.imgMarket setFrame:CGRectMake((self.vMaps.bounds.size.width / 2) - 15, (self.vMaps.bounds.size.height / 2) - 15, 30, 30)];
@@ -210,9 +203,6 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tbNearLocation reloadData];
                 });
-
-                
-                NSLog(@"%@", dic);
                 
             }
         }
@@ -386,11 +376,11 @@
 }
 
 #pragma -mark RMMapView Delegate
-- (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
-    CLLocationCoordinate2D l = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
-    
-    [mapView setCenterCoordinate:l animated:YES];
-}
+//- (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
+//    CLLocationCoordinate2D l = CLLocationCoordinate2DMake(userLocation.location.coordinate.latitude, userLocation.location.coordinate.longitude);
+//    
+//    [mapView setCenterCoordinate:l animated:YES];
+//}
 
 - (void) beforeMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
 
@@ -410,6 +400,7 @@
         [self.vButton setFrame:CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, 80)];
         [self.vNear setFrame:CGRectMake(0, hHeader + vSearch.bounds.size.height + self.vMaps.bounds.size.height, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + vSearch.bounds.size.height + self.vMaps.bounds.size.height))];
         [self.tbNearLocation setFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height)];
+        
     } completion:^(BOOL finished) {
         
     }];
@@ -426,7 +417,12 @@
 }
 
 - (void) mapViewRegionDidChange:(RMMapView *)mapView{
-//    NSLog(@"RMMapView region did change");
+
+    NSLog(@"RMMapView region did change");
+//    CLLocationCoordinate2D l = CLLocationCoordinate2DMake(mapView.userLocation.location.coordinate.latitude, mapView.userLocation.location.coordinate.longitude);
+//    
+//    [mapView setCenterCoordinate:l animated:YES];
+
 
 }
 
