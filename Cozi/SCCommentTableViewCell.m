@@ -24,6 +24,8 @@
 }
 
 - (void) setup{
+    CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+    
     helperIns = [Helper shareInstance];
     
 //    [self setSelectionStyle:UITableViewCellSelectionStyleNone];
@@ -36,7 +38,7 @@
     self.imgAvatar.layer.cornerRadius = self.imgAvatar.bounds.size.width / 2;
     [self.contentView addSubview:self.imgAvatar];
     
-    self.lblLoadMore = [[UILabel alloc] initWithFrame:CGRectMake(55, 0, self.bounds.size.width - 55, 50)];
+    self.lblLoadMore = [[UILabel alloc] initWithFrame:CGRectMake(55, 0, sizeScreen.size.width - 55, 50)];
     [self.lblLoadMore setHidden:YES];
     [self.lblLoadMore setFont:[helperIns getFontLight:14.0f]];
     [self.lblLoadMore setText:@"Load more comments"];
@@ -44,7 +46,7 @@
     [self.lblLoadMore setTextColor:[UIColor clearColor]];
     [self.contentView addSubview:self.lblLoadMore];
     
-    self.lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 2.5, self.bounds.size.width - 100, 20)];
+    self.lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 2.5, sizeScreen.size.width - 100, 20)];
     [self.lblNickName setTextAlignment:NSTextAlignmentJustified];
     self.lblNickName.font = [helperIns getFontRegular:14.0f];
     self.lblNickName.textColor = [UIColor darkGrayColor];

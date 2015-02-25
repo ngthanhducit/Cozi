@@ -29,9 +29,6 @@
 
 @property (nonatomic, strong) UIActivityIndicatorView           *waiting;
 @property (nonatomic, strong) SCFollowersTableView      *tbView;
-//@property (nonatomic, strong) UILabel                   *lblTitle;
-//@property (nonatomic, strong) UIButton                  *btnClose;
-//@property (nonatomic, strong) UIView                    *vHeader;
 
 - (void) setFriendID:(int)_friendID;
 - (void) setData:(NSMutableArray*)_dataItems;

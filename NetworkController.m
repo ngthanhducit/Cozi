@@ -73,7 +73,7 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
-    NSString *_deviceToken = @"c5d46419d7e93ce0c6cd3cb0b01d1f9c1d41fb16e05a73ef8969efdaf91d5e24";
+    NSString *_deviceToken = @"";
     
     if (token != nil) {
         _deviceToken = [NSString stringWithFormat:@"%@", token];
@@ -192,6 +192,12 @@
 
 - (void) acceptOrDenyAddFriend:(int)_userRequestID withIsAllow:(int)_isAllow{
     NSString *cmd = [NSString stringWithFormat:@"RECEIVEFRIENDREQUEST{%i}%i<EOF>", _userRequestID, _isAllow];
+    
+    [networkIns sendData:cmd];
+}
+
+- (void) findUserInRanger:(CGFloat)_ranger{
+    NSString *cmd = [NSString stringWithFormat:@"FINDUSERINRANGE{%f<EOF>", _ranger];
     
     [networkIns sendData:cmd];
 }

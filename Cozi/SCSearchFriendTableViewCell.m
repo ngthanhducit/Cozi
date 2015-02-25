@@ -19,7 +19,9 @@ const CGSize        sizeIconFriend = { 35 , 35};
 - (id) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-
+        
+        CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+        
         helperIns = [Helper shareInstance];
         
         [self setSelectionStyle:UITableViewCellSelectionStyleNone];
@@ -38,13 +40,13 @@ const CGSize        sizeIconFriend = { 35 , 35};
         [self.lblFullName setBackgroundColor:[UIColor clearColor]];
         [self.lblFullName setFont:[helperIns getFontLight:13.0f]];
         [self.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
-        [self.lblFullName setFrame:CGRectMake(60, 0, self.bounds.size.width - 120, self.bounds.size.height)];
+        [self.lblFullName setFrame:CGRectMake(60, 0, sizeScreen.size.width - 120, self.bounds.size.height)];
         [self.contentView addSubview:self.lblFullName];
         
         UIImage *imgHighlight = [helperIns imageWithColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] size:CGSizeMake(60, self.bounds.size.height - 10)];
         
         self.btnAddFriend = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.btnAddFriend setFrame:CGRectMake(self.bounds.size.width - 70, 5, 60, self.bounds.size.height - 10)];
+        [self.btnAddFriend setFrame:CGRectMake(sizeScreen.size.width - 70, 5, 60, self.bounds.size.height - 10)];
         [self.btnAddFriend setClipsToBounds:YES];
         self.btnAddFriend.layer.cornerRadius = 3.0f;
         self.btnAddFriend.layer.borderColor = [UIColor lightGrayColor].CGColor;
@@ -55,7 +57,7 @@ const CGSize        sizeIconFriend = { 35 , 35};
         [self.btnAddFriend setBackgroundImage:imgHighlight forState:UIControlStateHighlighted];
         [self.contentView addSubview:self.btnAddFriend];
         
-        self.vAddFriend = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 70, 5, 60, self.bounds.size.height - 10)];
+        self.vAddFriend = [[UIView alloc] initWithFrame:CGRectMake(sizeScreen.size.width - 70, 5, 60, self.bounds.size.height - 10)];
         [self.vAddFriend setHidden:YES];
         [self.vAddFriend setUserInteractionEnabled:YES];
         [self.vAddFriend setClipsToBounds:YES];

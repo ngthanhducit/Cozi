@@ -24,16 +24,9 @@
 }
 
 - (void) setup{
+    CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+
     helperIns = [Helper shareInstance];
-    
-//    for (UIView *currentView in self.subviews)
-//    {
-//        if([currentView isKindOfClass:[UIScrollView class]])
-//        {
-//            ((UIScrollView *)currentView).delaysContentTouches = NO;
-//            break;
-//        }
-//    }
     
     [self setSelectionStyle:UITableViewCellSelectionStyleNone];
     
@@ -46,7 +39,7 @@
     self.imgAvatar.layer.cornerRadius = self.imgAvatar.bounds.size.width / 2;
     [self.contentView addSubview:self.imgAvatar];
     
-    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(60, 0, self.bounds.size.width - 160, 40)];
+    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(60, 0, sizeScreen.size.width - 160, 40)];
     [self.lblNickName setText:@"NICK NAME"];
     [self.lblNickName setFont:[helperIns getFontLight:14.0f]];
     [self.contentView addSubview:self.lblNickName];
@@ -56,7 +49,7 @@
     self.btnFollowing.layer.cornerRadius = 3.0f;
     self.btnFollowing.layer.borderColor = [UIColor lightGrayColor].CGColor;
     self.btnFollowing.layer.borderWidth = 1.0f;
-    [self.btnFollowing setFrame:CGRectMake(self.bounds.size.width - 110, 5, 100, 30)];
+    [self.btnFollowing setFrame:CGRectMake(sizeScreen.size.width - 110, 5, 100, 30)];
     [self.btnFollowing setTitle:@"Following" forState:UIControlStateNormal];
     [self.btnFollowing.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnFollowing setContentMode:UIViewContentModeCenter];
@@ -68,7 +61,7 @@
     [self.btnFollowing setBackgroundImage:[helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted | UIControlStateSelected];
     [self.contentView addSubview:self.btnFollowing];
     
-//    self.vFollowing = [[UIView alloc] initWithFrame:CGRectMake(self.bounds.size.width - 110, 5, 100, 30)];
+//    self.vFollowing = [[UIView alloc] initWithFrame:CGRectMake(sizeScreen.size.width - 110, 5, 100, 30)];
 //    [self.vFollowing setUserInteractionEnabled:YES];
 //    [self.vFollowing setClipsToBounds:YES];
 //    self.vFollowing.layer.cornerRadius = 3.0f;

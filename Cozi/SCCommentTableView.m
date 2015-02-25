@@ -161,7 +161,6 @@
             [scCell.lblComment setFrame:CGRectMake(55, scCell.lblNickName.frame.origin.y + scCell.lblNickName.bounds.size.height, scCell.lblNickName.bounds.size.width, sizeContent.height)];
             
             
-            
             scCell.lblTime.text = [self calculationTimeAgo:self.wallData.time];
             
             [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
@@ -170,14 +169,19 @@
             
             CGSize sizeContent = [self.wallData.content sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
             
-            if (self.wallData.urlAvatarThumb) {
-                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.wallData.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                    
-                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                    if (image && finished) {
-                        scCell.imgAvatar.image = image;
-                    }
-                }];
+            if (self.wallData.thumb != nil) {
+                scCell.imgAvatar.image = self.wallData.thumb;
+            }else{
+                if (self.wallData.urlAvatarThumb) {
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.wallData.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        
+                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                        if (image && finished) {
+                            scCell.imgAvatar.image = image;
+                            self.wallData.thumb = image;
+                        }
+                    }];
+                }
             }
             
             scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", self.wallData.firstName, self.wallData.lastName];
@@ -230,7 +234,7 @@
 - (void) renderComment:(SCCommentTableViewCell*)scCell withIndexPath:(NSIndexPath*)indexPath{
     PostComment *_comment = [self.wallData.comments objectAtIndex:indexPath.row];
     
-    Friend      *_friend = [storeIns getFriendByID:_comment.userCommentId];
+    Friend      *_friend = [storeIns getFriendByID:(int)_comment.userCommentId];
     if (_friend && _friend.friendID > 0) {
         [scCell.imgAvatar setImage:_friend.thumbnail];
     }else{
@@ -253,9 +257,10 @@
             }else{
                 [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
             }
+            
         }
     }
-    
+
     CGSize sizeContent = [_comment.contentComment sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
     
     scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", _comment.firstName, _comment.lastName];

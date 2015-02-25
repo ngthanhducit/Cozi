@@ -20,6 +20,8 @@ const CGSize        sizeIconFriendRequest = { 35 , 35};
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         
+        CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+        
         helperIns = [Helper shareInstance];
         
         //        [self setSelectionStyle:UITableViewCellSelectionStyleNone];
@@ -38,14 +40,14 @@ const CGSize        sizeIconFriendRequest = { 35 , 35};
         [self.lblFullName setBackgroundColor:[UIColor clearColor]];
         [self.lblFullName setFont:[helperIns getFontLight:13.0f]];
         [self.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
-        [self.lblFullName setFrame:CGRectMake(60, 0, self.bounds.size.width - 120, self.bounds.size.height)];
+        [self.lblFullName setFrame:CGRectMake(60, 0, sizeScreen.size.width - 120, self.bounds.size.height)];
         [self.contentView addSubview:self.lblFullName];
         
         UIImage *imgHighlight = [helperIns imageWithColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] size:CGSizeMake(100, self.bounds.size.height - 10)];
         
         self.btnBlock = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.btnBlock setBackgroundImage:imgHighlight forState:UIControlStateHighlighted | UIControlStateSelected];
-        [self.btnBlock setFrame:CGRectMake(self.bounds.size.width - 270, 5, 80, self.bounds.size.height - 10)];
+        [self.btnBlock setFrame:CGRectMake(sizeScreen.size.width - 270, 5, 80, self.bounds.size.height - 10)];
         [self.btnBlock setClipsToBounds:YES];
         self.btnBlock.layer.cornerRadius = 3.0f;
         self.btnBlock.layer.borderColor = [UIColor lightGrayColor].CGColor;
@@ -57,7 +59,7 @@ const CGSize        sizeIconFriendRequest = { 35 , 35};
         
         self.btnDeny = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.btnDeny setBackgroundImage:imgHighlight forState:UIControlStateHighlighted | UIControlStateSelected];
-        [self.btnDeny setFrame:CGRectMake(self.bounds.size.width - 160, 5, 70, self.bounds.size.height - 10)];
+        [self.btnDeny setFrame:CGRectMake(sizeScreen.size.width - 160, 5, 70, self.bounds.size.height - 10)];
         [self.btnDeny setClipsToBounds:YES];
         self.btnDeny.layer.cornerRadius = 3.0f;
         self.btnDeny.layer.borderColor = [UIColor lightGrayColor].CGColor;
@@ -69,7 +71,7 @@ const CGSize        sizeIconFriendRequest = { 35 , 35};
         
         self.btnAccept = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.btnAccept setBackgroundImage:imgHighlight forState:UIControlStateHighlighted | UIControlStateSelected];
-        [self.btnAccept setFrame:CGRectMake(self.bounds.size.width - 80, 5, 70, self.bounds.size.height - 10)];
+        [self.btnAccept setFrame:CGRectMake(sizeScreen.size.width - 80, 5, 70, self.bounds.size.height - 10)];
         [self.btnAccept setClipsToBounds:YES];
         self.btnAccept.layer.cornerRadius = 3.0f;
         self.btnAccept.layer.borderColor = [UIColor lightGrayColor].CGColor;

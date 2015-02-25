@@ -28,6 +28,8 @@
 }
 
 - (void) setup{
+    CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+    
     helperIns = [Helper shareInstance];
     
     [self setSelectionStyle:UITableViewCellSelectionStyleNone];
@@ -41,7 +43,7 @@
     self.imgAvatar.layer.cornerRadius = self.imgAvatar.bounds.size.width / 2;
     [self.contentView addSubview:self.imgAvatar];
 
-    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(60, 0, self.bounds.size.width - 160, 40)];
+    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(60, 0, sizeScreen.size.width - 160, 40)];
     [self.lblNickName setText:@"NICK NAME"];
     [self.lblNickName setTextAlignment:NSTextAlignmentLeft];
     [self.lblNickName setFont:[helperIns getFontLight:14.0f]];
@@ -58,7 +60,7 @@
     
     self.btnFollowing = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnFollowing setTitle:@"FOLLOWING" forState:UIControlStateNormal];
-    [self.btnFollowing setFrame:CGRectMake(self.bounds.size.width - 110, 5, 100, 30)];
+    [self.btnFollowing setFrame:CGRectMake(sizeScreen.size.width - 110, 5, 100, 30)];
     [self.btnFollowing.titleLabel setFont:[helperIns getFontLight:14.0f]];
     [self.btnFollowing setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [self.btnFollowing setClipsToBounds:YES];
