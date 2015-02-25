@@ -153,7 +153,6 @@
                                 [_newFriend setNickName:[self.helperIns decode:[subFriend objectAtIndex:1]]];
                                 [_newFriend setUserName:[self.helperIns decode:[subFriend objectAtIndex:1]]];
                                 [_newFriend setGender:[self.helperIns decode:[subFriend objectAtIndex:3]]];
-                                [_newFriend setGender:[self.helperIns decode:[subFriend objectAtIndex:3]]];
                                 [_newFriend setStatusAddFriend:0];
                                 
                                 NSString *strThumbnail = [self.helperIns decode:[subFriend objectAtIndex:2]];
@@ -468,10 +467,12 @@
                             if ([subMessageOffline count] > 1) {
                                 Messenger *_newMessage = [[Messenger alloc] init];
                                 [_newMessage setSenderID:[[subMessageOffline objectAtIndex:0] intValue]];
+                                [_newMessage setFriendID:[[subMessageOffline objectAtIndex:0] intValue]];
                                 [_newMessage setStrMessage: [self.helperIns decode:[subMessageOffline objectAtIndex:1]]];
                                 [_newMessage setStatusMessage:1];
                                 [_newMessage setTypeMessage:0];
                                 [_newMessage setKeySendMessage:[subMessageOffline objectAtIndex:2]];
+                                [_newMessage setUserID:self.storeIns.user.userID];
                                 
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subMessageOffline objectAtIndex:3]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
@@ -501,11 +502,13 @@
                                 
                                 Messenger *_messagePhoto = [[Messenger alloc] init];
                                 [_messagePhoto setSenderID:[[subPhotoOffline objectAtIndex:0] intValue]];
+                                [_messagePhoto setFriendID:[[subPhotoOffline objectAtIndex:0] intValue]];
                                 [_messagePhoto setStrMessage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
                                 [_messagePhoto setUrlImage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
                                 [_messagePhoto setKeySendMessage:[subPhotoOffline objectAtIndex:2]];
                                 [_messagePhoto setStatusMessage:1];
                                 [_messagePhoto setTypeMessage:1];
+                                [_messagePhoto setUserID:self.storeIns.user.userID];
                                 
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subPhotoOffline objectAtIndex:3]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
@@ -522,11 +525,11 @@
                     }
                 }
                 
-                
                 //map list friend request
                 if ([[subValue objectAtIndex:3] length] > 0) {
                     NSArray *subParameter = [[subValue objectAtIndex:3] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 1) {
+                        self.storeIns.friendsRequest = [NSMutableArray new];
                         int count = (int)[subParameter count];
                         for (int i = 0; i < count; i++) {
                             NSArray *subFriendRequest = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
@@ -540,12 +543,6 @@
                                 _friendRequest.userID = self.storeIns.user.userID;
                                 
                                 [self.storeIns.friendsRequest addObject:_friendRequest];
-//                                //insert friend request
-//                                BOOL _isExists = [coziCoreDataIns isExistsFriendRequest:self.storeIns.user.userID withFriendRequestID:_friendRequest.friendID];
-//                                if (!_isExists) {
-//                                    [coziCoreDataIns saveFriendRequest:_friendRequest];
-//                                }
-                                
                             }
                         }
                     }
@@ -588,11 +585,12 @@
                                 [_newMessage setStatusMessage:1];
                                 [_newMessage setTypeMessage:2];
                                 [_newMessage setSenderID:[[subParameter objectAtIndex:0] intValue]];
+                                [_newMessage setFriendID:[[subParameter objectAtIndex:0] intValue]];
+                                [_newMessage setUserID:self.storeIns.user.userID];
                                 _newMessage.longitude = [subParameter objectAtIndex:1];
                                 _newMessage.latitude = [subParameter objectAtIndex:2];
                                 _newMessage.keySendMessage = [subParameter objectAtIndex:3];
-                                
-                                
+
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subParameter objectAtIndex:4]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
                                 
@@ -600,6 +598,8 @@
                                 _newMessage.timeMessage = [self.helperIns getDateFormatMessage:_dateTimeMessage];
                                 _newMessage.timeOutMessenger = [[subParameter objectAtIndex:5] intValue];
                                 [self addMessageToFriend:_newMessage];
+                                
+                                [coziCoreDataIns saveMessenger:_newMessage];
                                 
                                 //save info request google
                                 ReceiveLocation *_receiveLocation = [[ReceiveLocation alloc] init];

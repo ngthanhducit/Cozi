@@ -620,6 +620,8 @@
                 
                 if (image && finished) {
                     [self.user setAvatar:image];
+                    
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
                 }
                 
             }];
@@ -1125,23 +1127,27 @@
         [[NSUserDefaults standardUserDefaults] setObject:_longitude forKey:@"Longitude"];
         [[NSUserDefaults standardUserDefaults] setObject:_latitude forKey:@"Latitude"];
         [[NSUserDefaults standardUserDefaults] synchronize];
-//        [geoCoder reverseGeocodeLocation:currentLocation completionHandler:^(NSArray *placemarks, NSError *error) {
-//            if (error == nil && [placemarks count] > 0) {
-//                placeMark = [placemarks lastObject];
-//                
-//                NSString *_address = [NSString stringWithFormat:@"%@ %@\n%@ %@\n%@\%@",
-//                                      placeMark.subThoroughfare, placeMark.thoroughfare,
-//                                      placeMark.postalCode, placeMark.locality,
-//                                      placeMark.administrativeArea,
-//                                      placeMark.country];
-//                
-//                NSLog(@"%@", _address);
-//            }else{
-//                NSLog(@"%@", error.debugDescription);
-//            }
-//            
+        [geoCoder reverseGeocodeLocation:currentLocation completionHandler:^(NSArray *placemarks, NSError *error) {
+            if (error == nil && [placemarks count] > 0) {
+                placeMark = [placemarks lastObject];
+                
+                NSString *_address = [NSString stringWithFormat:@"%@ %@\n%@ %@\n%@\%@",
+                                      placeMark.subThoroughfare, placeMark.thoroughfare,
+                                      placeMark.postalCode, placeMark.locality,
+                                      placeMark.administrativeArea,
+                                      placeMark.country];
+                
+                NSLog(@"%@", _address);
+            }else{
+                NSLog(@"%@", error.debugDescription);
+            }
+            
 
-//        }];
+        }];
+        
+//        MKReverseGeocoder *geoCoder = [[MKReverseGeocoder alloc] initWithCoordinate:newLocation.coordinate];
+//        geoCoder.delegate = self;
+//        [geoCoder start];
         
         [locationManager stopUpdatingLocation];
     }
@@ -1288,6 +1294,23 @@
     return result;
 }
 
+- (DataWall*) getPostFromNoise:(NSString*)_clientKey withUserPostID:(int)_userPostID{
+    DataWall *result = nil;
+    if (self.noises != nil) {
+        int count = (int)[self.noises count];
+        for (int i = 0; i < count; i++) {
+            
+            if ([[[self.noises objectAtIndex:i] clientKey] isEqualToString:_clientKey] && [[self.noises objectAtIndex:i] userPostID] == _userPostID) {
+                
+                result = [self.noises objectAtIndex:i];
+                break;
+            }
+        }
+    }
+    
+    return result;
+}
+
 - (void) insertWallData:(DataWall*)_dataWall{
     if (self.walls != nil) {
         int count = (int)[self.walls count];
@@ -1324,6 +1347,25 @@
         
         if (!isExits) {
             [self.walls addObject:_dataWall];
+        }
+    }
+}
+
+- (void) insertNoisesData:(DataWall *)_dataWall{
+    if (self.noises != nil) {
+        int count = (int)[self.noises count];
+        BOOL isExits = NO;
+        for (int i = 0; i < count; i++) {
+            
+            if ([((DataWall*)[self.noises objectAtIndex:i]).clientKey isEqualToString: _dataWall.clientKey ]) {
+                
+                isExits = YES;
+                break;
+            }
+        }
+        
+        if (!isExits) {
+            [self.noises insertObject:_dataWall atIndex:0];
         }
     }
 }
@@ -1512,5 +1554,19 @@
             }
         }
     }
+}
+
+- (UIImage*) getAvatarThumbFriend:(int)_friendID{
+    UIImage *img;
+    if (self.friends != nil) {
+        int count = (int)[self.friends count];
+        for (int i = 0; i < count; i++) {
+            if ([[self.friends objectAtIndex:i] friendID] == _friendID) {
+                img = [[self.friends objectAtIndex:i] thumb];
+            }
+        }
+    }
+    
+    return img;
 }
 @end

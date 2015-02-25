@@ -16,7 +16,6 @@
 #import "NetworkCommunication.h"
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
-#import "ImageRender.h"
 #import "GPUImageGrayscaleFilter.h"
 #import "DataWall.h"
 #import "FollowerUser.h"
@@ -110,6 +109,8 @@
 - (void) updateLocation;
 - (void) initLocation;
 
+- (UIImage*) getAvatarThumbFriend:(int)_friendID;
+
 - (void) sortMessengerFriend;
 - (NSString*) geturlThumbnailFriend:(NSString*)_phoneNumber;
 
@@ -117,9 +118,11 @@
 - (void) insertWallData:(DataWall*)_dataWall;
 - (void) addWallData:(DataWall *)_dataWall;
 - (void) addNoisesData:(DataWall *)_dataWall;
+- (void) insertNoisesData:(DataWall *)_dataWall;
 - (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
 - (void) updateNoise:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
 - (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID;
+- (DataWall*) getPostFromNoise:(NSString*)_clientKey withUserPostID:(int)_userPostID;
 
 - (BOOL) isFollowing:(int)_userID;
 - (BOOL) isFollower:(int)_userID;

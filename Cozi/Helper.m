@@ -344,7 +344,7 @@ const NSString                  *_cKey = @"PTCSYC22";
     if ([[UIScreen mainScreen] bounds].size.height >= 568){
         thumbnailRect.origin.y = -40;
     }else{
-        thumbnailRect.origin.y = thumbnailRect.origin.y / 2;
+        thumbnailRect.origin.y = thumbnailRect.origin.y;
     }
 
     thumbnailRect.size.width  = scaledWidth;
