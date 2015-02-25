@@ -196,7 +196,7 @@
         
         [scCell.vLike setFrame:CGRectMake(0, scCell.vImages.bounds.size.height, self.bounds.size.width, scCell.vLike.bounds.size.height)];
         
-        [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
+        [scCell.lblLike setText:[NSString stringWithFormat:@"%i LIKES", (int)[_wall.likes count]]];
         
         [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, scCell.vLike.frame.origin.y + scCell.vLike.bounds.size.height, scCell.vStatus.bounds.size.width, sizeStatus.height + spacing)];
         [scCell.vStatus setBackgroundColor:[UIColor clearColor]];
@@ -296,7 +296,7 @@
         
         //============LIKE===========
         
-        [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
+        [scCell.lblLike setText:[NSString stringWithFormat:@"%i LIKES", (int)[_wall.likes count]]];
         
         [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, 0, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height + spacing + spacing)];
         [scCell.vStatus setBackgroundColor:[UIColor lightGrayColor]];
@@ -312,6 +312,8 @@
         
         //===========COMMENT=============
         if ([_wall.comments count] > 0) {
+            [scCell.vComment setHidden:NO];
+            
             if ([_wall.comments count] > 4) {
                 [scCell.vAllComment setHidden:NO];
                 
@@ -324,6 +326,23 @@
                 
                 [scCell.vTool setFrame:CGRectMake(0, scCell.vComment.frame.origin.y + scCell.vComment.bounds.size.height, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
                 
+                UITapGestureRecognizer  *tapViewAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapViewAll setNumberOfTapsRequired:1];
+                [tapViewAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapViewAll];
+                
+                UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapLableAll setNumberOfTapsRequired:1];
+                [tapLableAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapLableAll];
+                
+                [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
+                
+                UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapImageComment setNumberOfTapsRequired:1];
+                [tapImageComment setNumberOfTouchesRequired:1];
+                [scCell.iconViewAllComment addGestureRecognizer:tapImageComment];
+
                 //hidden bottom if viewallcomment view exists
                 [scCell.bottomLike setHidden:YES];
             }else{
@@ -407,7 +426,7 @@
         
         //============LIKE===========
         
-        [scCell.lblLike setText:[NSString stringWithFormat:@"%i Likes", (int)[_wall.likes count]]];
+        [scCell.lblLike setText:[NSString stringWithFormat:@"%i LIKES", (int)[_wall.likes count]]];
         
         //==========set hidden quotes
         [scCell.bottomLike setHidden:NO];
@@ -434,6 +453,24 @@
                 [scCell.vComment setFrame:CGRectMake(scCell.vComment.frame.origin.x, scCell.vAllComment.frame.origin.y + scCell.vAllComment.bounds.size.height, scCell.vComment.bounds.size.width, heightComment)];
                 
                 [scCell.vTool setFrame:CGRectMake(0, scCell.vComment.frame.origin.y + scCell.vComment.bounds.size.height, scCell.vTool.bounds.size.width, scCell.vTool.bounds.size.height)];
+                
+                UITapGestureRecognizer  *tapViewAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapViewAll setNumberOfTapsRequired:1];
+                [tapViewAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapViewAll];
+                
+                UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapLableAll setNumberOfTapsRequired:1];
+                [tapLableAll setNumberOfTouchesRequired:1];
+                [scCell.vAllComment addGestureRecognizer:tapLableAll];
+                
+                [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
+                
+                UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
+                [tapImageComment setNumberOfTapsRequired:1];
+                [tapImageComment setNumberOfTouchesRequired:1];
+                [scCell.iconViewAllComment addGestureRecognizer:tapImageComment];
+
             }else{
                 
                 [scCell.vAllComment setHidden:YES];
@@ -538,6 +575,26 @@
     lastOffset = offset;
 }
 
+- (void) stopRefesh{
+    [refreshControl endRefreshing];
+    
+    CGFloat contentOffset = self.contentOffset.y;
+    if (contentOffset < 0) {
+        [self setContentOffset:CGPointMake(0.0f, 0.0f) animated:YES];
+    }
+    
+    [UIView animateWithDuration:1 delay:0.5 options:UIViewAnimationOptionCurveLinear animations:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [spinner stopAnimating];
+            self.tableFooterView = nil;
+            
+        });
+    } completion:^(BOOL finished) {
+
+    }];
+}
+
 - (void) stopLoadWall:(BOOL)_isEndData{
     isEnd = _isEndData;
     isMoreData = NO;
@@ -547,10 +604,6 @@
     if (contentOffset < 0) {
         [self setContentOffset:CGPointMake(0.0f, 0.0f) animated:YES];
     }
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-    });
 
     [UIView animateWithDuration:1 delay:0.5 options:UIViewAnimationOptionCurveLinear animations:^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -709,6 +762,7 @@
 }
 
 - (void) onTick:(id)sender{
+    return;
     if (isOnTick) {
         NSArray *paths = [self indexPathsForVisibleRows];
         

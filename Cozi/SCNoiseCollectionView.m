@@ -82,7 +82,8 @@ static NSString * const reuseIdentifier = @"Cell";
     [scCell.imgView setAutoresizingMask:UIViewAutoresizingNone];
     [scCell.imgView setClipsToBounds:YES];
     
-    [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_noise.urlThumb] placeholderImage:[UIImage imageNamed:@"placeholder"]];
+//    [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_noise.urlThumb] placeholderImage:nil];
+    [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_noise.urlThumb]];
     
     [scCell.shadowImage setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.shadowImage setBackgroundColor:[UIColor whiteColor]];

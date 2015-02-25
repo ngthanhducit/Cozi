@@ -39,6 +39,9 @@
     NSIndexPath                             *rowAction;
     UIImage             *defaultImage;
     Friend              *friendIns;
+    UIImage             *imgIsRead;
+    UIImage             *imgIsSend;
+    UIImage             *imgIsRecive;
 }
 @property (nonatomic, strong) id<SCMessageTableViewDelegate> scMessageTableViewDelegate;
 //@property (nonatomic, strong) Friend                     *friendIns;

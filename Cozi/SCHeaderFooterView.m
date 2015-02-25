@@ -44,6 +44,26 @@
     __weak DataWall *_wall = _data;
     [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     
+    if (_wall.thumb != nil) {
+        imgAvatar.image = _wall.thumb;
+    }else{
+        if (![_wall.urlAvatarThumb isEqualToString:@""]) {
+            //call get info use
+            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                
+            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                
+                if (image && finished) {
+                    imgAvatar.image = image;
+                    _wall.thumb = image;
+                }
+            }];
+            
+        }else{
+            [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+        }
+    }
+    
     if (_wall.userPostID == storeIns.user.userID) {
         if (storeIns.user.thumbnail) {
             [imgAvatar setImage:storeIns.user.thumbnail];
@@ -61,6 +81,10 @@
             
         }];
     }
+    
+//    UIImage *imgPlaceHolder = [helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
+//    
+//    [imgAvatar sd_setImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] placeholderImage:imgPlaceHolder];
     
     //calculation height cell + spacing top and bottom
     CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
@@ -140,7 +164,7 @@
         [lblNickName setFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
     }
 
-    
+    //Calculation count down time
     NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
     NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
     NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
@@ -185,11 +209,11 @@
     [self.lblTime setText:timeAgo];
     [self.lblTime setFont:[helperIns getFontLight:13.0f]];
     
-    [view addSubview:self.lblTime];
+//    [view addSubview:self.lblTime];
     
     UIImageView *clock = [[UIImageView alloc] initWithImage:imgClock];
     [clock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 10 + 40), 0, 40, 40)];
-    [view addSubview:clock];
+//    [view addSubview:clock];
     
     [self addSubview:view];
 }

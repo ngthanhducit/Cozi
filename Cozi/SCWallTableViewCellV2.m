@@ -48,7 +48,7 @@
     if (self) {
 //        [self setUserInteractionEnabled:NO];
         [self setSelectionStyle:UITableViewCellSelectionStyleNone];
-        self.mainView = [[UIView alloc] initWithFrame:self.bounds];
+        self.mainView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         [self.mainView setBackgroundColor:[UIColor whiteColor]];
 
         [self.contentView addSubview:self.mainView];
@@ -75,7 +75,7 @@
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
     
-    widthBlock = self.bounds.size.width;
+    widthBlock = [[UIScreen mainScreen] bounds].size.width;
     
     //Init Image Default
 //    dImageLike = [helperIns getImageSVGContentFile:@"icon-LikeGreen"];
@@ -139,7 +139,7 @@
     [self.lblLike setText:@"8568 likes"];
     [self.lblLike setTextColor:[UIColor grayColor]];
     [self.lblLike setTextAlignment:NSTextAlignmentLeft];
-    [self.lblLike setFont:[helperIns getFontLight:18.0f]];
+    [self.lblLike setFont:[helperIns getFontLight:13.0f]];
     [vLike addSubview:self.lblLike];
     
     self.btnMore = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -297,42 +297,79 @@
 }
 
 - (void) setTextStatus{
-    NSArray *subArray = [self.statusText componentsSeparatedByString:@"^tt^"];
     
-    NSString *str = [[NSString stringWithFormat:@"%@ %@", self.nickNameText, self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
-    
-    [self.lblStatus setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+    if (_wallData.codeType != 0) {
+        NSArray *subArray = [self.statusText componentsSeparatedByString:@"^tt^"];
         
-        return mutableAttributedString;
-    }];
-    
-    NSRange r = [str rangeOfString:self.nickNameText];
-    NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", self.wallData.userPostID];
-    strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
-    [self.lblStatus addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
-    
-    if ([subArray count] > 0) {
-        int count = (int)[subArray count];
-        for (int i = 0; i < count; i++) {
-            NSString *chunk = [subArray objectAtIndex:i];
-            if ([chunk isEqualToString:@""])
-            {
-                continue;     // skip this loop if the chunk is empty
-            }
+        NSString *str = [[NSString stringWithFormat:@"%@ %@", self.nickNameText, self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
+        
+        [self.lblStatus setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
             
-            BOOL isTag = [chunk hasPrefix:@"@"];
-            BOOL isSearch  = [chunk hasPrefix:@"#"];
-            BOOL isLink = (BOOL)(isTag || isSearch);
-            if (isLink) {
+            return mutableAttributedString;
+        }];
+        
+        NSRange r = [str rangeOfString:self.nickNameText];
+        NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", self.wallData.userPostID];
+        strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+        [self.lblStatus addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+        
+        if ([subArray count] > 0) {
+            int count = (int)[subArray count];
+            for (int i = 0; i < count; i++) {
+                NSString *chunk = [subArray objectAtIndex:i];
+                if ([chunk isEqualToString:@""])
+                {
+                    continue;     // skip this loop if the chunk is empty
+                }
                 
-                NSRange rTag = [str rangeOfString:chunk];
-                NSString *strTag = [NSString stringWithFormat:@"action://show-tag?%@", chunk];
-                strTag = [strTag stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                [self.lblStatus addLinkToURL:[NSURL URLWithString:strTag] withRange:rTag];
+                BOOL isTag = [chunk hasPrefix:@"@"];
+                BOOL isSearch  = [chunk hasPrefix:@"#"];
+                BOOL isLink = (BOOL)(isTag || isSearch);
+                if (isLink) {
+                    
+                    NSRange rTag = [str rangeOfString:chunk];
+                    NSString *strTag = [NSString stringWithFormat:@"action://show-tag?%@", chunk];
+                    strTag = [strTag stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    [self.lblStatus addLinkToURL:[NSURL URLWithString:strTag] withRange:rTag];
+                    
+                }
+            }
+        }
+    }else{
+        
+        NSArray *subArray = [self.statusText componentsSeparatedByString:@"^tt^"];
+        
+        NSString *str = [[NSString stringWithFormat:@"%@", self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
+        
+        [self.lblStatus setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+            
+            return mutableAttributedString;
+        }];
+        
+        if ([subArray count] > 0) {
+            int count = (int)[subArray count];
+            for (int i = 0; i < count; i++) {
+                NSString *chunk = [subArray objectAtIndex:i];
+                if ([chunk isEqualToString:@""])
+                {
+                    continue;     // skip this loop if the chunk is empty
+                }
                 
+                BOOL isTag = [chunk hasPrefix:@"@"];
+                BOOL isSearch  = [chunk hasPrefix:@"#"];
+                BOOL isLink = (BOOL)(isTag || isSearch);
+                if (isLink) {
+                    
+                    NSRange rTag = [str rangeOfString:chunk];
+                    NSString *strTag = [NSString stringWithFormat:@"action://show-tag?%@", chunk];
+                    strTag = [strTag stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                    [self.lblStatus addLinkToURL:[NSURL URLWithString:strTag] withRange:rTag];
+                    
+                }
             }
         }
     }
+    
     [self.lblStatus setNeedsDisplay];
 }
 

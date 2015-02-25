@@ -28,29 +28,31 @@
 
 - (void) setup{
     
+    CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+    
     Helper *hp = [Helper shareInstance];
     
 //    self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    UIView *selectionColor = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];
+    UIView *selectionColor = [[UIView alloc] initWithFrame:CGRectMake(0, 0, sizeScreen.size.width, self.bounds.size.height)];
     [selectionColor setBackgroundColor:[hp colorWithHex:[hp getHexIntColorWithKey:@"GreenColor"]]];
     
     UIImage *img = [[Helper shareInstance] getImageFromSVGName:@"icon-TickGrey-v3.svg"];
     UIImageView *_imgView = [[UIImageView alloc] initWithImage:img];
-    [_imgView setFrame:CGRectMake(self.bounds.size.width - 40, 5, 40, 40)];
+    [_imgView setFrame:CGRectMake(sizeScreen.size.width - 40, 5, 40, 40)];
     [_imgView setContentMode:UIViewContentModeCenter];
     [selectionColor addSubview:_imgView];
     
     self.selectedBackgroundView = selectionColor;
     
-    self.lblName = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, self.bounds.size.width - 80, 40)];
+    self.lblName = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, sizeScreen.size.width - 80, 40)];
     [self.lblName setBackgroundColor:[UIColor clearColor]];
     [self.lblName setLineBreakMode:NSLineBreakByTruncatingTail];
     [self.lblName setTextColor:[UIColor blackColor]];
 //    [self.lblName setAdjustsFontSizeToFitWidth:NO];
     [self.contentView addSubview:self.lblName];
     
-    self.lblVincity = [[UILabel alloc] initWithFrame:CGRectMake(20, self.lblName.bounds.size.height, self.bounds.size.width - 80, 20)];
+    self.lblVincity = [[UILabel alloc] initWithFrame:CGRectMake(20, self.lblName.bounds.size.height, sizeScreen.size.width - 80, 20)];
     [self.lblVincity setBackgroundColor:[UIColor clearColor]];
     [self.contentView addSubview:self.lblVincity];
 

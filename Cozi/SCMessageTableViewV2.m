@@ -52,6 +52,8 @@ const CGFloat wViewMainPadding = 20.0f;
     [loadView setAlpha:0.8f];
     
 //    defaultImage = [helperIns imageWithView:loadView];
+    imgIsRead = [helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"];
+    imgIsRecive = [helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"];
 }
 
 - (void) setData:(NSMutableArray *)_data{
@@ -148,7 +150,6 @@ const CGFloat wViewMainPadding = 20.0f;
     [DateFormatter setDateFormat:@"hh:mm a"];
     
     if (_message.typeMessage == 0) {        //Text Message
-        
         
         if (_senderID == _friendID) {       //Message of friend
             
@@ -295,19 +296,19 @@ const CGFloat wViewMainPadding = 20.0f;
             }
 //            strStatus = @"Read";
             //change image status - Read
-            [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+            [scCell.imgStatusMessage setImage:imgIsRead];
             
             [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
             [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
         }else{
 //            strStatus = @"Recive";
-            [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
+            [scCell.imgStatusMessage setImage:imgIsRecive];
         }
     }
     
     if (_message.statusMessage == 2) {
 //        strStatus = @"Read";
-        [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+        [scCell.imgStatusMessage setImage:imgIsRead];
     }
 
     [scCell.imgStatusMessage setFrame:CGRectMake(scCell.lblTime.frame.origin.x + scCell.lblTime.bounds.size.width, scCell.lblTime.frame.origin.y - 3, scCell.lblTime.bounds.size.height + 6, scCell.lblTime.bounds.size.height + 6)];
@@ -406,19 +407,19 @@ const CGFloat wViewMainPadding = 20.0f;
                 [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
             }
             //            strStatus = @"Read";
-            [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+            [scCell.imgStatusMessage setImage:imgIsRead];
             
             [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
             [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
         }else{
             //            strStatus = @"Recive";
-            [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
+            [scCell.imgStatusMessage setImage:imgIsRecive];
         }
     }
     
     if (_message.statusMessage == 2) {
         //        strStatus = @"Read";
-        [scCell.imgStatusMessage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+        [scCell.imgStatusMessage setImage:imgIsRead];
     }
     
     [scCell.imgStatusMessage setFrame:CGRectMake(scCell.lblTime.frame.origin.x + scCell.lblTime.bounds.size.width, scCell.lblTime.frame.origin.y - 3, scCell.lblTime.bounds.size.height + 6, scCell.lblTime.bounds.size.height + 6)];
@@ -455,6 +456,7 @@ const CGFloat wViewMainPadding = 20.0f;
     [scCell.vMessengerImage setFrame:CGRectMake(xViewMessenger, topSpacing / 2, wViewMessenger, 160)];
 
     if (_message.thumnail !=nil) {
+        
         scCell.vMessengerImage.imgView.image = _message.thumnail;
         
     }else{
@@ -477,6 +479,8 @@ const CGFloat wViewMainPadding = 20.0f;
         }];
     }
     
+//    [scCell.vMessengerImage.imgView sd_setImageWithURL:[NSURL URLWithString:_message.urlImage] placeholderImage:nil];
+    
     [scCell.viewImage setFrame:CGRectMake(xViewMessenger, topSpacing / 2, scCell.viewImage.bounds.size.width, scCell.viewImage.bounds.size.height)];
 
     [scCell.lblTimeMessengerImage setText:_message.timeMessage];
@@ -498,18 +502,18 @@ const CGFloat wViewMainPadding = 20.0f;
                 [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
             }
             //            strStatus = @"Read";
-            [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+            [scCell.imgStatusMessengerImage setImage:imgIsRead];
             
             [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
             [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
         }else{
             //            strStatus = @"Recive";
-            [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
+            [scCell.imgStatusMessengerImage setImage:imgIsRecive];
         }
     }
     
     if (_message.statusMessage == 2) {
-        [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+        [scCell.imgStatusMessengerImage setImage:imgIsRead];
     }
     
     [scCell.imgStatusMessengerImage setFrame:CGRectMake(scCell.lblTimeMessengerImage.frame.origin.x + sizeTime.width, scCell.lblTimeMessengerImage.frame.origin.y - 3, sizeTime.height + 6, sizeTime.height + 6)];
@@ -598,24 +602,24 @@ const CGFloat wViewMainPadding = 20.0f;
                     [self.scMessageTableViewDelegate sendIsReadMessage:_friendID withKeyMessage:_message.keySendMessage withTypeMessage:_message.typeMessage];
                 }
                 //            strStatus = @"Read";
-                [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+                [scCell.imgStatusMessengerImage setImage:imgIsRead];
                 
                 [[friendIns.friendMessage objectAtIndex:_indexPath.row] setStatusMessage:2];
                 [storeIns updateStatusMessageFriendWithKey:_friendID withMessageID:_message.keySendMessage withStatus:2];
             }
             
             if (_message.typeMessage == 1) {
-                [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
+                [scCell.imgStatusMessengerImage setImage:imgIsRecive];
             }
             
         }else{
             //            strStatus = @"Recive";
-            [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-TickGrey-v3.svg"]];
+            [scCell.imgStatusMessengerImage setImage:imgIsRead];
         }
     }
     
     if (_message.statusMessage == 2) {
-        [scCell.imgStatusMessengerImage setImage:[helperIns getImageFromSVGName:@"icon-EyeGrey-v2.svg"]];
+        [scCell.imgStatusMessengerImage setImage:imgIsRead];
     }
     
     [scCell.imgStatusMessengerImage setFrame:CGRectMake(scCell.lblTimeMessengerImage.frame.origin.x + sizeTime.width, scCell.lblTimeMessengerImage.frame.origin.y - 3, sizeTime.height + 6, sizeTime.height + 6)];
@@ -668,11 +672,16 @@ const CGFloat wViewMainPadding = 20.0f;
 
 #pragma mark- Touch View
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"touchTableView" object:self];
+    if (!inScroll) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"touchTableView" object:self];
+    }
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"touchEndTableView" object:self];
+    if (!inScroll) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"touchEndTableView" object:self];
+    }
+
 }
 
 #pragma -mark UILongPressGestureRecognizer

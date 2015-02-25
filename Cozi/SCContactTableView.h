@@ -15,20 +15,23 @@
 
 @interface SCContactTableView : UITableView <UITableViewDataSource, UITableViewDelegate>
 {
-    NSMutableDictionary            *contacts;
-//    NSArray                 *contactSelectTitles;
-//    NSArray                 *contactIndexTitles;
     Helper                  *helperIns;
     Store                   *storeIns;
+ 
+    NSMutableDictionary            *contacts;
     
     NSMutableArray          *contactList;
-    NSMutableArray                 *contactIndex;
+    NSMutableArray          *contactIndex;
+    
+    NSMutableArray                 *contactSearch;
     
     NSMutableArray              *selectList;
     NSMutableArray              *selectCell;
+    int                         typeContact;
 }
 
 - (void) resetCell;
 - (NSMutableArray*) getSelectList;
 - (void) initData:(NSMutableArray *)_contactList;
+- (void) setType:(int)_type;
 @end

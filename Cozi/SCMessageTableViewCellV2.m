@@ -35,6 +35,9 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         helperIns = [Helper shareInstance];
+        
+        CGRect sizeScreen = [[UIScreen mainScreen] bounds];
+        
         self.selectionStyle = UITableViewCellAccessoryNone;
         
         self.vMainShadow = [[UIView alloc] initWithFrame:CGRectZero];
@@ -89,7 +92,7 @@
         self.smsImage = [[UIImageView alloc] initWithFrame:CGRectZero];
         [self.contentView addSubview:self.smsImage];
     
-        CGFloat wViewMessenger = self.bounds.size.width - 75;
+        CGFloat wViewMessenger = sizeScreen.size.width - 75;
         
         self.vMessengerImageShadow = [[UIView alloc] initWithFrame:CGRectMake(0, 0, wViewMessenger - 5, 160)];
         [self.vMessengerImageShadow setBackgroundColor:[UIColor lightGrayColor]];
@@ -135,7 +138,7 @@
         self.btnDownloadImage.layer.borderWidth = 2.0f;
         [self.viewImage addSubview:self.btnDownloadImage];
         
-        CGFloat xIcon = self.bounds.size.width - (50);
+        CGFloat xIcon = sizeScreen.size.width- (50);
         self.iconImage = [[UIImageView alloc] initWithFrame:CGRectZero];
         [self.iconImage setFrame:CGRectMake(xIcon, 5, 40, 40)];
         [self.iconImage setContentMode:UIViewContentModeScaleAspectFill];

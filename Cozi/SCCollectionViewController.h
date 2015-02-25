@@ -13,7 +13,6 @@
 #import "Helper.h"
 #import "ImageSelected.h"
 #import <QuartzCore/QuartzCore.h>
-#import "ImageRender.h"
 
 static NSString * const PhotoCellIdentifier = @"PhotoCell";
 @protocol SCCollectionViewDelegate <NSObject>

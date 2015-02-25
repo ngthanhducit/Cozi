@@ -47,5 +47,6 @@
 
 - (void) stopStartOnTick:(BOOL)_isTick;
 - (void) stopLoadWall:(BOOL)_isEndData;
+- (void) stopRefesh;
 - (void) initWithData:(NSMutableArray*)_data withType:(int)_type;
 @end

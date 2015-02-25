@@ -27,11 +27,6 @@
     return self;
 }
 
-- (void) initData:(NSMutableArray *)_contactList{
-    contactList = _contactList;
-    [self generateSectionTitles];
-}
-
 - (void) setup{
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
@@ -46,6 +41,11 @@
     [self setDataSource:self];
     self.sectionIndexBackgroundColor = [UIColor blackColor];
     self.sectionIndexColor = [UIColor whiteColor];
+}
+
+- (void) initData:(NSMutableArray *)_contactList{
+    contactList = _contactList;
+    [self generateSectionTitles];
 }
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
@@ -69,8 +69,6 @@
     [label setTextAlignment:NSTextAlignmentCenter];
     [label setTextColor:[UIColor grayColor]];
     [label setBackgroundColor:[UIColor whiteColor]];
-//    [label setTextColor:[UIColor lightGrayColor]];
-//    [label setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
     
     NSString *string =[contactIndex objectAtIndex:section];
     /* Section header is in 0th index... */
@@ -79,16 +77,6 @@
     
     [view addSubview:label];
     [view setBackgroundColor:[UIColor whiteColor]];
-    
-//    CALayer *topTitle = [CALayer layer];
-//    [topTitle setFrame:CGRectMake(0.0f, 0, tableView.frame.size.width, 0.5f)];
-//    [topTitle setBackgroundColor:[UIColor whiteColor].CGColor];
-//    [view.layer addSublayer:topTitle];
-//
-//    CALayer *bottomTitle = [CALayer layer];
-//    [bottomTitle setFrame:CGRectMake(0.0f, 18, tableView.frame.size.width, 0.5f)];
-//    [bottomTitle setBackgroundColor:[UIColor whiteColor].CGColor];
-//    [view.layer addSublayer:bottomTitle];
     
     return view;
 }
@@ -112,7 +100,6 @@
     }
 
     [cell setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1]];
-//    [cell setBackgroundColor:[UIColor lightGrayColor]];
     
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
@@ -120,29 +107,17 @@
 
     if (_friend.statusAddFriend == 1) {
         [cell setBackgroundColor:[UIColor orangeColor]];
-    }
-//    if (_friend.statusFriend == 0) {
-//        [cell.iconContact setImage:_friend.thumbnailOffline];
-//    }else{
-//        [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:[UIImage imageNamed:@"placeholder"]];
-//    }
-    
-    if (![_friend.urlThumbnail isEqualToString:@""]) {
-        [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail]];
     }else{
-//        [cell.iconContact setImage:_friend.thumbnail];
-        [cell.iconContact setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+//        [cell setBackgroundColor:[UIColor clearColor]];
     }
+    
+    UIImage *imgPlaceHolder = [helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
+    [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:imgPlaceHolder];
 
     [cell.lblFullName setText:_friend.nickName];
     
     return cell;
 }
-
-
-//- (NSArray *) sectionIndexTitlesForTableView:(UITableView *)tableView{
-//    return contactIndex;
-//}
 
 - (void)setCellColor:(UIColor *)color ForCell:(SCContactTableViewCell *)cell {
     cell.contentView.backgroundColor = color;
@@ -161,6 +136,7 @@
             
             [contactIndex addObject:character];
         }
+        
     }
 }
 
@@ -238,6 +214,10 @@
 
 - (NSMutableArray*) getSelectList{
     return selectList;
+}
+
+- (void) setType:(int)_type{
+    typeContact = _type;
 }
 
 - (void) resetCell{
