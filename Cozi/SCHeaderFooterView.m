@@ -44,47 +44,21 @@
     __weak DataWall *_wall = _data;
     [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     
-    if (_wall.thumb != nil) {
-        imgAvatar.image = _wall.thumb;
-    }else{
-        if (![_wall.urlAvatarThumb isEqualToString:@""]) {
-            //call get info use
-            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                
-            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                
-                if (image && finished) {
-                    imgAvatar.image = image;
-                    _wall.thumb = image;
-                }
-            }];
-            
-        }else{
-            [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
-        }
-    }
-    
     if (_wall.userPostID == storeIns.user.userID) {
         if (storeIns.user.thumbnail) {
             [imgAvatar setImage:storeIns.user.thumbnail];
-        }else{
-            [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
         }
     }else{
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-            
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            
-            if (image && finished) {
-                [imgAvatar setImage:image];
+        if (_wall.thumb) {
+            [imgAvatar setImage:_wall.thumb];
+        }else{
+            UIImage *imgThumb = [storeIns getAvatarThumbFriend:_wall.userPostID];
+            if (imgThumb) {
+                _wall.thumb = imgThumb;
+                [imgAvatar setImage:imgThumb];
             }
-            
-        }];
+        }
     }
-    
-//    UIImage *imgPlaceHolder = [helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
-//    
-//    [imgAvatar sd_setImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] placeholderImage:imgPlaceHolder];
     
     //calculation height cell + spacing top and bottom
     CGSize textSize = CGSizeMake(self.bounds.size.width, 10000);
@@ -199,7 +173,7 @@
         timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
     }
     
-    timeAgo = [helperIns convertNSDateToString:timeMessage withFormat:@"HH:mm:ss"];
+    timeAgo = [helperIns convertNSDateToString:timeMessage withFormat:@"HH:mm"];
     
     CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
     
@@ -209,11 +183,11 @@
     [self.lblTime setText:timeAgo];
     [self.lblTime setFont:[helperIns getFontLight:13.0f]];
     
-//    [view addSubview:self.lblTime];
+    [view addSubview:self.lblTime];
     
     UIImageView *clock = [[UIImageView alloc] initWithImage:imgClock];
     [clock setFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 10 + 40), 0, 40, 40)];
-//    [view addSubview:clock];
+    [view addSubview:clock];
     
     [self addSubview:view];
 }
@@ -234,17 +208,7 @@
                 NSDictionary *dictionary = [NSDictionary dictionaryWithObject:headerUser forKey:key];
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
             }
-            
-//            Friend *_friend = [storeIns getFriendByID:[query intValue]];
-//            
-//            if (_friend != nil) {
-//                NSString *key = @"tapFriend";
-//                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
-//            }else{
-//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
-//            }
-            
+         
         } else if ([[url host] hasPrefix:@"show-tag"]) {
             /* load settings screen */
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];

@@ -93,9 +93,8 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self.lblNickName setFont:[self.helperIns getFontLight:16.0f]];
     [vHeader addSubview:self.lblNickName];
     
-    self.tbView = [[SCMessageTableViewV2 alloc] initWithFrame:self.frame style:UITableViewStylePlain];
-    [self.tbView setFrame:CGRectMake(0, hHeader, self.bounds.size.width, self.bounds.size.height - 40 - heightTextField - heightToolkitNormal)];
-    
+    self.tbView = [[SCMessageTableViewV2 alloc] initWithFrame:CGRectMake(0, hHeader, self.bounds.size.width, self.bounds.size.height - hHeader - heightTextField - heightToolkitNormal) style:UITableViewStylePlain];
+//    [self.tbView setBackgroundColor:[UIColor purpleColor]];
     [self.tbView setScMessageTableViewDelegate:self];
     [self.tbView setContentOffset:CGPointMake(20, 0) animated:NO];
     self.tbView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag | UIScrollViewKeyboardDismissModeInteractive;
@@ -127,9 +126,22 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self setupCamera];
     
     //init view new messenger
-    self.vNewMessage = [[UIView alloc] initWithFrame:CGRectMake(50, self.viewSendMessage.frame.origin.y - (50), self.bounds.size.width - 100, 50)];
-    [self.vNewMessage setBackgroundColor:[UIColor purpleColor]];
-//    [self addSubview:self.vNewMessage];b
+    self.vNewMessage = [[UIView alloc] initWithFrame:CGRectMake(50, self.viewSendMessage.frame.origin.y - (50), self.bounds.size.width - 100, 40)];
+    [self.vNewMessage setHidden:YES];
+    [self.vNewMessage setBackgroundColor:[UIColor lightGrayColor]];
+    [self addSubview:self.vNewMessage];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapNewMessenger:)];
+    [tap setNumberOfTapsRequired:1];
+    [tap setNumberOfTouchesRequired:1];
+    [self.vNewMessage addGestureRecognizer:tap];
+    
+    self.lblNewMessenger = [[UILabel alloc] initWithFrame:self.vNewMessage.bounds];
+    [self.lblNewMessenger setText:@"new messenger"];
+    [self.lblNewMessenger setTextAlignment:NSTextAlignmentCenter];
+    [self.lblNewMessenger setFont:[self.helperIns getFontLight:12.0f]];
+    [self.lblNewMessenger setTextColor:[UIColor whiteColor]];
+    [self.vNewMessage addSubview:self.lblNewMessenger];
 }
 
 - (void) setupCamera{
@@ -466,8 +478,9 @@ const CGSize sizeButtonSend = { 30, 30 };
 
 - (void) btnTakePhotoTap{
     [scrollImageLibrary removeFromSuperview];
-    [cameraPreview closeImage];
-    [cameraPreview removeFromSuperview];
+    
+    [self resetCamera];
+    
     [viewLibrary addSubview:cameraPreview];
     
     [toolkitCamera setHidden:NO];
@@ -893,6 +906,7 @@ const CGSize sizeButtonSend = { 30, 30 };
 
 - (void) scrollToBottom{
     //scroll to bottom
+    self.vNewMessage.hidden = !self.vNewMessage.hidden;
     double y = self.tbView.contentSize.height - self.tbView.bounds.size.height;
     CGPoint bottomOffset = CGPointMake(0, y);
     if (y > -self.tbView.contentInset.top)
@@ -1003,5 +1017,10 @@ const CGSize sizeButtonSend = { 30, 30 };
     }
     
     return NO;
+}
+
+- (void) tapNewMessenger:(UIGestureRecognizer*)recognizer{
+    [self.vNewMessage setHidden:YES];
+    [self scrollToBottom];
 }
 @end

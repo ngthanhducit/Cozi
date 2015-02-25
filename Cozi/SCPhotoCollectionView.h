@@ -21,5 +21,6 @@ static NSString * const PostPhotoCellIdentifier = @"PhotoCell";
     UIRefreshControl            *refresh;
     NSMutableArray              *assets;
     int                         lastSelect;
+    NSIndexPath                 *lastSelectIndex;
 }
 @end

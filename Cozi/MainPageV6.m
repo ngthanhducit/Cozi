@@ -107,7 +107,7 @@
     
     [lblFollowers setText:[NSString stringWithFormat:@"%i", (int)[self.storeIns.listFollower count]]];
     [lblFollowing setText:[NSString stringWithFormat:@"%i", (int)[self.storeIns.listFollowing count]]];
-    [lblPosts setText:[NSString stringWithFormat:@"%i", profile.countPost]];
+    [lblPosts setText:[NSString stringWithFormat:@"%i", (int)[self.storeIns.listHistoryPost count]]];
     
     [self initEditProfile];
 }

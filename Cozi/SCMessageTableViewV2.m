@@ -630,7 +630,9 @@ const CGFloat wViewMainPadding = 20.0f;
 }
 
 - (void) reloadTableView{
-    CGFloat y = self.contentSize.height - self.bounds.size.height;
+    CGFloat y = self.contentSize.height - (self.bounds.size.height + self.frame.origin.y + 20);
+    NSLog(@"content size y: %f - %f", self.contentSize.height, self.bounds.size.height);
+    
     if (self.contentOffset.y >= (lroundf(y * 100) / 100)) {
         if (inScroll == NO) {
             [self reloadData];
@@ -641,17 +643,36 @@ const CGFloat wViewMainPadding = 20.0f;
             if (y > -self.contentInset.top)
                 [self setContentOffset:bottomOffset animated:NO];
         }
+    }else{
+        ChatView *parent = (ChatView*)[self superview];
+        [parent.vNewMessage setHidden:NO];
+        Messenger *_messenger = [friendIns.friendMessage lastObject];
+        if (_messenger.typeMessage == 0) {
+            [parent.lblNewMessenger setText:_messenger.strMessage];
+        }else{
+            [parent.lblNewMessenger setText:@"You have new messenger"];
+        }
+
     }
 }
 
 #pragma mark- UIScrollView Delegate
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView{
+    
+    CGFloat y = self.contentSize.height - (self.bounds.size.height + self.frame.origin.y + 20);
+    
+    if (self.contentOffset.y >= (lroundf(y * 100) / 100)) {
+        ChatView *parent = (ChatView*)[self superview];
+        [parent.vNewMessage setHidden:YES];
+    }
+    
+}
 - (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView{
     inScroll = YES;
 }
 
 - (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     inScroll = NO;
-//    [self reloadData];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"endDeceleration" object:self];
     
 }

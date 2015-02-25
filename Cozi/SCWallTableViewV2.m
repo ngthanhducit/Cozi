@@ -40,7 +40,7 @@
     self.bounces = YES;
     self.alwaysBounceVertical = YES;
     
-    NSTimer *_timerTick = [[NSTimer alloc] initWithFireDate:storeIns.timeServer interval:1.0f target:self selector:@selector(onTick:) userInfo:nil repeats:YES];
+    NSTimer *_timerTick = [[NSTimer alloc] initWithFireDate:storeIns.timeServer interval:60.0f target:self selector:@selector(onTick:) userInfo:nil repeats:YES];
     NSRunLoop *runner = [NSRunLoop currentRunLoop];
     [runner addTimer:_timerTick forMode:NSDefaultRunLoopMode];
 
@@ -235,8 +235,6 @@
                 UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
                 [tapLableAll setNumberOfTapsRequired:1];
                 [tapLableAll setNumberOfTouchesRequired:1];
-                [scCell.vAllComment addGestureRecognizer:tapLableAll];
-                
                 [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
                 
                 UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
@@ -334,8 +332,6 @@
                 UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
                 [tapLableAll setNumberOfTapsRequired:1];
                 [tapLableAll setNumberOfTouchesRequired:1];
-                [scCell.vAllComment addGestureRecognizer:tapLableAll];
-                
                 [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
                 
                 UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
@@ -462,8 +458,6 @@
                 UITapGestureRecognizer  *tapLableAll = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
                 [tapLableAll setNumberOfTapsRequired:1];
                 [tapLableAll setNumberOfTouchesRequired:1];
-                [scCell.vAllComment addGestureRecognizer:tapLableAll];
-                
                 [scCell.lblViewAllComment addGestureRecognizer:tapLableAll];
                 
                 UITapGestureRecognizer  *tapImageComment = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAllComment:)];
@@ -521,17 +515,6 @@
                 NSDictionary *dictionary = [NSDictionary dictionaryWithObject:contentUser forKey:key];
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
             }
-            
-//            Friend *_friend = [storeIns getFriendByID:[query intValue]];
-//            
-//            if (_friend != nil) {
-//                NSString *key = @"tapFriend";
-//                NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
-//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
-//            }else{
-//                [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
-//            }
-            
         } else if ([[url host] hasPrefix:@"show-tag"]) {
             /* load settings screen */
             NSString *query = [[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -762,7 +745,7 @@
 }
 
 - (void) onTick:(id)sender{
-    return;
+    
     if (isOnTick) {
         NSArray *paths = [self indexPathsForVisibleRows];
         
@@ -820,16 +803,16 @@
     
     NSInteger h = [difference hour];
     NSInteger m = [difference minute];
-    NSInteger s = [difference second];
+//    NSInteger s = [difference second];
     
     NSString *sHour, *sMinute, *sSecond;
     sHour = [NSString stringWithFormat:@"%i", h];
     sMinute = [NSString stringWithFormat:@"%i", m];
-    sSecond = [NSString stringWithFormat:@"%i", s];
+//    sSecond = [NSString stringWithFormat:@"%i", s];
     
-    if (s < 10) {
-        sSecond = [NSString stringWithFormat:@"0%i", s];
-    }
+//    if (s < 10) {
+//        sSecond = [NSString stringWithFormat:@"0%i", s];
+//    }
     
     if (m < 10) {
         sMinute = [NSString stringWithFormat:@"0%i", m];
@@ -839,7 +822,7 @@
         sHour = [NSString stringWithFormat:@"0%i", h];
     }
     
-    return [NSString stringWithFormat:@"%@:%@:%@", sHour, sMinute, sSecond];
+    return [NSString stringWithFormat:@"%@:%@", sHour, sMinute];
 }
 
 - (void) btnMore:(id)sender{

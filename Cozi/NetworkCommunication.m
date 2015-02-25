@@ -94,6 +94,7 @@
         if (content == nil) {
             content = [[NSMutableString alloc] init];
         }
+        
         [content appendString:str];
 
     }

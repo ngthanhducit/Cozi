@@ -138,11 +138,6 @@
                 [mainPage initFriend:_profile];
                 [mainPage.btnFollow addTarget:self action:@selector(btnFollowUserClick:) forControlEvents:UIControlEventTouchUpInside];
                 
-//                UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(btnFollowUserClick:)];
-//                [tapFollowing setNumberOfTapsRequired:1];
-//                [tapFollowing setNumberOfTouchesRequired:1];
-//                [mainPage.vFollowingUser addGestureRecognizer:tapFollowing];
-                
                 UITapGestureRecognizer *tapFollowing = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFollowingUser)];
                 [tapFollowing setNumberOfTapsRequired:1];
                 [tapFollowing setNumberOfTouchesRequired:1];
@@ -158,7 +153,17 @@
         if ([[subData objectAtIndex:0] isEqualToString:@"GETUSERPOST"]) {
             
             NSMutableArray  *posts = [dataMapIns mapDataWall:[subData objectAtIndex:1] withType:-1];
-            [mainPage setNoisesHistory:posts];
+            NSMutableArray *_listHistory = [NSMutableArray new];
+            if (posts) {
+                int count = (int)[posts count];
+                for (int i = 0; i < count; i++) {
+                    if ([[posts objectAtIndex:i] codeType] != 0) {
+                        [_listHistory addObject:[posts objectAtIndex:i]];
+                    }
+                }
+            }
+            
+            [mainPage setNoisesHistory:_listHistory];
             
         }
         

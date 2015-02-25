@@ -71,13 +71,28 @@
     
     FollowerUser *follower = [items objectAtIndex:indexPath.row];
     
-    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:follower.urlAvatar] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-        
-    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-        if (image && finished) {
-            [scCell.imgAvatar setImage:image];
+    [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+    
+    if (follower.userID == storeIns.user.userID) {
+        if (storeIns.user.thumbnail) {
+            [scCell.imgAvatar setImage:storeIns.user.thumbnail];
         }
-    }];
+    }else{
+        UIImage *imgThumb = [storeIns getAvatarThumbFriend:follower.userID];
+        if (imgThumb) {
+            [scCell.imgAvatar setImage:imgThumb];
+        }else{
+            if (![follower.urlAvatar isEqualToString:@""]) {
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:follower.urlAvatar] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    if (image && finished) {
+                        [scCell.imgAvatar setImage:image];
+                    }
+                }];
+            }
+        }
+    }
     
     scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", follower.firstName, follower.lastName];
     

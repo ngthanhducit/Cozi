@@ -234,15 +234,17 @@
 - (void) renderComment:(SCCommentTableViewCell*)scCell withIndexPath:(NSIndexPath*)indexPath{
     PostComment *_comment = [self.wallData.comments objectAtIndex:indexPath.row];
     
-    Friend      *_friend = [storeIns getFriendByID:(int)_comment.userCommentId];
-    if (_friend && _friend.friendID > 0) {
-        [scCell.imgAvatar setImage:_friend.thumbnail];
+    [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+    
+    if (_comment.userCommentId == storeIns.user.userID) {
+        if (storeIns.user.thumbnail) {
+            [scCell.imgAvatar setImage:storeIns.user.thumbnail];
+        }
     }else{
-        User *_user = storeIns.user;
-        if (_user.userID == _comment.userCommentId) {
-            scCell.imgAvatar.image = _user.thumbnail;
+        UIImage *imgThumb = [storeIns getAvatarThumbFriend:_comment.userCommentId];
+        if (imgThumb) {
+            [scCell.imgAvatar setImage:imgThumb];
         }else{
-            
             if (![_comment.urlAvatarThumb isEqualToString:@""]) {
                 //call get info use
                 [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_comment.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
@@ -252,12 +254,9 @@
                     if (image && finished) {
                         scCell.imgAvatar.image = image;
                     }
+                    
                 }];
-                
-            }else{
-                [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
             }
-            
         }
     }
 
@@ -279,25 +278,6 @@
     
     [scCell.lblTime setFrame:CGRectMake(self.bounds.size.width - 50, 5, 50, 20)];
 
-}
-
-- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-//    SCCommentTableViewCell *cell = (SCCommentTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
-    
-//    UIColor *c = [UIColor whiteColor];
-//    NSAttributedString *textAttribute = [[NSAttributedString alloc] initWithString:cell.lblName.text attributes:@{ NSForegroundColorAttributeName : c }];
-//    [cell.lblName setAttributedText:textAttribute];
-//    
-//    NSAttributedString *vincityAttribute = [[NSAttributedString alloc] initWithString:cell.lblVincity.text attributes:@{ NSForegroundColorAttributeName : c }];
-//    [cell.lblVincity setAttributedText:vincityAttribute];
-//    
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"SelectNearLocation" object:nil userInfo:nil];
-}
-
-- (void) tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath{
-//    SCNearTableViewCell *cell = (SCNearTableViewCell *)[tableView cellForRowAtIndexPath:indexPath];
-//    [cell.lblName setTextColor:[UIColor blackColor]];
-//    [cell.lblVincity setTextColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
 }
 
 - (void)setCellColor:(UIColor *)color ForCell:(UITableViewCell *)cell {

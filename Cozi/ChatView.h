@@ -54,6 +54,7 @@
 }
 
 @property (nonatomic, strong) UIView                *vNewMessage;
+@property (nonatomic, strong) UILabel               *lblNewMessenger;
 @property (nonatomic, strong) UILabel               *lblNickName;
 @property (nonatomic, strong) SCChatToolKitView     *chatToolKit;
 @property (nonatomic, strong) Store                *storeIns;

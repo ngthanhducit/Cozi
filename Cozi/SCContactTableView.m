@@ -107,12 +107,15 @@
 
     if (_friend.statusAddFriend == 1) {
         [cell setBackgroundColor:[UIColor orangeColor]];
-    }else{
-//        [cell setBackgroundColor:[UIColor clearColor]];
     }
     
-    UIImage *imgPlaceHolder = [helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
-    [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:imgPlaceHolder];
+    [cell.iconContact setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+    UIImage *imgThumb = [storeIns getAvatarThumbFriend:_friend.friendID];
+    if (imgThumb) {
+        [cell.iconContact setImage:imgThumb];
+    }
+    
+//    [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:imgPlaceHolder];
 
     [cell.lblFullName setText:_friend.nickName];
     

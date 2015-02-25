@@ -135,7 +135,7 @@ static NSString * const SCLayoutPhotoCellKind = @"PhotoCell";
     CGFloat originY = floor(self.itemInsets.top +
                             (self.itemSize.height + self.interItemSpacingY) * row);
     
-    NSLog(@"origin x: %f - origin y: %f - row: %i", originX, originY, (int)row);
+//    NSLog(@"origin x: %f - origin y: %f - row: %i", originX, originY, (int)row);
     
     return CGRectMake(originX, originY, self.itemSize.width, self.itemSize.height);
 }

@@ -29,6 +29,10 @@
     [super viewWillAppear:YES];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.lblTitle setText:@"SELECT PHOTO"];
+    
+    if (self.scPhotoCollectionView) {
+        [self.scPhotoCollectionView reloadData];
+    }
 }
 
 - (void) initUI{

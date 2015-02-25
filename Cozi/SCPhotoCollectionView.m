@@ -62,6 +62,7 @@ static NSString * const reuseIdentifier = @"Cell";
     
     UIImage *_image = [assets objectAtIndex:indexPath.section];
     
+    scCell.imgView.layer.borderWidth = 0.0;
     [scCell.imgView setImage:_image];
     [scCell.imgView setFrame:CGRectMake(0, 0, scCell.bounds.size.width, scCell.bounds.size.height)];
     [scCell.imgView setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GrayColor1"]]];
@@ -81,12 +82,21 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     lastSelect = (int)indexPath.section;
     
-//    SCPhotoCollectionViewCell *scCell = (SCPhotoCollectionViewCell*)[self cellForItemAtIndexPath:indexPath];
+    if (lastSelectIndex) {
+        SCPhotoCollectionViewCell *scCell = (SCPhotoCollectionViewCell*)[self cellForItemAtIndexPath:lastSelectIndex];
+        scCell.imgView.layer.borderWidth = 0.0;
+    }
+    
+    SCPhotoCollectionViewCell *scCell = (SCPhotoCollectionViewCell*)[self cellForItemAtIndexPath:indexPath];
+    scCell.imgView.layer.borderWidth = 4.0;
+    scCell.imgView.layer.borderColor = [helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
     
     NSNumber *resultCode = [NSNumber numberWithInt:(int)indexPath.section];
     NSString *key = @"tapPhotoPost";
     NSDictionary *dictionary = [NSDictionary dictionaryWithObject:resultCode forKey:key];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"POSTPHOTOSELECT" object:nil userInfo:dictionary];
+    
+    lastSelectIndex = indexPath;
 }
 
 - (void) handleRefresh:(id)sender{

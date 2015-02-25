@@ -49,7 +49,17 @@
     my = _myProfile;
     [mainPage initUser:my];
     
-    [mainPage setNoisesHistory:storeIns.listHistoryPost];
+    NSMutableArray *_listHistory = [NSMutableArray new];
+    if (storeIns.listHistoryPost) {
+        int count = (int)[storeIns.listHistoryPost count];
+        for (int i = 0; i < count; i++) {
+            if ([[storeIns.listHistoryPost objectAtIndex:i] codeType] != 0) {
+                [_listHistory addObject:[storeIns.listHistoryPost objectAtIndex:i]];
+            }
+        }
+    }
+    
+    [mainPage setNoisesHistory:_listHistory];
 }
 
 - (void) selectMyNoise:(NSNotification*)notification{

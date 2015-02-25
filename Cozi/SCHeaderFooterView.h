@@ -21,12 +21,6 @@
 }
 
 @property (nonatomic, strong) UILabel               *lblTime;
-//@property (nonatomic, retain) UIImageView           *imgAvatar;
-//@property (nonatomic, retain) UILabel               *lblFullName;
-//@property (nonatomic, retain) UILabel               *lblLocation;
-//@property (nonatomic, retain) UIImageView           *imgLocation;
-//@property (nonatomic, retain) UIImageView           *imgClock;
 
-- (void) initUI;
 - (void) initWithData:(DataWall*)_data withSection:(NSInteger)section;
 @end
