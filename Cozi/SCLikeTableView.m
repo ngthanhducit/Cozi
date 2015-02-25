@@ -71,16 +71,27 @@
     
     PostLike *like = (PostLike*)[_wallData.likes objectAtIndex:indexPath.row];
     
-    if (![like.urlAvatarThumb isEqualToString:@""]) {
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:like.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-            
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            if (image && finished) {
-                [scCell.imgAvatar setImage:image];
-            }
-        }];
+    [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+    
+    if (like.userLikeId == storeIns.user.userID) {
+        if (storeIns.user.thumbnail) {
+            [scCell.imgAvatar setImage:storeIns.user.thumbnail];
+        }
     }else{
-        [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+        UIImage *imgThumb = [storeIns getAvatarThumbFriend:like.userLikeId];
+        if (imgThumb) {
+            [scCell.imgAvatar setImage:imgThumb];
+        }else{
+            if (![like.urlAvatarThumb isEqualToString:@""]) {
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:like.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    if (image && finished) {
+                        [scCell.imgAvatar setImage:image];
+                    }
+                }];
+            }
+        }
     }
 
     scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", like.firstName, like.lastName];
@@ -116,17 +127,6 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
     }
 }
-
-//- (BOOL)touchesShouldCancelInContentView:(UIView *)view {
-//    // Because we set delaysContentTouches = NO, we return YES for UIButtons
-//    // so that scrolling works correctly when the scroll gesture
-//    // starts in the UIButtons.
-//    if ([view isKindOfClass:[UIButton class]]) {
-//        return YES;
-//    }
-//    
-//    return [super touchesShouldCancelInContentView:view];
-//}
 
 - (void) btnFollowingClick:(id)sender{
     NSLog(@"click Following");
