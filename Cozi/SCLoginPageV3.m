@@ -591,6 +591,7 @@
     [self.vParentPage addSubview:self.vCamera];
     
     self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    [self.cameraCapture resetCamera];
     [self.vCamera addSubview:self.cameraCapture];
     
     self.vTool = [[UIView alloc] initWithFrame:CGRectMake(0, self.vCamera.bounds.size.height - hTool, self.view.bounds.size.width, hTool)];
@@ -755,7 +756,7 @@
     [self.btnSkip setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangleSkip.size.width, 0, imgTriangleSkip.size.width)];
     self.btnSkip.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangleSkip.size.width, 0, -((sizeTitleLable.width) + imgTriangleSkip.size.width));
 
-    [vTakePhoto addSubview:self.btnSkip];
+//    [vTakePhoto addSubview:self.btnSkip];
     
     self.vGridLine = [[SCGridView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width)];
     [self.vGridLine setBackgroundColor:[UIColor clearColor]];
@@ -1287,7 +1288,9 @@
 - (void) nsCompleteCapture{
     UIImage *img = [self.cameraCapture getImageCapture];
 
-    UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
+//    UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
+    
+    UIImage *_newImage = [helperIns cropImage:img withFrame:CGRectMake(0, 0, self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
     
     [self.cameraCapture closeImage];
     

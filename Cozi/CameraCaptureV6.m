@@ -166,6 +166,28 @@
     [self.session startRunning];
 }
 
+- (void) resetCamera{
+    
+    //Remove existing input
+    AVCaptureInput* currentCameraInput = [self.session.inputs objectAtIndex:0];
+    [self.session removeInput:currentCameraInput];
+    
+    if (!isFrontCamera) {
+        NSError *error = nil;
+        
+        AVCaptureDeviceInput    *input = [AVCaptureDeviceInput deviceInputWithDevice:self.backCamera error:&error];
+        [self.session addInput:input];
+    }
+    
+    if (isFrontCamera) {
+        NSError *error = nil;
+
+        AVCaptureDeviceInput    *input = [AVCaptureDeviceInput deviceInputWithDevice:self.frontCamera error:&error];
+        [self.session addInput:input];
+    }
+    
+}
+
 - (void) resizeCameraPreview{
 
     [self.imagePreview setFrame:self.bounds];
@@ -232,7 +254,8 @@
                 }else{
                 UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationLeftMirrored];
                     
-                    UIImage *imgResize = [self resizeImage:flippedImage];
+                    UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
+//                    UIImage *imgResize = [self resizeImage:flippedImage];
                     [imgViewImageCapture setImage: imgResize];
                 }
             }else{
@@ -243,8 +266,9 @@
                     [imgViewImageCapture setImage: flippedImage];
                 }else{
                     UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationRight];
-                    
-                    UIImage *imgResize = [self resizeImage:flippedImage];
+                 
+                    UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
+//                    UIImage *imgResize = [self resizeImage:flippedImage];
                     [imgViewImageCapture setImage: imgResize];
                 }
             }

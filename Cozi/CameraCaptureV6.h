@@ -43,4 +43,5 @@
 - (BOOL) getInShowPhoto;
 - (void) closeImage;
 - (UIImage *)getImageSend;
+- (void) resetCamera;
 @end

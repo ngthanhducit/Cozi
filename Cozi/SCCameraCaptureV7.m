@@ -82,12 +82,12 @@
         }
     }
     
-    if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
-        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
-    }
-    else {
-        // Handle the failure.
-    }
+//    if ([self.session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
+//        self.session.sessionPreset = AVCaptureSessionPreset1280x720;
+//    }
+//    else {
+//        // Handle the failure.
+//    }
     
     if (!isFrontCamera) {
         NSError *error = nil;
@@ -193,13 +193,37 @@
                 UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationRight];
                 [imgViewImageCapture setImage: flippedImage];
                 
-                imgCaptureComplete = flippedImage;
+                UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
+                
+                imgCaptureComplete = imgResize;
             }
             
             [[NSNotificationCenter defaultCenter] postNotificationName:@"SC_CompleteCaptureCamera" object:nil];
             inShowPhoto = YES;
         }
     }];
+}
+
+- (void) resetCamera{
+    
+    //Remove existing input
+    AVCaptureInput* currentCameraInput = [self.session.inputs objectAtIndex:0];
+    [self.session removeInput:currentCameraInput];
+    
+    if (!isFrontCamera) {
+        NSError *error = nil;
+        
+        AVCaptureDeviceInput    *input = [AVCaptureDeviceInput deviceInputWithDevice:self.backCamera error:&error];
+        [self.session addInput:input];
+    }
+    
+    if (isFrontCamera) {
+        NSError *error = nil;
+        
+        AVCaptureDeviceInput    *input = [AVCaptureDeviceInput deviceInputWithDevice:self.frontCamera error:&error];
+        [self.session addInput:input];
+    }
+    
 }
 
 -(void)enableTorch:(AVCaptureTorchMode)torchMode{

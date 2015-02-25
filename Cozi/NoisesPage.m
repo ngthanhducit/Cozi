@@ -31,6 +31,7 @@
     self.itemSize = CGSizeMake(100.0f, 100.0f);
     self.interItemSpacingY = 4.0f;
     self.numberOfColumns = 3;
+    
 }
 
 - (void) setupUI{

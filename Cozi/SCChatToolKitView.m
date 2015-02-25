@@ -117,7 +117,7 @@
 }
 
 - (void) tapGesture:(UITapGestureRecognizer*)recognizer{
-    NSLog(@"tap view");
+    
     [self stopTimer];
     [self.vLine setAlpha:0.0f];
     
@@ -138,7 +138,6 @@
     CGFloat deltaMove = self.vTextView.frame.origin.x + t.x;
     if (deltaMove > 0) {
         CGFloat deltaAlpha = (alphaView * t.x) / (self.bounds.size.width);
-        NSLog(@"alphat: %f", deltaAlpha);
         self.vTool.alpha += deltaAlpha;
         self.vTextView.center = CGPointMake(self.vTextView.center.x + t.x, self.vTextView.center.y);
     }

@@ -80,6 +80,7 @@ const CGSize sizeButtonSend = { 30, 30 };
     self.helperIns = [Helper shareInstance];
     self.networkIns = [NetworkCommunication shareInstance];
     self.dataMapIns = [DataMap shareInstance];
+    self.friendIns = [Friend new];
     
     vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, hHeader)];
     [vHeader setBackgroundColor:[UIColor blackColor]];
@@ -124,6 +125,11 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self addSubview:viewLibrary];
     
     [self setupCamera];
+    
+    //init view new messenger
+    self.vNewMessage = [[UIView alloc] initWithFrame:CGRectMake(50, self.viewSendMessage.frame.origin.y - (50), self.bounds.size.width - 100, 50)];
+    [self.vNewMessage setBackgroundColor:[UIColor purpleColor]];
+//    [self addSubview:self.vNewMessage];b
 }
 
 - (void) setupCamera{
@@ -443,9 +449,12 @@ const CGSize sizeButtonSend = { 30, 30 };
     Messenger *_messenger = [self.friendIns.friendMessage lastObject];
     if (_messenger.userID == storeIns.user.userID) {
 
+        NSDate *timeCurrent = [NSDate date];
+        
         NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:self.storeIns.timeServer];
 //        NSDate *timeMessage = [self.helperIns convertStringToDate:[subValue objectAtIndex:3]];
         NSDate *_dateTimeMessage = [_messenger.timeServerMessage dateByAddingTimeInterval:deltaTime];
+        
         NSTimeInterval delta = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
         if (delta > 5) {
             [self sendMessage:@"(Ping)"];
@@ -457,6 +466,8 @@ const CGSize sizeButtonSend = { 30, 30 };
 
 - (void) btnTakePhotoTap{
     [scrollImageLibrary removeFromSuperview];
+    [cameraPreview closeImage];
+    [cameraPreview removeFromSuperview];
     [viewLibrary addSubview:cameraPreview];
     
     [toolkitCamera setHidden:NO];
@@ -770,6 +781,9 @@ const CGSize sizeButtonSend = { 30, 30 };
 
     CGFloat hTextChat = heightTextField < self.chatToolKit.hpTextChat.bounds.size.height ? self.chatToolKit.hpTextChat.bounds.size.height : heightTextField;
     [self.viewSendMessage setBackgroundColor:[UIColor clearColor]];
+    
+    [self hiddenToolkit];
+    
     [UIView animateWithDuration:0.1 animations:^{
         [self.viewSendMessage setFrame:CGRectMake(0, self.bounds.size.height - kbSize.height - hTextChat - 2, self.bounds.size.width, hTextChat)];
         
@@ -847,6 +861,7 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) touchesInTableView{
+
     [self resetUI];
     
     isTouchTableView = YES;
@@ -897,7 +912,11 @@ const CGSize sizeButtonSend = { 30, 30 };
     [lblChangeCamera setHidden:YES];
     
     [cameraPreview switchCamera:NO];
-    
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [cameraPreview resetCamera];
+    });
+
 }
 
 - (void) notifyDeleteMessage:(Messenger *)_messenger{
