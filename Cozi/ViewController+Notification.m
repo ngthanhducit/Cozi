@@ -135,19 +135,29 @@
 - (void) BecomeActiveNotification:(NSNotification*)notification{
     
     if (isEnterBackground) {
-        BOOL _isConnected = [self.helperIns checkConnected];
-        if (_isConnected) {
-            [self.networkIns connectSocket];
-            
-            [self.chatViewPage resetCamera];
-            
-            isFirstLoadNoise = YES;
-            isFirstLoadWall = YES;
-        }else{
-            
-            [self showStatusConnected:0];
-            
-        }
+        isFirstLoadNoise = YES;
+        isFirstLoadWall = YES;
+        
+        isConnected = -1;
+        
+        [self setupNetworkStatus];
+        
+//        [hostReachability startNotifier];
+        
+//        BOOL _isConnected = [self.helperIns checkConnected];
+//        if (_isConnected) {
+//            [self.networkIns connectSocket];
+//            
+//            [self.chatViewPage resetCamera];
+//            
+//            isFirstLoadNoise = YES;
+//            isFirstLoadWall = YES;
+//            
+//        }else{
+//            
+//            [self showStatusConnected:0];
+//            
+//        }
     }
 }
 
@@ -162,7 +172,7 @@
 //    [self.lblNickName setText:[_friend.nickName uppercaseString]];
     [self.chatViewPage reloadFriend];
     [self.chatViewPage resetUI];
-    [self.chatViewPage resetCamera];
+//    [self.chatViewPage resetCamera];
     [self.chatViewPage.tbView setClearData:NO];
     [self.chatViewPage.tbView reloadData];
     

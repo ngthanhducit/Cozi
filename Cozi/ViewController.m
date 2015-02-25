@@ -79,18 +79,13 @@ static NSString         *dataNetwork;
 - (void) initVariable{
     currentPage = 0;
     isFirstLoadWall = YES;
+    
     heightRowLeftMenu   = 40;
     alphatView = 0.8;
     heightHeader = 40;
     widthMenu = (self.view.bounds.size.width / 4) * 3;
     
     self.helperIns = [Helper shareInstance];
-//    BOOL _isConnected  = [self.helperIns checkConnected];
-//    if (_isConnected) {
-//        isConnected = 1;
-//    }else{
-//        isConnected = 0;
-//    }
 
     isConnected = -1;
     
@@ -106,9 +101,6 @@ static NSString         *dataNetwork;
     self.dataMapIns = [DataMap shareInstance];
     netController = [NetworkController shareInstance];
     
-//    if (isConnected == 1) {
-//        [self initNetwork];
-//    }
 }
 
 - (void) initView{
@@ -224,12 +216,12 @@ static NSString         *dataNetwork;
     [headerView setBackgroundColor:[UIColor blackColor]];
     [self.view addSubview:headerView];
     
-    waitingReconnect = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [waitingReconnect setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
-    [waitingReconnect setBackgroundColor:[UIColor blackColor]];
-    [waitingReconnect setAlpha:0.6];
-    [waitingReconnect startAnimating];
-    [self.view addSubview:waitingReconnect];
+//    waitingReconnect = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    [waitingReconnect setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+//    [waitingReconnect setBackgroundColor:[UIColor blackColor]];
+//    [waitingReconnect setAlpha:0.6];
+//    [waitingReconnect startAnimating];
+//    [self.view addSubview:waitingReconnect];
     
     mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
     [mainScroll setDirectionalLockEnabled:NO];
@@ -285,24 +277,24 @@ static NSString         *dataNetwork;
     [self.wallPageV8 initWithData:nil withType:0];
     [mainScroll addSubview:self.wallPageV8];
     
-    waitingWall = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [waitingWall setFrame:CGRectMake(1 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
-    [waitingWall setBackgroundColor:[UIColor blackColor]];
-    [waitingWall setAlpha:0.6];
-    [waitingWall startAnimating];
-    [mainScroll addSubview:waitingWall];
+//    waitingWall = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    [waitingWall setFrame:CGRectMake(1 * self.view.bounds.size.width, 0, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+//    [waitingWall setBackgroundColor:[UIColor blackColor]];
+//    [waitingWall setAlpha:0.6];
+//    [waitingWall startAnimating];
+//    [mainScroll addSubview:waitingWall];
     
     self.noisePageV6 = [[NoisesPage alloc] initWithFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
     [self.noisePageV6 setBackgroundColor:[UIColor clearColor]];
     [self.noisePageV6.scCollection initData:nil withType:0];
     [mainScroll addSubview:self.noisePageV6];
     
-    waitingNoise = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [waitingNoise setFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
-    [waitingNoise setBackgroundColor:[UIColor blackColor]];
-    [waitingNoise setAlpha:0.6];
-    [waitingNoise startAnimating];
-    [mainScroll addSubview:waitingNoise];
+//    waitingNoise = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    [waitingNoise setFrame:CGRectMake(2 * self.view.bounds.size.width, 0, self.view.bounds.size.width, self.view.bounds.size.height - heightHeader)];
+//    [waitingNoise setBackgroundColor:[UIColor blackColor]];
+//    [waitingNoise setAlpha:0.6];
+//    [waitingNoise startAnimating];
+//    [mainScroll addSubview:waitingNoise];
     
     [self.view addSubview:mainScroll];
     
@@ -310,7 +302,7 @@ static NSString         *dataNetwork;
     
     //init status view
     viewStatusConnect = [[UIView alloc] initWithFrame:CGRectMake(0, -heightHeader, self.view.bounds.size.width, heightHeader)];
-    [viewStatusConnect setBackgroundColor:[UIColor redColor]];
+    [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [viewStatusConnect setHidden:YES];
     
     lblStatusConnect = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, heightHeader)];
@@ -342,6 +334,22 @@ static NSString         *dataNetwork;
     [vBlurShareMenu setHidden:YES];
     [vBlurShareMenu setAlpha:0.0];
     [self.view addSubview:vBlurShareMenu];
+    
+    [self initLineStatusConnect];
+}
+
+- (void) initLineStatusConnect{
+    self.vLineFirstStatusConnect = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 5)];
+    [self.vLineFirstStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+//    [self.vLineFirstStatusConnect setBackgroundColor:[UIColor orangeColor]];
+    [self.vLineFirstStatusConnect setHidden:YES];
+    [self.view addSubview:self.vLineFirstStatusConnect];
+    
+    self.vLineSecondStatusConnect = [[UIView alloc] initWithFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), 0, self.view.bounds.size.width, 5)];
+    [self.vLineSecondStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+//    [self.vLineSecondStatusConnect setBackgroundColor:[UIColor orangeColor]];
+    [self.vLineSecondStatusConnect setHidden:YES];
+    [self.view addSubview:self.vLineSecondStatusConnect];
 }
 
 - (void) initHeaderRecents{
@@ -383,6 +391,7 @@ static NSString         *dataNetwork;
 
 - (void) initHeaderWall{
     UIView *viewWall = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, 0, self.view.bounds.size.width, heightHeader)];
+    [viewWall setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
     
     UIImageView *imgLeftMenuWall = [[UIImageView alloc] initWithImage:[self.helperIns getImageFromSVGName:@"icon-openMenu.svg"]];
     [imgLeftMenuWall setUserInteractionEnabled:YES];
@@ -399,7 +408,7 @@ static NSString         *dataNetwork;
     [lblWall setText:@"WALL"];
     [lblWall setTextAlignment:NSTextAlignmentCenter];
     [lblWall setTextColor:[UIColor whiteColor]];
-    [lblWall setFont:[self.helperIns getFontLight:15.0f]];
+    [lblWall setFont:[self.helperIns getFontMedium:15.0f]];
     [lblWall setUserInteractionEnabled:YES];
     
     [viewWall addSubview:lblWall];
@@ -1080,8 +1089,6 @@ static NSString         *dataNetwork;
 }
 
 - (void) panChatView:(UIPanGestureRecognizer*)recognizer{
-
-    UIView *view = [recognizer view];
     
     // Get the translation in the view
     CGPoint t = [recognizer translationInView:recognizer.view];

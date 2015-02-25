@@ -271,10 +271,11 @@
 - (void) showStatusConnected:(int)_isConnected{
     if (_isConnected == 1) {
         if (isConnected != 1) {
+            [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+            
             [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                 [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
-                [viewStatusConnect setBackgroundColor:[UIColor greenColor]];
                 [lblStatusConnect setText:@"Connecting..."];
                 
             } completion:^(BOOL finished) {
@@ -283,6 +284,12 @@
                     [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 4), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                     
                 } completion:^(BOOL finished) {
+                    [viewStatusConnect setHidden:YES];
+                    [self.vLineFirstStatusConnect setHidden:NO];
+                    [self.vLineSecondStatusConnect setHidden:NO];
+                    
+                    [self loopStatusConnect];
+                    
                     [self initNetwork];
                 }];
                 
@@ -294,10 +301,17 @@
     }else{
         
         if (isConnected != 0) {
+            [viewStatusConnect setBackgroundColor:[UIColor redColor]];
+            
+            [self.vLineFirstStatusConnect.layer removeAllAnimations];
+            [self.vLineSecondStatusConnect.layer removeAllAnimations];
+            
+            [self.vLineFirstStatusConnect setFrame:CGRectMake(0, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+            [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+            
             [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                 [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
-                [viewStatusConnect setBackgroundColor:[UIColor redColor]];
                 [lblStatusConnect setText:@"No internet"];
                 
             } completion:^(BOOL finished) {
@@ -314,6 +328,19 @@
         isConnected = 0;
         
     }
+}
+
+- (void) loopStatusConnect{
+
+    [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, 0, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+    [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, 0, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+    
+    [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionRepeat animations:^{
+        [self.vLineFirstStatusConnect setFrame:CGRectMake(self.view.bounds.size.width + heightHeader, 0, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+        [self.vLineSecondStatusConnect setFrame:CGRectMake(0, 0, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+    } completion:^(BOOL finished) {
+
+    }];
 }
 
 - (void) playSoundSystem{
@@ -348,7 +375,7 @@
             [self.chatViewPage.lblNickName setText:[_friend.nickName uppercaseString]];
             [self.chatViewPage reloadFriend];
             [self.chatViewPage resetUI];
-            [self.chatViewPage resetCamera];
+//            [self.chatViewPage resetCamera];
             [self.chatViewPage.tbView setClearData:NO];
             [self.chatViewPage.tbView reloadData];
             

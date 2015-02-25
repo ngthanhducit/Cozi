@@ -676,12 +676,6 @@
                         _newFriend.thumbnail = image;
                     }
                     
-//                    GPUImageGrayscaleFilter *grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
-//                    
-//                    UIImage *grayscaleImage = [grayscaleFilter imageByFilteringImage:image];
-//                    
-//                    [_newFriend setThumbnailOffline:grayscaleImage];
-                    
                 }];
                 
             }else{
@@ -1562,7 +1556,7 @@
         int count = (int)[self.friends count];
         for (int i = 0; i < count; i++) {
             if ([[self.friends objectAtIndex:i] friendID] == _friendID) {
-                img = [[self.friends objectAtIndex:i] thumb];
+                img = ((Friend*)[self.friends objectAtIndex:i]).thumbnail;
             }
         }
     }

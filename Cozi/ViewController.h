@@ -149,9 +149,9 @@
     CGFloat                     alphatView;
     NetworkController           *netController;
     
-    UIActivityIndicatorView     *waitingReconnect;
-    UIActivityIndicatorView     *waitingWall;
-    UIActivityIndicatorView     *waitingNoise;
+//    UIActivityIndicatorView     *waitingReconnect;
+//    UIActivityIndicatorView     *waitingWall;
+//    UIActivityIndicatorView     *waitingNoise;
 }
 
 @property (nonatomic, strong) UILabel              *lblNickName;
@@ -170,6 +170,9 @@
 @property (nonatomic, strong) MainPageV7           *homePageV6;
 @property (nonatomic, strong) SCShareMenu           *shareMenu;
 
+@property (nonatomic, strong) UIView                *vLineFirstStatusConnect;
+@property (nonatomic, strong) UIView                *vLineSecondStatusConnect;
+
 @property (nonatomic, strong) UIButton              *btnNewChat;
 
 - (void) setup;
@@ -178,5 +181,6 @@
 //- (void) vibrate;
 - (void) deleteMessenger:(NSString *)value;
 - (void) initLeftMenu;
+- (void) setupNetworkStatus;
 @end
 

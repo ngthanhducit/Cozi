@@ -959,6 +959,7 @@
                 [result setTimeOutMessenger:[[subValue objectAtIndex:4] intValue]];
                 [result setTimeServerMessage:[self.helperIns convertStringToDate:[subValue objectAtIndex:3]]];
                 [result setTimeMessage:[self.helperIns getDateFormatMessage:_dateTimeMessage]];
+                
             }
         }
     }
