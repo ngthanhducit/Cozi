@@ -7,7 +7,6 @@
 //
 
 #import "MainPageV6.h"
-#import "ImageRender.h"
 #import "SCCollectionViewLayout.h"
 #import "Helper.h"
 
