@@ -12,6 +12,8 @@
 
 //
 - (void) showHiddenLeftMenu{
+    [self.view endEditing:YES];
+    
     if (isShowMenuRight) {
         
         //hidden menu right
@@ -70,6 +72,8 @@
 }
 
 - (void) showHiddenRightMenu{
+    [self.view endEditing:YES];
+    
     if (isShowMenuLeft) {
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
@@ -172,16 +176,16 @@
         return;
     }
     
-    inShowShareMenu = YES;
-    
     if (!isShow) {
+        inShowShareMenu = YES;
         [self.view bringSubviewToFront:scrollHeader];
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [self.shareMenu setHidden:NO];
+            [vBlurShareMenu setHidden:NO];
+            
             [self.shareMenu setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
             
-            [vBlurShareMenu setHidden:NO];
-            [vBlurShareMenu setAlpha:0.8];
+            [vBlurShareMenu setAlpha:0.6];
         } completion:^(BOOL finished) {
             [self.view bringSubviewToFront:self.shareMenu];
             isShow = YES;
@@ -228,6 +232,9 @@
 //    
 //    [self.view addSubview:self.loginPage];
     
+    isFirstLoadNoise = YES;
+    isFirstLoadWall = YES;
+    
     if (self.loginPageV3 == nil) {
         self.loginPageV3 = [[SCLoginPageV3 alloc] initWithNibName:nil bundle:nil];
         [self.loginPageV3.view setFrame:self.view.bounds];
@@ -263,35 +270,46 @@
 
 - (void) showStatusConnected:(int)_isConnected{
     if (_isConnected == 1) {
-        
-        if (!isConnected) {
-            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        if (isConnected != 1) {
+            [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
                 [viewStatusConnect setBackgroundColor:[UIColor greenColor]];
                 [lblStatusConnect setText:@"Connecting..."];
                 
             } completion:^(BOOL finished) {
-                self.networkIns = [NetworkCommunication shareInstance];
-                [self.networkIns setDelegate:self];
-                [self.networkIns connectSocket];
+                
+                [UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 4), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                    
+                } completion:^(BOOL finished) {
+                    [self initNetwork];
+                }];
+                
             }];
         }
-        
+
         isConnected = 1;
         
     }else{
         
-        if (isConnected) {
-            [UIView animateWithDuration:1.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                
+        if (isConnected != 0) {
+            [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
                 [viewStatusConnect setBackgroundColor:[UIColor redColor]];
                 [lblStatusConnect setText:@"No internet"];
                 
             } completion:^(BOOL finished) {
-                
+                [UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 4), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                    
+                } completion:^(BOOL finished) {
+                    
+                }];
             }];
         }
+
         
         isConnected = 0;
         
@@ -330,6 +348,7 @@
             [self.chatViewPage.lblNickName setText:[_friend.nickName uppercaseString]];
             [self.chatViewPage reloadFriend];
             [self.chatViewPage resetUI];
+            [self.chatViewPage resetCamera];
             [self.chatViewPage.tbView setClearData:NO];
             [self.chatViewPage.tbView reloadData];
             
@@ -343,12 +362,6 @@
             } completion:^(BOOL finished) {
                 page = 0;
             }];
-            
-            //        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            //            [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
-            //        } completion:^(BOOL finished) {
-            //            page = 0;
-            //        }];
             
             //scroll to bottom
             double y = self.chatViewPage.tbView.contentSize.height - self.chatViewPage.tbView.bounds.size.height;
@@ -375,8 +388,11 @@
 - (void) setStatusRequestFriend{
     if ([self.storeIns.friendsRequest count] > 0) {
         [imgMyInfo setBackgroundColor:[UIColor orangeColor]];
+        [btnFriendRequest setBackgroundColor:[UIColor purpleColor]];
     }else{
         [imgMyInfo setBackgroundColor:[UIColor clearColor]];
+        [btnFriendRequest setBackgroundColor:[UIColor clearColor]];
     }
+    
 }
 @end

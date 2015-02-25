@@ -21,7 +21,6 @@
 #import "HPGrowingTextView.h"
 #import "ReceiveLocation.h"
 #import "CoziCoreData.h"
-#import "ImageRender.h" 
 #import "MainPageV7.h"
 #import "SCContactTableView.h"
 #import "ImageLibraryViewController.h"
@@ -46,6 +45,7 @@
 #import "SCLoginPageV3.h"
 #import "SCSearchFriendViewController.h"
 #import "SCFriendRequestViewController.h"
+#import "SCLookAroundViewController.h"
 
 @interface ViewController : UIViewController <UIScrollViewDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate, UISearchBarDelegate>
 {
@@ -126,6 +126,7 @@
     //left right menu
     CGPoint                                     preLocation;
     CGPoint                                     preTouchLocation;
+    UIButton                            *btnFriendRequest;
     
     UIImageView                         *imgMyInfo;
     SCSearchBar                         *searchRightMenu;

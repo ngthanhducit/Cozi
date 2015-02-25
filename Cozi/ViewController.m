@@ -32,9 +32,16 @@ static NSString         *dataNetwork;
 }
 
 - (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
     if (self.wallPageV8) {
         [self.wallPageV8 reloadData];
     }
+    [self.view endEditing:YES];
+}
+
+- (void) viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [self.view endEditing:YES];
 }
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
@@ -70,7 +77,7 @@ static NSString         *dataNetwork;
 #pragma mark- init UIViewController
 
 - (void) initVariable{
-    currentPage = 1;
+    currentPage = 0;
     isFirstLoadWall = YES;
     heightRowLeftMenu   = 40;
     alphatView = 0.8;
@@ -78,12 +85,14 @@ static NSString         *dataNetwork;
     widthMenu = (self.view.bounds.size.width / 4) * 3;
     
     self.helperIns = [Helper shareInstance];
-    BOOL _isConnected  = [self.helperIns checkConnected];
-    if (_isConnected) {
-        isConnected = 1;
-    }else{
-        isConnected = 0;
-    }
+//    BOOL _isConnected  = [self.helperIns checkConnected];
+//    if (_isConnected) {
+//        isConnected = 1;
+//    }else{
+//        isConnected = 0;
+//    }
+
+    isConnected = -1;
     
     isEnterBackground = NO;
     
@@ -97,9 +106,9 @@ static NSString         *dataNetwork;
     self.dataMapIns = [DataMap shareInstance];
     netController = [NetworkController shareInstance];
     
-    if (isConnected == 1) {
-        [self initNetwork];
-    }
+//    if (isConnected == 1) {
+//        [self initNetwork];
+//    }
 }
 
 - (void) initView{
@@ -117,7 +126,7 @@ static NSString         *dataNetwork;
         
         [self setup];
         
-        [self loadUserComplete:nil];
+//        [self loadUserComplete:nil];
         
         [self initializeGestures];
         
@@ -300,7 +309,7 @@ static NSString         *dataNetwork;
     [scrollHeader setContentOffset:mainScroll.contentOffset];
     
     //init status view
-    viewStatusConnect = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, heightHeader)];
+    viewStatusConnect = [[UIView alloc] initWithFrame:CGRectMake(0, -heightHeader, self.view.bounds.size.width, heightHeader)];
     [viewStatusConnect setBackgroundColor:[UIColor redColor]];
     [viewStatusConnect setHidden:YES];
     
@@ -416,7 +425,7 @@ static NSString         *dataNetwork;
  */
 - (void) initLeftMenu{
     
-    leftView = [[UIView alloc] initWithFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, self.view.bounds.size.height - heightHeader)];
+    leftView = [[UIView alloc] initWithFrame:CGRectMake(-widthMenu  - 5, heightHeader, widthMenu, self.view.bounds.size.height - heightHeader)];
     [leftView setBackgroundColor:[UIColor blackColor]];
     
     leftView.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -490,24 +499,41 @@ static NSString         *dataNetwork;
     
     [leftView addSubview:btnNewChat];
 
-    UIButton *btnTakePhoto = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btnTakePhoto setFrame:CGRectMake(0, btnNewChat.frame.origin.y + btnNewChat.bounds.size.height, widthMenu, heightRowLeftMenu)];
-    [btnTakePhoto setTitle:@"FRIEND REQUESTS" forState:UIControlStateNormal];
-    [btnTakePhoto.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
-    [btnTakePhoto setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-    [btnTakePhoto setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-    [btnTakePhoto setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
-    [btnTakePhoto setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-    [btnTakePhoto setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [btnTakePhoto setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [btnTakePhoto setImage:imgShareToWall forState:UIControlStateNormal];
-    [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
-    [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
-    [btnTakePhoto addTarget:self action:@selector(btnShowFriendRequest:) forControlEvents:UIControlEventTouchUpInside];
-    [leftView addSubview:btnTakePhoto];
+//    UIButton *btnTakePhoto = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [btnTakePhoto setFrame:CGRectMake(0, btnNewChat.frame.origin.y + btnNewChat.bounds.size.height, widthMenu, heightRowLeftMenu)];
+//    [btnTakePhoto setTitle:@"FRIEND REQUESTS" forState:UIControlStateNormal];
+//    [btnTakePhoto.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
+//    [btnTakePhoto setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+//    [btnTakePhoto setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+//    [btnTakePhoto setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    [btnTakePhoto setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+//    [btnTakePhoto setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [btnTakePhoto setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+//    [btnTakePhoto setImage:imgShareToWall forState:UIControlStateNormal];
+//    [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
+//    [btnTakePhoto setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
+//    [btnTakePhoto addTarget:self action:@selector(btnShowFriendRequest:) forControlEvents:UIControlEventTouchUpInside];
+//    [leftView addSubview:btnTakePhoto];
 
+    btnFriendRequest = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnFriendRequest setFrame:CGRectMake(0, btnNewChat.frame.origin.y + btnNewChat.bounds.size.height, widthMenu, heightRowLeftMenu)];
+    [btnFriendRequest setTitle:@"FRIEND REQUESTS" forState:UIControlStateNormal];
+    [btnFriendRequest.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
+    [btnFriendRequest setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+    [btnFriendRequest setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+    [btnFriendRequest setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [btnFriendRequest setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+    [btnFriendRequest setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [btnFriendRequest setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+    [btnFriendRequest setImage:imgShareToWall forState:UIControlStateNormal];
+    [btnFriendRequest setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
+    [btnFriendRequest setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
+    [btnFriendRequest addTarget:self action:@selector(btnShowFriendRequest:) forControlEvents:UIControlEventTouchUpInside];
+    [leftView addSubview:btnFriendRequest];
+
+    
     UIButton *btnLookAround = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btnLookAround setFrame:CGRectMake(0, btnTakePhoto.frame.origin.y + btnTakePhoto.bounds.size.height, widthMenu, heightRowLeftMenu)];
+    [btnLookAround setFrame:CGRectMake(0, btnFriendRequest.frame.origin.y + btnFriendRequest.bounds.size.height, widthMenu, heightRowLeftMenu)];
     [btnLookAround setTitle:@"LOOK AROUND" forState:UIControlStateNormal];
     [btnLookAround.titleLabel setFont:[self.helperIns getFontLight:13.0f]];
     [btnLookAround setImageEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
@@ -517,6 +543,7 @@ static NSString         *dataNetwork;
     [btnLookAround setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [btnLookAround setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
     [btnLookAround setImage:imgShareToWall forState:UIControlStateNormal];
+    [btnLookAround addTarget:self action:@selector(btnShowLookAround:) forControlEvents:UIControlEventTouchUpInside];
     [btnLookAround setBackgroundImage:[self.helperIns imageWithColor:colorSignInNormal] forState:UIControlStateNormal];
     [btnLookAround setBackgroundImage:[self.helperIns imageWithColor:colorSignInHighLight] forState:UIControlStateHighlighted];
     
@@ -578,7 +605,7 @@ static NSString         *dataNetwork;
  */
 - (void) initRightMenu{
     
-    rightView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height - 30)];
+    rightView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width + 5, heightHeader, widthMenu, self.view.bounds.size.height - 30)];
     [rightView setBackgroundColor:[UIColor grayColor]];
     
     rightView.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -645,6 +672,7 @@ static NSString         *dataNetwork;
     
     [rightView addSubview:self.self.btnNewChat];
 }
+
 
 /**
  *  init Gestures
@@ -1053,6 +1081,8 @@ static NSString         *dataNetwork;
 
 - (void) panChatView:(UIPanGestureRecognizer*)recognizer{
 
+    UIView *view = [recognizer view];
+    
     // Get the translation in the view
     CGPoint t = [recognizer translationInView:recognizer.view];
     [recognizer setTranslation:CGPointZero inView:recognizer.view];
@@ -1775,6 +1805,8 @@ static NSString         *dataNetwork;
 }
 
 - (void) btnSearchFriend:(id)sender{
+    [self.view endEditing:YES];
+    
 //    [self showHiddenRightMenu];
     SCSearchFriendViewController *post = [[SCSearchFriendViewController alloc] init];
     [post showHiddenClose:YES];
@@ -1785,6 +1817,14 @@ static NSString         *dataNetwork;
 
 - (void) btnShowFriendRequest:(id)sender{
     SCFriendRequestViewController *post = [[SCFriendRequestViewController alloc] init];
+    [post showHiddenClose:YES];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.navigationController pushViewController:post animated:YES];
+}
+
+- (void) btnShowLookAround:(id)sender{
+    SCLookAroundViewController *post = [[SCLookAroundViewController alloc] init];
     [post showHiddenClose:YES];
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -1802,9 +1842,26 @@ static NSString         *dataNetwork;
 #pragma -mark UISearchBar Delegate
 - (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
     if (searchBar == searchRightMenu) {
-        NSLog(@"enter text search");
+        if (![searchBar.text isEqualToString:@""]) {
+            NSMutableArray *result = [self filterContentForSearchText:searchBar.text];
+            [tbContact initData:result];
+            [tbContact reloadData];
+        }else{
+            [tbContact initData:self.storeIns.friends];
+            [tbContact reloadData];
+        }
+
     }
 }
+
+- (NSMutableArray*)filterContentForSearchText:(NSString*)searchText
+{
+    NSPredicate *resultPredicate = [NSPredicate predicateWithFormat:@"nickName contains[c] %@", searchText];
+    NSArray *searchResult = [self.storeIns.friends filteredArrayUsingPredicate:resultPredicate];
+    
+    return [NSMutableArray arrayWithArray:searchResult];
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

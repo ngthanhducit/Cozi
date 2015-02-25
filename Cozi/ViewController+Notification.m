@@ -12,39 +12,57 @@
 
 - (void) loadMoreWall:(NSNotification*)notification{
     
-    isFirstLoadWall = NO;
-    
-    DataWall *_wall = [self.storeIns.walls lastObject];
-    NSString *_clientKey = [self.helperIns encodedBase64:[_wall.clientKey dataUsingEncoding:NSUTF8StringEncoding]];
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{10}%@<EOF>", _clientKey]];
+    if (isConnected == 1) {
+        isFirstLoadWall = NO;
+        
+        DataWall *_wall = [self.storeIns.walls lastObject];
+        NSString *_clientKey = [self.helperIns encodedBase64:[_wall.clientKey dataUsingEncoding:NSUTF8StringEncoding]];
+        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{10}%@<EOF>", _clientKey]];
+    }else{
+        [self.wallPageV8 stopRefesh];
+    }
     
 }
 
 - (void) loadNewWall:(NSNotification*)notification{
     
-    isFirstLoadWall = YES;
-    
-    NSString *tempKey = @"-1";
-    NSString *_clientKey = [self.helperIns encodedBase64:[tempKey dataUsingEncoding:NSUTF8StringEncoding]];
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{10}%@<EOF>", _clientKey]];
+    if (isConnected == 1) {
+        isFirstLoadWall = YES;
+        
+        NSString *tempKey = @"-1";
+        NSString *_clientKey = [self.helperIns encodedBase64:[tempKey dataUsingEncoding:NSUTF8StringEncoding]];
+        [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{10}%@<EOF>", _clientKey]];
+    }else{
+        [self.wallPageV8 stopRefesh];
+    }
     
 }
 
 - (void) loadMoreNoise:(NSNotification*)notification{
-    isFirstLoadWall = NO;
     
-    DataWall *_wall = [self.storeIns.noises lastObject];
-    NSString *_clientKey = [self.helperIns encodedBase64:[_wall.clientKey dataUsingEncoding:NSUTF8StringEncoding]];
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
+    if (isConnected == 1) {
+        isFirstLoadWall = NO;
+        
+        DataWall *_wall = [self.storeIns.noises lastObject];
+        NSString *_clientKey = [self.helperIns encodedBase64:[_wall.clientKey dataUsingEncoding:NSUTF8StringEncoding]];
+        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
+    }else{
+        [self.wallPageV8 stopRefesh];
+    }
 }
 
 - (void) loadNewNoise:(NSNotification*)notification{
     
-    isFirstLoadNoise = YES;
-    
-    NSString *tempKey = @"-1";
-    NSString *_clientKey = [self.helperIns encodedBase64:[tempKey dataUsingEncoding:NSUTF8StringEncoding]];
-    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
+    if (isConnected == 1) {
+        isFirstLoadNoise = YES;
+        
+        NSString *tempKey = @"-1";
+        NSString *_clientKey = [self.helperIns encodedBase64:[tempKey dataUsingEncoding:NSUTF8StringEncoding]];
+        [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", _clientKey]];
+        
+    }else{
+        [self.wallPageV8 stopRefesh];
+    }
 }
 
 - (void) tapFriendProfile:(NSNotification*)notification{
@@ -122,6 +140,9 @@
             [self.networkIns connectSocket];
             
             [self.chatViewPage resetCamera];
+            
+            isFirstLoadNoise = YES;
+            isFirstLoadWall = YES;
         }else{
             
             [self showStatusConnected:0];
@@ -141,6 +162,7 @@
 //    [self.lblNickName setText:[_friend.nickName uppercaseString]];
     [self.chatViewPage reloadFriend];
     [self.chatViewPage resetUI];
+    [self.chatViewPage resetCamera];
     [self.chatViewPage.tbView setClearData:NO];
     [self.chatViewPage.tbView reloadData];
     
@@ -192,11 +214,13 @@
         case ReachableViaWiFi:{
             
             [self showStatusConnected:1];
+
         }
             break;
             
         case ReachableViaWWAN:
 
+            [self showStatusConnected:1];
             break;
             
         default:
@@ -294,5 +318,11 @@
 - (void) notificationReloadListFriend:(NSNotification*)notification{
     [tbContact initData:self.storeIns.friends];
     [tbContact reloadData];
+    
+    [self setStatusRequestFriend];
+}
+
+- (void) notificationDeviceToken:(NSNotification*)notification{
+    
 }
 @end

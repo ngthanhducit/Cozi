@@ -72,13 +72,6 @@ static NSString         *dataNetwork;
                         
                         [self.loginPageV3.view setHidden:YES];
                         
-//                        [self.loginPageV3.view removeFromSuperview];
-//                        self.loginPageV3 = nil;
-                        
-//                        [self.loginPage stopLoadingView];
-//                        
-//                        [self.loginPage removeFromSuperview];
-                        
                         [self setup];
                         
                         [self initializeGestures];
@@ -170,29 +163,26 @@ static NSString         *dataNetwork;
                             [self.loginPage setHidden:YES];
                             [self.homePageV6 setHidden:NO];
                             
-                            //            CGSize sizeCollection = self.homePageV6.scCollection.collectionViewLayout.collectionViewContentSize;
-                            
                             [self.homePageV6.scCollection reloadData];
-                            
-                            //            [self.homePageV6 setContentSizeContent:sizeCollection];
                             
                             [self.view bringSubviewToFront:self.homePageV6];
                         }
                         
                         [self.storeIns sortMessengerFriend];
                         
-                        [self.chatViewPage.tbView reloadData];
-                        
                         [waitingReconnect stopAnimating];
-                        [self setStatusRequestFriend];
                         
-                        //Get wall
-                        //        [self.networkIns sendData:@"GETWALL{10}-1<EOF>"];
+                        [self setStatusRequestFriend];
+                    
+                        [self.homePageV6.scCollection reloadData];
+
                         NSString *firstCall = @"-1";
                         [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
                         
                         NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
                         [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
+                        
+                        [self.view endEditing:YES];
                     }else{
                         [self logout];
                     }
@@ -254,10 +244,10 @@ static NSString         *dataNetwork;
                     Messenger *_newMessage = [self.dataMapIns mapReceiveMessage:[subMain objectAtIndex:i]];
                     
                     Friend *_tempFriend = [self.dataMapIns processReceiveMessage:_newMessage];
-                    ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
+//                    ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
                     
-                    if (temp != nil) {
-                        if (_tempFriend.friendID == temp.friendIns.friendID) {
+                    if (self.chatViewPage != nil && self.chatViewPage.friendIns.friendID > 0) {
+                        if (_tempFriend.friendID == self.chatViewPage.friendIns.friendID) {
                             
                             [self.storeIns updateStatusMessageFriend:_tempFriend.friendID withStatus:1];
                             
@@ -632,24 +622,6 @@ static NSString         *dataNetwork;
                             
                             [self.coziCoreDataIns saveMessenger:newMessage];
                             
-//                            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:newMessage.strMessage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-//                                
-//                            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-//                                
-//                                newMessage.dataImage = data;
-//                                NSString *stringImage = [self.helperIns encodedBase64:data];
-//                                [newMessage setStrImage:stringImage];
-//                                [newMessage setIsTimeOut:YES];
-//                                
-//                                [self.storeIns updateMessageFriend:newMessage withFriendID:newMessage.senderID];
-//                                
-//                                dispatch_async(dispatch_get_main_queue(), ^{
-//                                    
-//                                    
-//                                    
-//                                });
-//                                
-//                            }];
                         }
                     }
                 }
@@ -691,85 +663,21 @@ static NSString         *dataNetwork;
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"REG"]) {
-//                    int result = [[subCommand objectAtIndex:1] intValue];
-//                    if (result == 0) {
-//                        [self.loginPage showViewEnterCodeAuth];
-//                    }
+
                     [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"AUTHCODE"]) {
-//                    int result = [[subCommand objectAtIndex:1] intValue];
-//                    if (result == 0) {
-//                        [self.loginPage showViewEnterPerson];
-//                        
-//                        NSString *cmdGetUrl = [self.dataMapIns getUploadAvatar];
-//                        [self.networkIns sendData:cmdGetUrl];
-//                    }
-                    
+
                     [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADAVATARURL"]) {
-//                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"$"];
-//                    if ([subParameter count] == 2) {
-//                        amazonThumbnail = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:0]];
-//                        amazonAvatar = [self.dataMapIns mapAmazonUploadAvatar:[subParameter objectAtIndex:1]];
-//                    }
-                    
                     [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"RESULTUPLOADAVATAR"]) {
                     [netController setResult:_data];
-                    
-//                    NSArray *subParameter = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"}"];
-//                    if ([subParameter count] == 2) {
-//                        int resultAvatar = [[subParameter objectAtIndex:0] intValue];
-//                        int resultThumbnail = [[subParameter objectAtIndex:1] intValue];
-//                        
-//                        if (resultAvatar == 0 && resultThumbnail == 0) {
-//                            //call function register user
-//                            NewUser *_newUser = [[NewUser alloc] init];
-//                            _newUser.nickName = [NSString stringWithFormat:@"%@ %@", self.loginPage.joinNowView.txtFirstN.text, self.loginPage.joinNowView.txtLastN.text];
-//                            NSString *strBirthDate = self.loginPage.joinNowView.txtBirthDayJoin.text;
-//                            NSArray *subBirthDate = [strBirthDate componentsSeparatedByString:@"/"];
-//                            _newUser.birthDay = [subBirthDate objectAtIndex:0];
-//                            _newUser.birthMonth = [subBirthDate objectAtIndex:1];
-//                            _newUser.birthYear = [subBirthDate objectAtIndex:2];
-//                            _newUser.gender = [self.loginPage.joinNowView.btnGender getGender];
-//                            _newUser.avatarKey = amazonThumbnail.key;
-//                            _newUser.avatarFullKey = amazonAvatar.key;
-//                            _newUser.password = self.loginPage.joinNowView.txtPasswordJoin.text;
-//                            
-//                            [[NSUserDefaults standardUserDefaults] setObject:_newUser.password forKey:@"password"];
-//                            
-//                            NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
-//                            NSString *_deviceToken = [NSString stringWithFormat:@"%@", token];
-//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@" " withString:@""];
-//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
-//                            _deviceToken = [_deviceToken stringByReplacingOccurrencesOfString:@">" withString:@""];
-//                            
-//                            _newUser.deviceToken = _deviceToken;
-//                            _newUser.longitude = [self.storeIns getLongitude];
-//                            _newUser.latitude = [self.storeIns getlatitude];
-//                            _newUser.userName = self.loginPage.joinNowView.txtUserNameJoin.text;
-//                            _newUser.firstName = self.loginPage.joinNowView.txtFirstN.text;
-//                            _newUser.lastName = self.loginPage.joinNowView.txtLastN.text;
-//                            _newUser.leftAvatar = @"0";
-//                            _newUser.topAvatar = @"0";
-//                            _newUser.widthAvatar = @"0";
-//                            _newUser.heightAvatar = @"0";
-//                            _newUser.scaleAvatar = @"1";
-//                            _newUser.contacts = contactList;
-//                            
-//                            NSString *cmd = [self.dataMapIns cmdNewUser:_newUser];
-//                            [self.networkIns sendData:cmd];
-//                            
-//                        }else{
-//                            //alert wrong avatar
-//                        }
-//                    }
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"NEWUSER"]) {
@@ -903,6 +811,7 @@ static NSString         *dataNetwork;
                         [self.storeIns.walls removeAllObjects];
                         [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                         isFirstLoadWall = NO;
+                        
                     }else{
                         [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:0];
                     }
@@ -914,19 +823,27 @@ static NSString         *dataNetwork;
                     }
                     
                     [waitingWall stopAnimating];
+                    
+                    [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                        [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -heightHeader, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+//                        [viewStatusConnect setHidden:YES];
+                        [viewStatusConnect setBackgroundColor:[UIColor greenColor]];
+                        [lblStatusConnect setText:@"Connecting..."];
+                        
+                    } completion:^(BOOL finished) {
+                        
+                    }];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETNOISE"]) {
                     if (isFirstLoadNoise) {
                         [self.storeIns.noises removeAllObjects];
                         [self.dataMapIns mapDataNoises:[subCommand objectAtIndex:1]];
-//                        [self.dataMapIns mapDataWall:[subCommand objectAtIndex:1] withType:1];
                         isFirstLoadNoise = NO;
                     }else{
                         [self.dataMapIns mapDataNoises:[subCommand objectAtIndex:1]];
                     }
                     
-//                    [self.noisePageV6.scCollection reloadData];
                     if ([[subCommand objectAtIndex:1] isEqualToString:@"0"]) {
                         [self.noisePageV6.scCollection stopLoadNoise:YES];
                     }else{
@@ -937,27 +854,19 @@ static NSString         *dataNetwork;
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADPOSTURL"]) {
-                    AmazonInfoPost *_amazonInfo = [self.dataMapIns mapAmazonUploadPost:[subCommand objectAtIndex:1]];
-                    NSString *key = @"GETUPLOADPOSTURL";
-                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_amazonInfo forKey:key];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setAmazoneUpload" object:nil userInfo:dictionary];
+
+                    [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"RESULTUPLOADPOSTIMAGE"]) {
 
-//                    NSNumber *resultCode = [NSNumber numberWithInt:[[subCommand objectAtIndex:1] intValue]];
-                    NSString *key = @"RESULTUPLOADPOSTIMAGE";
-                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[subCommand objectAtIndex:1] forKey:key];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setResultUpload" object:nil userInfo:dictionary];
+                    [netController setResult:_data];
                     
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDPOST"]) {
 
-                    NSString *key = @"ADDPOST";
-                    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:[subCommand objectAtIndex:1] forKey:key];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"setResultAddWall" object:nil userInfo:dictionary];
-            
+                    [netController setResult:_data];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"ADDPOSTLIKE"]) {
@@ -968,6 +877,10 @@ static NSString         *dataNetwork;
                         
                         int userPost = [[subParameter objectAtIndex:2] intValue];
                         DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
+                        if (_wall == nil) {
+                            _wall = [self.storeIns getPostFromNoise:decodeClientKey withUserPostID:userPost];
+                        }
+                        
                         [_wall setTimeLike:[subParameter objectAtIndex:0]];
                         [_wall setIsLike:YES];
                         
@@ -1022,6 +935,10 @@ static NSString         *dataNetwork;
                         
                         int userPost = [[subParameter objectAtIndex:2] intValue];
                         DataWall *_wall = [self.storeIns getWall:decodeClientKey withUserPost:userPost];
+                        if (_wall == nil) {
+                            _wall = [self.storeIns getPostFromNoise:decodeClientKey withUserPostID:userPost];
+                        }
+                        
                         [_wall setTimeLike:[subParameter objectAtIndex:0]];
                         [_wall setIsLike:NO];
                         
@@ -1170,6 +1087,10 @@ static NSString         *dataNetwork;
                     
                     }
                 }
+                
+                if ([[subCommand objectAtIndex:0] isEqualToString:@"FINDUSERINRANGE"]) {
+                    [netController setResult:_data];
+                }
             }
         }
     }
@@ -1181,7 +1102,7 @@ static NSString         *dataNetwork;
         case 1:
         {
             self.storeIns.isConnected = YES;
-            [viewStatusConnect setHidden:YES];
+//            [viewStatusConnect setHidden:YES];
             [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
             NSUserDefaults *_default = [NSUserDefaults standardUserDefaults];

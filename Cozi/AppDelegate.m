@@ -83,9 +83,6 @@
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     [[NSUserDefaults standardUserDefaults] setObject:deviceToken forKey:@"DeviceToken"];
-    
-    NSLog(@"Did register for remote Notifications with Device Token %@", deviceToken);
-    
 }
 
 - (void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo{

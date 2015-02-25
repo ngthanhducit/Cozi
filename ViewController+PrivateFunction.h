@@ -14,6 +14,7 @@
     
 }
 
+- (void) initNetwork;
 - (void) showHiddenLeftMenu;
 - (void) showHiddenRightMenu;
 - (void) playSoundSystem;

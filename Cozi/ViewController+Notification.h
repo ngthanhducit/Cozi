@@ -38,4 +38,5 @@
 - (void) notificationSelectAllComment:(NSNotification*)notification;
 - (void) notificationSelectLikes:(NSNotification*)notification;
 - (void) notificationReloadListFriend:(NSNotification*)notification;
+- (void) notificationDeviceToken:(NSNotification*)notification;
 @end
