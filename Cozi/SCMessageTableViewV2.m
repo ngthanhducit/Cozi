@@ -258,6 +258,7 @@ const CGFloat wViewMainPadding = 20.0f;
     
     [scCell.viewMain setFrame:CGRectMake(xViewMain, topSpacing / 2, wView + (wViewMainPadding), hView)];
     [scCell.viewMain setBackgroundColor:[UIColor blackColor]];
+//    [scCell.viewMain setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor3"]]];
 
     CGFloat yMessage = (hView / 2) - (sizeMessage.height / 2 + sizeTime.height / 2);
     if ([_message.strMessage isEqualToString:@"(Ping)"]) {
@@ -372,6 +373,7 @@ const CGFloat wViewMainPadding = 20.0f;
     
     [scCell.viewMain setFrame:CGRectMake(xViewMain, topSpacing / 2, wView + (wViewMainPadding), hView)];
     [scCell.viewMain setBackgroundColor:[UIColor whiteColor]];
+//    [scCell.viewMain setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor1"]]];
     
     CGFloat yMessage = (hView / 2) - (sizeMessage.height / 2 + sizeTime.height / 2);
     if ([_message.strMessage isEqualToString:@"(Ping)"]) {
@@ -455,29 +457,68 @@ const CGFloat wViewMainPadding = 20.0f;
     
     [scCell.vMessengerImage setFrame:CGRectMake(xViewMessenger, topSpacing / 2, wViewMessenger, 160)];
 
-    if (_message.thumnail !=nil) {
-        
+    scCell.vMessengerImage.imgView.image = nil;
+    
+    if (_message.thumnail) {
         scCell.vMessengerImage.imgView.image = _message.thumnail;
-        
     }else{
-        
-        scCell.vMessengerImage.imgView.image = defaultImage;
-
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            
-            if (image && finished) {
-
-                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 2, image.size.height / 2)];
+            UIImage *imgMessenger = [SDWebImageManager.sharedManager.imageCache imageFromDiskCacheForKey:_message.urlImage];
+            if (imgMessenger) {
+                
+                UIImage *newImageSize = [helperIns resizeImage:imgMessenger resizeSize:CGSizeMake(imgMessenger.size.width / 2, imgMessenger.size.height / 2)];
                 _message.thumnail = newImageSize;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     scCell.vMessengerImage.imgView.image = _message.thumnail;
                 });
-
+                
+            }else{
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    
+                    if (image && finished) {
+                        
+                        UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 2, image.size.height / 2)];
+                        _message.thumnail = newImageSize;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            scCell.vMessengerImage.imgView.image = _message.thumnail;
+                        });
+                        
+                        [SDWebImageManager.sharedManager.imageCache storeImage:image forKey:_message.urlImage toDisk:YES];
+                    }
+                    
+                }];
             }
-        }];
+            
+        });
+        
     }
+    
+//    if (_message.thumnail !=nil) {
+//        
+//        scCell.vMessengerImage.imgView.image = _message.thumnail;
+//        
+//    }else{
+//        
+//        scCell.vMessengerImage.imgView.image = defaultImage;
+//
+//        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+//            
+//        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+//            
+//            if (image && finished) {
+//
+//                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 2, image.size.height / 2)];
+//                _message.thumnail = newImageSize;
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    scCell.vMessengerImage.imgView.image = _message.thumnail;
+//                });
+//
+//            }
+//        }];
+//    }
     
 //    [scCell.vMessengerImage.imgView sd_setImageWithURL:[NSURL URLWithString:_message.urlImage] placeholderImage:nil];
     
@@ -548,29 +589,69 @@ const CGFloat wViewMainPadding = 20.0f;
     
     [scCell.vMessengerImageFriend setFrame:CGRectMake(leftSpacing + sizeIcon.width + leftSpacing / 2, topSpacing / 2, wViewMessenger, 160)];
 
-    //Comment
-    if (_message.thumnail !=nil) {
+    if (_message.thumnail) {
         scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
-        
     }else{
-        
-        scCell.vMessengerImageFriend.imgView.image = defaultImage;
-        
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-
-            if (image && finished) {
-                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 4, image.size.height / 4)];
+            UIImage *imgMessenger = [SDWebImageManager.sharedManager.imageCache imageFromDiskCacheForKey:_message.urlImage];
+            if (imgMessenger) {
+                
+                UIImage *newImageSize = [helperIns resizeImage:imgMessenger resizeSize:CGSizeMake(imgMessenger.size.width / 4, imgMessenger.size.height / 4)];
                 UIImage *imgBlur = [newImageSize applyLightEffect];
                 _message.thumnail = imgBlur;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
                 });
+                
+            }else{
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    
+                    if (image && finished) {
+                        UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 4, image.size.height / 4)];
+                        UIImage *imgBlur = [newImageSize applyLightEffect];
+                        _message.thumnail = imgBlur;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
+                        });
+                        
+                        [SDWebImageManager.sharedManager.imageCache storeImage:image forKey:_message.urlImage toDisk:YES];
+                    }
+                    
+                }];
             }
             
-        }];
+        });
+        
     }
+    
+    
+    //Comment
+//    if (_message.thumnail !=nil) {
+//        
+//        scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
+//        
+//    }else{
+//        
+//        scCell.vMessengerImageFriend.imgView.image = defaultImage;
+//        
+//        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_message.urlImage] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+//            
+//        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+//
+//            if (image && finished) {
+//                UIImage *newImageSize = [helperIns resizeImage:image resizeSize:CGSizeMake(image.size.width / 4, image.size.height / 4)];
+//                UIImage *imgBlur = [newImageSize applyLightEffect];
+//                _message.thumnail = imgBlur;
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    scCell.vMessengerImageFriend.imgView.image = _message.thumnail;
+//                });
+//            }
+//            
+//        }];
+//    }
     
     [scCell.viewImage setFrame:CGRectMake(xViewImageShadow, topSpacing / 2, scCell.viewImage.bounds.size.width, scCell.viewImage.bounds.size.height)];
     scCell.viewImage.layer.zPosition = 10;
@@ -683,12 +764,10 @@ const CGFloat wViewMainPadding = 20.0f;
 
 - (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
     inScroll = NO;
-//    [self reloadData];
 }
 
 - (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     inScroll = NO;
-//    [self reloadData];
 }
 
 #pragma mark- Touch View
@@ -712,8 +791,6 @@ const CGFloat wViewMainPadding = 20.0f;
         [cell becomeFirstResponder];
         rowAction = [self indexPathForCell:cell];
         
-        //        UIMenuItem *flag = [[UIMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:)];
-        //        UIMenuItem *approve = [[UIMenuItem alloc] initWithTitle:@"Delete" action:@selector(delete:)];
         UIMenuItem *deny = [[UIMenuItem alloc] initWithTitle:@"Forward" action:@selector(forward:)];
         
         UIMenuController *menu = [UIMenuController sharedMenuController];
@@ -754,6 +831,7 @@ const CGFloat wViewMainPadding = 20.0f;
     Messenger *_messenger = [friendIns.friendMessage objectAtIndex:tapIndexPath.row];
     
     [self showImageFull:_messenger];
+    
 }
 
 - (void) btnDownloadImage:(id)sender{
@@ -774,7 +852,23 @@ const CGFloat wViewMainPadding = 20.0f;
     if (_messenger.typeMessage == 1) {
         
         ImageFullView *_fullImage = [[ImageFullView alloc] initWithFrame:[[self superview] bounds]];
-        [_fullImage initWithUrl:[NSURL URLWithString:_messenger.urlImage]];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            UIImage *imgMessenger = [SDWebImageManager.sharedManager.imageCache imageFromDiskCacheForKey:_messenger.urlImage];
+            if (imgMessenger) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_fullImage initWithImage:imgMessenger];
+                });
+
+            }else{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_fullImage initWithUrl:[NSURL URLWithString:_messenger.urlImage]];
+                });
+            }
+            
+        });
+        
         [[self superview] addSubview:_fullImage];
         
     }else if(_messenger.typeMessage == 2){

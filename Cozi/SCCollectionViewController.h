@@ -31,6 +31,8 @@ static NSString * const PhotoCellIdentifier = @"PhotoCell";
     NSMutableArray                      *indexNewMessenger;
     BOOL                            increment ;
     NSTimer                         *timerNewMessenger;
+    
+    UIColor                         *gColor;
 }
 
 

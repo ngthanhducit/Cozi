@@ -53,8 +53,8 @@
 //        self.viewMain.layer.shadowOpacity = 1;
 //        self.viewMain.layer.shadowRadius = 1.0;
         
-        [self.viewMain.layer setMasksToBounds:YES];
-        self.viewMain.layer.cornerRadius = 3.0f;
+//        [self.viewMain.layer setMasksToBounds:YES];
+//        self.viewMain.layer.cornerRadius = 3.0f;
         [self.contentView addSubview:self.viewMain];
         
         self.vTriangle = [[TriangleView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];

@@ -35,6 +35,8 @@ static NSString * const reuseIdentifier = @"Cell";
     self.storeIns = [Store shareInstance];
     self.helperIns = [Helper shareInstance];
     
+    gColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]];
+    
     [self setBackgroundColor:[UIColor whiteColor]];
     [self setShowsHorizontalScrollIndicator:NO];
     [self setShowsVerticalScrollIndicator:YES];
@@ -57,12 +59,14 @@ static NSString * const reuseIdentifier = @"Cell";
         }
     }else{
         if (_itemData != nil) {
-            int count = (int)[_itemData count];
-            for (int i = 0 ; i < count; i++) {
-                if ([((Friend*)[_itemData objectAtIndex:i]).friendMessage count] > 0) {
-                    [itemData addObject:[_itemData objectAtIndex:i]];
-                }
-            }
+            itemData = _itemData;
+//            int count = (int)[_itemData count];
+//            for (int i = 0 ; i < count; i++) {
+//                if ([((Friend*)[_itemData objectAtIndex:i]).friendMessage count] > 0) {
+////                    [itemData addObject:[_itemData objectAtIndex:i]];
+//                    itemData = ((Friend*)[_itemData objectAtIndex:i]).friendMessage;
+//                }
+//            }
         }
     }
 
@@ -168,12 +172,15 @@ static NSString * const reuseIdentifier = @"Cell";
         if ([_friend.friendMessage count] > 0 && [[_friend.friendMessage lastObject] statusMessage] == 1 &&
             [[_friend.friendMessage lastObject] senderID] > 0) {
             
-            [scCell.lblName setTextColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+            NSAttributedString *textAttribute = [[NSAttributedString alloc] initWithString:scCell.lblName.text attributes:@{ NSForegroundColorAttributeName : gColor }];
+            [scCell.lblName setAttributedText:textAttribute];
+            
+//            [scCell.lblName setTextColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
             
             scCell.imgView.layer.borderWidth = 2.0f;
-            scCell.imgView.layer.borderColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
+            scCell.imgView.layer.borderColor = gColor.CGColor;
             
-            [scCell.imgNotify setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+            [scCell.imgNotify setBackgroundColor:gColor];
         }else{
             [scCell.lblName setTextColor:[UIColor blackColor]];
             
@@ -208,7 +215,7 @@ static NSString * const reuseIdentifier = @"Cell";
         scCell.shadowImage.layer.borderWidth = 4.0f;
         
         if (_img.isSelected) {
-            scCell.shadowImage.layer.borderColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
+            scCell.shadowImage.layer.borderColor = gColor.CGColor;
         }else{
             scCell.shadowImage.layer.borderColor = [UIColor clearColor].CGColor;
         }
@@ -248,35 +255,6 @@ static NSString * const reuseIdentifier = @"Cell";
         [self reloadData];
     }
 }
-
-/*
-// Uncomment this method to specify if the specified item should be highlighted during tracking
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {
-	return YES;
-}
-*/
-
-/*
-// Uncomment this method to specify if the specified item should be selected
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-/*
-// Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath {
-	return NO;
-}
-
-- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	return NO;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	
-}
-*/
 
 - (UIBezierPath*) drawRectangle:(CGSize)_size{
     UIBezierPath        *path = [UIBezierPath bezierPath];
@@ -334,7 +312,6 @@ static NSString * const reuseIdentifier = @"Cell";
         increment = NO;
         
     }else{
-        NSLog(@"up");
         
         [UIView beginAnimations:@"scaleUp" context:nil];
         [UIView setAnimationDuration:0.4];

@@ -16,6 +16,8 @@
 #import "ImageFullView.h"
 #import "UIImageView+WebCache.h"
 #import "AppleMapView.h"
+#import "SDWebImage/SDImageCache.h"
+#import "SDWebImage/SDWebImageManager.h"
 
 @protocol SCMessageTableViewDelegate <NSObject>
 
