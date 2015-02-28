@@ -89,7 +89,8 @@ const CGSize sizeButtonSend = { 30, 30 };
     self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, vHeader.bounds.size.width, vHeader.bounds.size.height)];
     [self.lblNickName setText:@"NICK NAME"];
     [self.lblNickName setTextAlignment:NSTextAlignmentCenter];
-    [self.lblNickName setTextColor:[UIColor whiteColor]];
+//    [self.lblNickName setTextColor:[UIColor whiteColor]];
+    [self.lblNickName setTextColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.lblNickName setFont:[self.helperIns getFontLight:16.0f]];
     [vHeader addSubview:self.lblNickName];
     
@@ -762,26 +763,29 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) sendMessage:(NSString*)_content{
-    NSString *_keyMessage = [self.storeIns randomKeyMessenger];
-    NSString *cmd = [self.dataMapIns sendMessageCommand:self.friendIns.friendID withKeyMessage:_keyMessage withMessage:_content withTimeout:0];
-    [self.networkIns sendData:cmd];
-    
-    Messenger *_newMessage = [[Messenger alloc] init];
-    [_newMessage setStrMessage: _content];
-    [_newMessage setTypeMessage:0];
-    [_newMessage setStatusMessage:0];
-    [_newMessage setKeySendMessage:_keyMessage];
-    [_newMessage setTimeMessage:[self.helperIns getDateFormatMessage:[NSDate date]]];
-    [_newMessage setDataImage:nil];
-    [_newMessage setThumnail:nil];
-    [_newMessage setFriendID:self.friendIns.friendID];
-    [_newMessage setUserID:self.storeIns.user.userID];
-    
-    [self.friendIns.friendMessage addObject:_newMessage];
-    
-    [self autoScrollTbView];
-    
-    self.chatToolKit.hpTextChat.text = @"";
+    _content = [_content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (![_content isEqualToString:@""]) {
+        NSString *_keyMessage = [self.storeIns randomKeyMessenger];
+        NSString *cmd = [self.dataMapIns sendMessageCommand:self.friendIns.friendID withKeyMessage:_keyMessage withMessage:_content withTimeout:0];
+        [self.networkIns sendData:cmd];
+        
+        Messenger *_newMessage = [[Messenger alloc] init];
+        [_newMessage setStrMessage: _content];
+        [_newMessage setTypeMessage:0];
+        [_newMessage setStatusMessage:0];
+        [_newMessage setKeySendMessage:_keyMessage];
+        [_newMessage setTimeMessage:[self.helperIns getDateFormatMessage:[NSDate date]]];
+        [_newMessage setDataImage:nil];
+        [_newMessage setThumnail:nil];
+        [_newMessage setFriendID:self.friendIns.friendID];
+        [_newMessage setUserID:self.storeIns.user.userID];
+        
+        [self.friendIns.friendMessage addObject:_newMessage];
+        
+        [self autoScrollTbView];
+        
+        self.chatToolKit.hpTextChat.text = @"";
+    }
 }
 
 #pragma -mark keyboardDelegate

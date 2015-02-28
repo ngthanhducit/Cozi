@@ -25,6 +25,7 @@
 }
 
 @property (nonatomic, strong) NSDictionary          *dictColor;
+@property (nonatomic, strong) NSMutableDictionary          *dicColor;
 
 + (id) shareInstance;
 
@@ -53,6 +54,8 @@
 - (UIFont *) getFontMedium:(CGFloat)size;
 - (UIFont *) getFontThin:(CGFloat)size;
 - (UIFont *) getFontRegular:(CGFloat)size;
+- (UIFont *) getFontItalic:(CGFloat)size;
+- (UIFont *) getFontLightItalic:(CGFloat)size;
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size;
 - (UIImage *)imageWithColor:(UIColor *)color;

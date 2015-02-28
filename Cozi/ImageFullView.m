@@ -50,33 +50,13 @@
     
     photoPreview = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
     
-//    self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
-//    [self.mainScroll setMinimumZoomScale:1.0];
-//    [self.mainScroll setMaximumZoomScale:5.0];
-//    [self.mainScroll setContentSize:CGSizeMake(self.bounds.size.width, self.bounds.size.height - 40)];
-//    [self.mainScroll setDelegate:self];
-    
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:_urlImage options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         
     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
         if (image && finished) {
             dispatch_async(dispatch_get_main_queue(), ^{
-//                self.imageView = [[UIImageView alloc] initWithImage:image];
-                
                 [photoPreview setImagePreview:image];
                 [self addSubview:photoPreview];
-                
-//                [self.imageView setFrame:CGRectMake(0, 0, self.mainScroll.bounds.size.width, image.size.height / 2)];
-//                [self.mainScroll addSubview:self.imageView];
-                
-//                CGPoint centerPoint = CGPointMake(CGRectGetMidX(self.mainScroll.bounds),
-//                                                  CGRectGetMidY(self.mainScroll.bounds));
-                
-
-                
-//                [self.imageView setCenter:centerPoint];
-                
-//                [self addSubview:self.mainScroll];
             });
             
             [waitingLoad stopAnimating];
@@ -96,7 +76,31 @@
     [self addSubview:btnClose];
 }
 
+- (void) initWithImage:(UIImage*)_img{
+    
+    photoPreview = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
+    
+    [photoPreview setImagePreview:_img];
+    [self addSubview:photoPreview];
+    
+    [waitingLoad stopAnimating];
+    
+    UIButton *btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btnClose setTitle:@"CLOSE" forState:UIControlStateNormal];
+    [btnClose.titleLabel setFont:[helperIns getFontLight:15]];
+    [btnClose setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    [btnClose setFrame:CGRectMake(0, self.bounds.size.height - 40, self.bounds.size.width, 40)];
+    
+    [btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
+    [btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
+    [btnClose addTarget:self action:@selector(closeImage) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self addSubview:btnClose];
+    
+}
+
 - (void) initWithData:(UIImage *)_img{
+    
     self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
     [self.mainScroll setMinimumZoomScale:1.0];
     [self.mainScroll setMaximumZoomScale:5.0];
@@ -129,6 +133,7 @@
     [btnClose addTarget:self action:@selector(closeImage) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:btnClose];
+    
 }
 
 - (void)view:(UIView*)view setCenter:(CGPoint)centerPoint{

@@ -27,6 +27,7 @@
 @property (nonatomic, strong) UIImageView             *imageView;
 
 - (void) initWithUrl:(NSURL*)_urlImage;
+- (void) initWithImage:(UIImage*)_img;
 - (void) initWithData:(UIImage *)_img;
 - (void) initWithData:(NSMutableArray*)_imgList withIndexSelect:(int)_index;
 @end

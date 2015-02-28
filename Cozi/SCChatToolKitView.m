@@ -80,26 +80,31 @@
     self.btnText = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnText setFrame:CGRectMake(0, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
     [self.btnText setImage:[helperIns getImageFromSVGName:@"icon-QuotesGrey-V2.svg"] forState:UIControlStateNormal];
+    [self.btnText setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor1"]];
     [self.vTool addSubview:self.btnText];
     
     self.btnCamera = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnCamera setFrame:CGRectMake(self.vTool.bounds.size.width / 5, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
     [self.btnCamera setImage:[helperIns getImageFromSVGName:@"icon-CameraGrey.svg"] forState:UIControlStateNormal];
+    [self.btnCamera setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor2"]];
     [self.vTool addSubview:self.btnCamera];
     
     self.btnPhoto = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPhoto setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 2, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
     [self.btnPhoto setImage:[helperIns getImageFromSVGName:@"icon-PhotoGrey.svg"] forState:UIControlStateNormal];
+    [self.btnPhoto setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor3"]];
     [self.vTool addSubview:self.btnPhoto];
     
     self.btnLocation = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnLocation setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 3, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
     [self.btnLocation setImage:[helperIns getImageFromSVGName:@"icon-LocationGrey.svg"] forState:UIControlStateNormal];
+    [self.btnLocation setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor4"]];
     [self.vTool addSubview:self.btnLocation];
     
     self.btnPing = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPing setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 4, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
     [self.btnPing setImage:[helperIns getImageFromSVGName:@"icon-PokeGrey.svg"] forState:UIControlStateNormal];
+    [self.btnPing setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor1"]];
     [self.vTool addSubview:self.btnPing];
 }
 

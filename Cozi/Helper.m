@@ -35,9 +35,17 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (void) initVariable{
     self.dictColor = [[NSDictionary alloc] init];
-    
+    self.dicColor = [[NSMutableDictionary alloc] init];
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"colors" ofType:@"plist"];
     self.dictColor = [[NSDictionary alloc]initWithContentsOfFile:plistPath];
+ 
+    if (self.dictColor) {
+        for (NSString *c in self.dictColor) {
+            int cHex = [self getHexIntColorWithKey:c];
+            UIColor *_color = [self colorWithHex:cHex];
+            [self.dicColor setValue:_color forKey:c];
+        }
+    }
     
     internetReachable = [Reachability reachabilityForInternetConnection];
     [internetReachable startNotifier];
@@ -342,7 +350,7 @@ const NSString                  *_cKey = @"PTCSYC22";
     CGRect thumbnailRect = CGRectZero;
     thumbnailRect.origin = thumbnailPoint;
     if ([[UIScreen mainScreen] bounds].size.height >= 568){
-        thumbnailRect.origin.y = -40;
+//        thumbnailRect.origin.y = -40;
     }else{
         thumbnailRect.origin.y = thumbnailRect.origin.y;
     }
@@ -550,6 +558,14 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (UIFont *) getFontRegular:(CGFloat)size{
     return [UIFont fontWithName:@"Roboto-Regular" size:size];
+}
+
+- (UIFont *) getFontItalic:(CGFloat)size{
+    return [UIFont fontWithName:@"Roboto-Italic" size:size];
+}
+
+- (UIFont *) getFontLightItalic:(CGFloat)size{
+    return [UIFont fontWithName:@"Roboto-LightItalic" size:size];
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size{
