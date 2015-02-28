@@ -56,6 +56,15 @@
             if (imgThumb) {
                 _wall.thumb = imgThumb;
                 [imgAvatar setImage:imgThumb];
+            }else{
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlAvatarThumb] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    if (image && finished) {
+                        [imgAvatar setImage:image];
+                        _wall.thumb = image;
+                    }
+                }];
             }
         }
     }

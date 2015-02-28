@@ -73,11 +73,13 @@
 @property (nonatomic, strong ) UILabel                 *lblViewAllComment;
 @property (nonatomic, strong ) UIActivityIndicatorView *spinner;
 @property (nonatomic, strong ) CALayer                 *bottomLike;
+@property (nonatomic, strong ) CALayer                 *bottomStatusTextOnly;
 
 @property (nonatomic, copy   ) NSString                *nickNameText;
 @property (nonatomic, copy   ) NSString                *statusText;
 @property (nonatomic, weak ) DataWall                *wallData;
 @property (nonatomic, strong ) TTTAttributedLabel      *lblStatus;
+@property (nonatomic, strong ) TTTAttributedLabel      *lblStatusTextOnly;
 
 - (void) renderComment;
 - (void) setTextStatus;

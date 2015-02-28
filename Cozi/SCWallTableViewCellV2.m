@@ -31,6 +31,7 @@
 @synthesize lblFullName;
 @synthesize lblLocation;
 @synthesize lblStatus;
+@synthesize lblStatusTextOnly;
 @synthesize lblViewAllComment;
 @synthesize statusText = _statusText;
 @synthesize nickNameText = _nickNameText;
@@ -41,7 +42,7 @@
 @synthesize imgQuotesWhite;
 @synthesize imgQuotesWhiteRight;
 @synthesize bottomLike;
-
+@synthesize bottomStatusTextOnly;
 
 - (id) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -129,7 +130,7 @@
     [self.bottomLike setFrame:CGRectMake(0.0f, self.vLike.bounds.size.height - 0.5, widthBlock, 0.5f)];
     [self.bottomLike setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.vLike.layer addSublayer:self.bottomLike];
-
+    
     UIImageView *imgLike = [[UIImageView alloc] initWithImage:dImageLike];
     [imgLike setBackgroundColor:[UIColor clearColor]];
     [imgLike setFrame:CGRectMake(0, 5, sizeIconLeft.width, sizeIconLeft.height)];
@@ -158,18 +159,22 @@
     [self.imgQuotes setFrame:CGRectMake(0, -5, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotes];
     
-    self.imgQuotesWhite = [[UIImageView alloc] initWithImage:dImageQuoteWhite];
+    self.imgQuotesWhite = [[UIImageView alloc] initWithImage:dImageQuote];
     [self.imgQuotesWhite setContentMode:UIViewContentModeScaleAspectFit];
     [self.imgQuotesWhite setFrame:CGRectMake(0, -5, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotesWhite];
     
-    self.imgQuotesWhiteRight = [[UIImageView alloc] initWithImage:dImageQuoteWhite];
+    self.imgQuotesWhiteRight = [[UIImageView alloc] initWithImage:dImageQuote];
     [self.imgQuotesWhiteRight setContentMode:UIViewContentModeScaleAspectFit];
     [self.imgQuotesWhiteRight setFrame:CGRectMake(widthBlock - sizeIconLeft.width, 0, sizeIconLeft.width, sizeIconLeft.height)];
     [self.vStatus addSubview:self.imgQuotesWhiteRight];
+    
+    self.bottomStatusTextOnly = [CALayer layer];
+    [self.bottomStatusTextOnly setFrame:CGRectMake(0.0f, self.vStatus.bounds.size.height - 0.5, widthBlock, 0.5f)];
+    [self.bottomStatusTextOnly setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
+    [self.vStatus.layer addSublayer:self.bottomStatusTextOnly];
 
     self.lblStatus = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, self.bounds.size.width - 60, 18.5)];
-    [self.lblStatus setTextAlignment:NSTextAlignmentJustified];
     self.lblStatus.font = [helperIns getFontLight:14.0f];
     self.lblStatus.textColor = [UIColor darkGrayColor];
     self.lblStatus.lineBreakMode = NSLineBreakByCharWrapping;
@@ -188,18 +193,32 @@
     
     NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor blueColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
     [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
     self.lblStatus.activeLinkAttributes = mutableActiveLinkAttributes;
     
     self.lblStatus.highlightedTextColor = [UIColor whiteColor];
     self.lblStatus.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
+    [self.lblStatus setTextAlignment:NSTextAlignmentLeft];
     [self.lblStatus setFont:[helperIns getFontLight:14.0f]];
     
     [vStatus addSubview:self.lblStatus];
+    
+    //Status Text Only
+    self.lblStatusTextOnly = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, self.bounds.size.width - 60, 18.5)];
+    self.lblStatusTextOnly.font = [helperIns getFontLight:14.0f];
+    self.lblStatusTextOnly.textColor = [UIColor darkGrayColor];
+    self.lblStatusTextOnly.lineBreakMode = NSLineBreakByCharWrapping;
+    self.lblStatusTextOnly.numberOfLines = 0;
+    self.lblStatusTextOnly.linkAttributes = mutableLinkAttributes;
+    self.lblStatusTextOnly.activeLinkAttributes = mutableActiveLinkAttributes;
+    self.lblStatusTextOnly.highlightedTextColor = [UIColor whiteColor];
+    self.lblStatusTextOnly.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
+    [self.lblStatusTextOnly setTextAlignment:NSTextAlignmentCenter];
+    [self.lblStatusTextOnly setFont:[helperIns getFontItalic
+                                     :14.0f]];
+    
+    [vStatus addSubview:self.lblStatusTextOnly];
 
     [self.mainView addSubview:vStatus];
 
@@ -299,6 +318,7 @@
 - (void) setTextStatus{
     
     if (_wallData.codeType != 0) {
+
         NSArray *subArray = [self.statusText componentsSeparatedByString:@"^tt^"];
         
         NSString *str = [[NSString stringWithFormat:@"%@ %@", self.nickNameText, self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
@@ -341,7 +361,7 @@
         
         NSString *str = [[NSString stringWithFormat:@"%@", self.statusText] stringByReplacingOccurrencesOfString:@"^tt^" withString:@""];
         
-        [self.lblStatus setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+        [self.lblStatusTextOnly setText:str afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
             
             return mutableAttributedString;
         }];
@@ -363,7 +383,7 @@
                     NSRange rTag = [str rangeOfString:chunk];
                     NSString *strTag = [NSString stringWithFormat:@"action://show-tag?%@", chunk];
                     strTag = [strTag stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                    [self.lblStatus addLinkToURL:[NSURL URLWithString:strTag] withRange:rTag];
+                    [self.lblStatusTextOnly addLinkToURL:[NSURL URLWithString:strTag] withRange:rTag];
                     
                 }
             }
@@ -371,6 +391,7 @@
     }
     
     [self.lblStatus setNeedsDisplay];
+    [self.lblStatusTextOnly setNeedsDisplay];
 }
 
 - (void) renderComment{

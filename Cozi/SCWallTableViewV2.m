@@ -155,6 +155,9 @@
     _wall.content = [_wall.content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (_wall.codeType == 1) {  //image and text
+        [scCell.lblStatusTextOnly setHidden:YES];
+        [scCell.lblStatus setHidden:NO];
+        [scCell.bottomStatusTextOnly setHidden:YES];
         [scCell.vImages setHidden:NO];
         
         [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_wall.urlFull] placeholderImage:[UIImage imageNamed:@"placeholder"] options:SDWebImageRefreshCached];
@@ -205,6 +208,8 @@
         [scCell.lblStatus setBackgroundColor:[UIColor clearColor]];
         [scCell.lblStatus setDelegate:self];
         scCell.lblStatus.userInteractionEnabled = YES;
+//        scCell.lblStatus.text = str;
+//        scCell.lblStatus.textAlignment = NSTextAlignmentLeft;
 
 //        //==========set hidden quotes
         [scCell.bottomLike setHidden:NO];
@@ -263,7 +268,9 @@
         }
     
     }else if (_wall.codeType == 0){ //text only
-        
+        [scCell.lblStatusTextOnly setHidden:NO];
+        [scCell.lblStatus setHidden:YES];
+        [scCell.bottomStatusTextOnly setHidden:NO];
         [scCell.vImages setHidden:YES];
         
         CGFloat heightMain = [self calculationHeightRow:indexPath.section];
@@ -288,16 +295,19 @@
             sizeStatus.height = 60;
         }
         
-        [scCell.lblStatus setFrame:CGRectMake(scCell.lblStatus.frame.origin.x, 10, scCell.lblStatus.bounds.size.width, sizeStatus.height)];
-        [scCell.lblStatus setDelegate:self];
-        scCell.lblStatus.userInteractionEnabled = YES;
+        [scCell.lblStatusTextOnly setFrame:CGRectMake(scCell.lblStatusTextOnly.frame.origin.x, 10, scCell.lblStatusTextOnly.bounds.size.width, sizeStatus.height)];
+        [scCell.lblStatusTextOnly setDelegate:self];
+        scCell.lblStatusTextOnly.userInteractionEnabled = YES;
         
         //============LIKE===========
         
         [scCell.lblLike setText:[NSString stringWithFormat:@"%i LIKES", (int)[_wall.likes count]]];
         
-        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, 0, scCell.vStatus.bounds.size.width, scCell.lblStatus.bounds.size.height + spacing + spacing)];
-        [scCell.vStatus setBackgroundColor:[UIColor lightGrayColor]];
+        [scCell.vStatus setFrame:CGRectMake(scCell.vStatus.frame.origin.x, 0, scCell.vStatus.bounds.size.width, scCell.lblStatusTextOnly.bounds.size.height + spacing + spacing)];
+//        [scCell.vStatus setBackgroundColor:[UIColor lightGrayColor]];
+        
+        //set line botton status view
+        [scCell.bottomStatusTextOnly setFrame:CGRectMake(scCell.bottomStatusTextOnly.frame.origin.x, scCell.vStatus.bounds.size.height - 0.5, scCell.bottomStatusTextOnly.bounds.size.width, scCell.bottomStatusTextOnly.bounds.size.height)];
         
         [scCell.vLike setFrame:CGRectMake(scCell.vLike.frame.origin.x, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height, scCell.vLike.bounds.size.width , scCell.vLike.bounds.size.height)];
         
