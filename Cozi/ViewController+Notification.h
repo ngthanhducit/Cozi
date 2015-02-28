@@ -28,6 +28,7 @@
 - (void) loadAssetsComplete:(NSNotification*)notification;
 - (void) loadUserComplete:(NSNotification*)notification;
 - (void) loadFriendComplete:(NSNotification*)notification;
+//- (void) loadFriendComplete:(NSNotification*)notification;
 - (void) loadWallComplete:(NSNotification*)notification;
 - (void) tapFriendProfile:(NSNotification*)notification;
 - (void) tapMyProfile:(NSNotification*)notification;

@@ -69,13 +69,11 @@
     NSDictionary *userInfo = [notification userInfo];
     NSNumber *_friendID = [userInfo valueForKey:@"tapFriend"];
     
-//    Friend *_friend = (Friend*)[userInfo valueForKey:@"tapFriend"];
     SCFriendProfileViewController *post = [[SCFriendProfileViewController alloc] init];
     [post showHiddenClose:YES];
     
     [post setFriendId:[_friendID intValue]];
-//    [post setFriendProfile:_friend];
-//
+
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
 }
@@ -89,14 +87,6 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController pushViewController:post animated:YES];
 
-//    UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
-//    
-//    [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
-//    [naviController setDelegate:self];
-//    
-//    [self presentViewController:naviController animated:YES completion:^{
-//        
-//    }];
 }
 
 - (void) reloadWallAndNoises:(NSNotification*)notification{
@@ -141,23 +131,6 @@
         isConnected = -1;
         
         [self setupNetworkStatus];
-        
-//        [hostReachability startNotifier];
-        
-//        BOOL _isConnected = [self.helperIns checkConnected];
-//        if (_isConnected) {
-//            [self.networkIns connectSocket];
-//            
-//            [self.chatViewPage resetCamera];
-//            
-//            isFirstLoadNoise = YES;
-//            isFirstLoadWall = YES;
-//            
-//        }else{
-//            
-//            [self showStatusConnected:0];
-//            
-//        }
     }
 }
 
@@ -169,20 +142,18 @@
     [self.chatViewPage setTag:10000];
     [self.chatViewPage addFriendIns:_friend];
     [self.chatViewPage.lblNickName setText:[_friend.nickName uppercaseString]];
-//    [self.lblNickName setText:[_friend.nickName uppercaseString]];
     [self.chatViewPage reloadFriend];
     [self.chatViewPage resetUI];
-//    [self.chatViewPage resetCamera];
     [self.chatViewPage.tbView setClearData:NO];
     [self.chatViewPage.tbView reloadData];
     
     [self hiddenMenu];
     
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-//        [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
-        [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, self.view.bounds.size.width, mainScroll.bounds.size.height)];
-        [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
-        [self.chatViewPage setFrame:CGRectMake(0, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+        
+        [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, mainScroll.frame.origin.y, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+        [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, scrollHeader.frame.origin.y, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+        [self.chatViewPage setFrame:CGRectMake(0, self.chatViewPage.frame.origin.y, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
     } completion:^(BOOL finished) {
         page = 0;
     }];
@@ -215,6 +186,10 @@
     Reachability* curReach = [note object];
     NSParameterAssert([curReach isKindOfClass:[Reachability class]]);
     NetworkStatus _status = curReach.currentReachabilityStatus;
+    
+    [self.vLineFirstStatusConnect setFrame:CGRectMake(0, 0, self.view.bounds.size.width, 5)];
+    [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), 0, self.view.bounds.size.width, 5)];
+    
     switch (_status) {
         case NotReachable:{
             [self showStatusConnected:0];
@@ -247,19 +222,17 @@
 - (void) loadUserComplete:(NSNotification*)notification{
     [self initLeftMenu];
     
-    [self initRightMenu];
+//    [self initRightMenu];
     
-    //Get wall
-//    NSString *firstCall = @"-1";
-//    [self.networkIns sendData:[NSString stringWithFormat:@"GETWALL{%i}%@<EOF>", 10, [self.helperIns encodedBase64:[firstCall dataUsingEncoding:NSUTF8StringEncoding]]]];
-//    
-//    NSString *strKey = [self.helperIns encodedBase64:[@"-1" dataUsingEncoding:NSUTF8StringEncoding]];
-//    [self.networkIns sendData:[NSString stringWithFormat:@"GETNOISE{21}%@<EOF>", strKey]];
 }
 
-- (void) loadFriendComplete:(NSNotification*)notification{
-    [self.homePageV6.scCollection reloadData];
+- (void) loadFriendComplete:(NSNotification *)notification{
+    [self initRightMenu];
 }
+
+//- (void) loadFriendComplete:(NSNotification*)notification{
+//    [self.homePageV6.scCollection reloadData];
+//}
 
 - (void) loadWallComplete:(NSNotification*)notification{
     

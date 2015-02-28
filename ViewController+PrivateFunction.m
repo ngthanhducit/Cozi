@@ -7,27 +7,28 @@
 //
 
 #import "ViewController+PrivateFunction.h"
+#import "ViewController+NetworkCommunication.h"
 
 @implementation ViewController (PrivateFunction)
 
 //
 - (void) showHiddenLeftMenu{
     [self.view endEditing:YES];
-    
+
     if (isShowMenuRight) {
         
         //hidden menu right
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:rightView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:rightView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
             isShowMenuRight = NO;
         }];
@@ -38,15 +39,15 @@
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
-            [leftView setFrame:CGRectMake(-widthMenu - 2, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(-widthMenu - 2, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
             [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:leftView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:leftView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
         } completion:^(BOOL finished) {
             isShowMenuLeft = NO;
@@ -55,15 +56,15 @@
     }else{
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [leftView setFrame:CGRectMake(0, heightHeader, widthMenu , leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(0, leftView.frame.origin.y, widthMenu , leftView.bounds.size.height)];
             [leftView setHidden:NO];
             
             [blurView setAlpha:alphatView];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:leftView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:leftView];
             
-            [mainScroll setFrame:CGRectMake(widthMenu, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(widthMenu, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
             isShowMenuLeft = YES;
         }];
@@ -78,15 +79,15 @@
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
-            [leftView setFrame:CGRectMake(-widthMenu + 2, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(-widthMenu + 2, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
             [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:leftView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:leftView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
         } completion:^(BOOL finished) {
             isShowMenuLeft = NO;
@@ -98,15 +99,15 @@
         //hidden menu right
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:rightView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:rightView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
             isShowMenuRight = NO;
         }];
@@ -117,15 +118,15 @@
         
         //show menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake((self.view.bounds.size.width / 4), heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake((self.view.bounds.size.width / 4), rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             [rightView setHidden:NO];
             
             [blurView setAlpha:alphatView];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:rightView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:rightView];
             
-            [mainScroll setFrame:CGRectMake(-widthMenu, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(-widthMenu, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
         } completion:^(BOOL finished) {
             isShowMenuRight = YES;
@@ -138,30 +139,30 @@
     [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         if (isShowMenuRight) {
             //hidden right
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, widthMenu, self.view.bounds.size.height)];
+            [rightView setFrame:CGRectMake(self.view.bounds.size.width, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:rightView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:rightView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
             isShowMenuRight = NO;
         }
         
         if (isShowMenuLeft) {
             //hidden left
-            [leftView setFrame:CGRectMake(-widthMenu, heightHeader, widthMenu, leftView.bounds.size.height)];
+            [leftView setFrame:CGRectMake(-widthMenu, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
             [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.view bringSubviewToFront:blurView];
-            [self.view bringSubviewToFront:leftView];
+            [self.vMain bringSubviewToFront:blurView];
+            [self.vMain bringSubviewToFront:leftView];
             
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
 
             isShowMenuLeft = NO;
         }
@@ -178,23 +179,23 @@
     
     if (!isShow) {
         inShowShareMenu = YES;
-        [self.view bringSubviewToFront:scrollHeader];
+        [self.vMain bringSubviewToFront:scrollHeader];
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [self.shareMenu setHidden:NO];
             [vBlurShareMenu setHidden:NO];
             
-            [self.shareMenu setFrame:CGRectMake(0, heightHeader, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+            [self.shareMenu setFrame:CGRectMake(self.shareMenu.frame.origin.x, heightHeader, self.shareMenu.bounds.size.width, self.shareMenu.bounds.size.height)];
             
-            [vBlurShareMenu setAlpha:0.6];
+            [vBlurShareMenu setAlpha:0.5];
         } completion:^(BOOL finished) {
-            [self.view bringSubviewToFront:self.shareMenu];
+            [self.vMain bringSubviewToFront:self.shareMenu];
             isShow = YES;
             inShowShareMenu = NO;
         }];
     }else{
-        [self.view bringSubviewToFront:scrollHeader];
+        [self.vMain bringSubviewToFront:scrollHeader];
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [self.shareMenu setFrame:CGRectMake(0, -70, self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
+            [self.shareMenu setFrame:CGRectMake(self.shareMenu.frame.origin.x, -(self.shareMenu.bounds.size.height), self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
             [vBlurShareMenu setAlpha:0.0];
         } completion:^(BOOL finished) {
             [self.shareMenu setHidden:YES];
@@ -269,9 +270,10 @@
 }
 
 - (void) showStatusConnected:(int)_isConnected{
+
     if (_isConnected == 1) {
         if (isConnected != 1) {
-            [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
+            [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor4"]]];
             
             [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                 [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
@@ -281,7 +283,7 @@
             } completion:^(BOOL finished) {
                 
                 [UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 4), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 5), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                     
                 } completion:^(BOOL finished) {
                     [viewStatusConnect setHidden:YES];
@@ -383,9 +385,9 @@
             
             [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
                 //        [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
-                [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, heightHeader, self.view.bounds.size.width, mainScroll.bounds.size.height)];
-                [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
-                [self.chatViewPage setFrame:CGRectMake(0, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+                [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, mainScroll.frame.origin.y, self.view.bounds.size.width, mainScroll.bounds.size.height)];
+                [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, scrollHeader.frame.origin.y, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+                [self.chatViewPage setFrame:CGRectMake(0, self.chatViewPage.frame.origin.y, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
             } completion:^(BOOL finished) {
                 page = 0;
             }];
@@ -400,8 +402,6 @@
     }
     
     [tbContact resetCell];
-    
-    NSLog(@"new chat");
 }
 
 - (void) reloadWall{

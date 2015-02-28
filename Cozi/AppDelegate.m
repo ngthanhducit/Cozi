@@ -25,14 +25,16 @@
     [application setApplicationIconBadgeNumber:0];
     [self reloadDeviceToken];
     
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    NSURLCache *urlCache = [[NSURLCache alloc] initWithMemoryCapacity:10 * 1024 * 1024 diskCapacity:50 * 1024 * 1024 diskPath:nil];
+    [NSURLCache setSharedURLCache:urlCache];
     
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     viewController  = [[ViewController alloc] initWithNibName:nil bundle:nil];
     self.naviController = [[UINavigationController alloc] initWithRootViewController:viewController];
     [self.naviController.view setFrame:[[UIScreen mainScreen] bounds]];
     [self.naviController setNavigationBarHidden:YES animated:NO];
-
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     
     self.window.rootViewController = self.naviController;
     [self.window makeKeyAndVisible];

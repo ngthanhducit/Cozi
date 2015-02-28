@@ -28,6 +28,8 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Roboto-Italic.ttf</string>
+		<string>Roboto-LightItalic.ttf</string>
 		<string>Roboto-Regular.ttf</string>
 		<string>Roboto-Light.ttf</string>
 		<string>Roboto-Medium.ttf</string>
@@ -40,7 +42,9 @@
 		<string>armv7</string>
 	</array>
 	<key>UIStatusBarHidden</key>
-	<true/>
+	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleBlackOpaque</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -48,11 +52,8 @@
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<true/>
 </dict>
 </plist>

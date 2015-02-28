@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>GreenColor4</key>
+	<string>0x006f74</string>
+	<key>GreenColor3</key>
+	<string>0x008d93</string>
+	<key>GreenColor2</key>
+	<string>0x00cdd2</string>
+	<key>GreenColor1</key>
+	<string>0x00d8e2</string>
 	<key>GrayColor2</key>
 	<string>0xd4d4d4</string>
 	<key>GrayColor1</key>

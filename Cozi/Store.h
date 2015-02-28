@@ -22,6 +22,8 @@
 #import <AddressBook/ABPerson.h>
 #import <AddressBook/AddressBook.h>
 #import "PersonContact.h"
+#import "SDWebImage/SDImageCache.h"
+#import "SDWebImage/SDWebImageManager.h"
 
 @protocol StoreDelegate <NSObject>
 
@@ -49,6 +51,7 @@
     CoziCoreData                *coziCoreDataIns;
     NSString                    *_keyGoogleMaps;
     NSMutableDictionary           *staticImageDictionary;
+    NSDictionary                  *dicColor;
 }
 
 @property (nonatomic) BOOL              isConnected;

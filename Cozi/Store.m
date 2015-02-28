@@ -47,6 +47,8 @@
     
     self.isConnected = NO;
     
+    dicColor = [NSDictionary new];
+    
     dataLocation = [[NSMutableData alloc] init];
 //    self.walls = [NSMutableArray new];
     self.listHistoryPost = [NSMutableArray new];
@@ -73,6 +75,11 @@
     _latitude = [[NSUserDefaults standardUserDefaults] stringForKey:@"Latitude"];
     
     self.keyGoogleMaps = @"AIzaSyDMAeGF4cEXZKjs9MEsXY6vHci3jIjpfaw";
+}
+
+- (void) initColor{
+    
+//    dicColor setValue:<#(id)#> forKey:<#(NSString *)#>
 }
 
 - (void) initLocation{
@@ -614,17 +621,28 @@
         [self.user setKeySendMessenger:[[_user valueForKey:@"key_send_messenger"] integerValue]];
         
         if (![self.user.urlAvatar isEqualToString:@""]) {
-            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                
-            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                
-                if (image && finished) {
-                    [self.user setAvatar:image];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                UIImage *imgAvatar = [SDWebImageManager.sharedManager.imageCache imageFromDiskCacheForKey:self.user.urlAvatar];
+                if (imgAvatar) {
+                    [self.user setAvatar:imgAvatar];
                     
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
+                }else{
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.user.urlAvatar] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        
+                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                        
+                        if (image && finished) {
+                            [self.user setAvatar:image];
+                            
+                            [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
+                            
+                            [SDWebImageManager.sharedManager.imageCache storeImage:image forKey:self.user.urlAvatar toDisk:YES];
+                        }
+                        
+                    }];
                 }
-                
-            }];
+            });
 
         }
         

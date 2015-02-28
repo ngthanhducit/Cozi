@@ -98,7 +98,7 @@
     UIView *containerView;
     HPGrowingTextView *textView;
     SCContactTableView                  *tbContact;
-    UIView                              *headerView;
+//    UIView                              *headerView;
     UIScrollView                        *scrollHeader;
     
     //Parameter Right Menu
@@ -149,11 +149,11 @@
     CGFloat                     alphatView;
     NetworkController           *netController;
     
-//    UIActivityIndicatorView     *waitingReconnect;
-//    UIActivityIndicatorView     *waitingWall;
-//    UIActivityIndicatorView     *waitingNoise;
+    CGFloat                     heightStatusBar;
+    
 }
 
+@property (nonatomic, strong) UIView                *vMain;
 @property (nonatomic, strong) UILabel              *lblNickName;
 
 @property (nonatomic, strong) Store                *storeIns;

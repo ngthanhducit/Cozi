@@ -7,6 +7,7 @@
 //
 
 #import "ViewController+NetworkCommunication.h"
+#import "ViewController+Notification.h"
 
 @implementation ViewController (NetworkCommunication)
 
@@ -77,6 +78,8 @@ static NSString         *dataNetwork;
                         [self initializeGestures];
                         
                         [self.chatViewPage initLibraryImage];
+                        
+                        [self loadFriendComplete:nil];
                         
                         dataNet = nil;
                         
@@ -168,11 +171,7 @@ static NSString         *dataNetwork;
                             [self.view bringSubviewToFront:self.homePageV6];
                         }
                         
-                        [self.storeIns sortMessengerFriend];
-                        
-//                        [waitingReconnect stopAnimating];
-                        
-                        [self setStatusRequestFriend];
+//                        [self.storeIns sortMessengerFriend];
                     
                         [self.homePageV6.scCollection reloadData];
 
@@ -536,14 +535,14 @@ static NSString         *dataNetwork;
                             
                             Friend *_tempFriend = [self.dataMapIns processReceiveMessage:newMessage];
                             
-                            ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
-                            if (temp != nil) {
+//                            ChatView *temp = (ChatView*)[self.view viewWithTag:10000];
+                            if (self.chatViewPage != nil) {
                                 Messenger *_lastMessage = [self.chatViewPage.friendIns.friendMessage lastObject];
                                 [_lastMessage setStatusMessage:1];
                                 
                                 [self.storeIns updateStatusMessageFriend:_lastMessage.friendID withStatus:1];
                                 
-                                if (temp.friendIns.friendID == _tempFriend.friendID) {
+                                if (self.chatViewPage.friendIns.friendID == _tempFriend.friendID) {
                                     
                                     [self.chatViewPage addFriendIns:_tempFriend];
                                     
@@ -824,45 +823,22 @@ static NSString         *dataNetwork;
                     
 //                    [waitingWall stopAnimating];
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        
                         [self.vLineFirstStatusConnect.layer removeAllAnimations];
                         [self.vLineSecondStatusConnect.layer removeAllAnimations];
-
-                        [self.vLineFirstStatusConnect setFrame:CGRectMake(0, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-                        [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+                        
+                        [UIView animateWithDuration:0.5 animations:^{
+                            
+                            [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+                            [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+                            
+                        } completion:^(BOOL finished) {
+                            
+                            [self setStatusRequestFriend];
+                            
+                        }];
                     });
                     
-//                    [UIView animateWithDuration:1.0 delay:10.0 options:UIViewAnimationOptionCurveLinear animations:^{
-//                        
-//                        
-//                    } completion:^(BOOL finished) {
-//                        [self.vLineFirstStatusConnect.layer removeAllAnimations];
-//                        [self.vLineSecondStatusConnect.layer removeAllAnimations];
-//
-//                        [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-//                        [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
-//                    }];
-                    
-                    
-                    [UIView animateWithDuration:5.0 delay:5.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-//                        [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -heightHeader, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
-//                        [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
-//                        [lblStatusConnect setText:@"Connecting..."];
-
-//                        [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-//                        [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
-                        
-//                        [self.vLineFirstStatusConnect setHidden:YES];
-//                        [self.vLineSecondStatusConnect setHidden:YES];
-                        
-                    } completion:^(BOOL finished) {
-//                        if (finished) {
-//                            [self.vLineFirstStatusConnect.layer removeAllAnimations];
-//                            [self.vLineSecondStatusConnect.layer removeAllAnimations];
-//                            
-//                            [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-//                            [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
-//                        }
-                    }];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETNOISE"]) {
@@ -879,8 +855,6 @@ static NSString         *dataNetwork;
                     }else{
                         [self.noisePageV6.scCollection stopLoadNoise:NO];
                     }
-
-//                    [waitingNoise stopAnimating];
                 }
                 
                 if ([[subCommand objectAtIndex:0] isEqualToString:@"GETUPLOADPOSTURL"]) {
@@ -1133,11 +1107,11 @@ static NSString         *dataNetwork;
         {
             self.storeIns.isConnected = YES;
 
-            [mainScroll setFrame:CGRectMake(0, heightHeader, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
-            [self.chatViewPage setFrame:CGRectMake(-self.view.bounds.size.width, 0, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+            [self.chatViewPage setFrame:CGRectMake(-self.view.bounds.size.width, self.chatViewPage.frame.origin.y, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
             
-            [scrollHeader setFrame:CGRectMake(0, 0, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
+            [scrollHeader setFrame:CGRectMake(0, scrollHeader.frame.origin.y, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
             
             NSUserDefaults *_default = [NSUserDefaults standardUserDefaults];
             BOOL _isLogin = [_default boolForKey:@"IsLogin"];
