@@ -109,16 +109,6 @@
         scCell = [[SCSearchFriendTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-//    for (id obj in scCell.subviews)
-//    {
-//        if ([NSStringFromClass([obj class]) isEqualToString:@"UITableViewCellScrollView"])
-//        {
-//            UIScrollView *scroll = (UIScrollView *) obj;
-//            scroll.delaysContentTouches = NO;
-//            break;
-//        }
-//    }
-    
     [scCell setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1]];
     
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
@@ -126,18 +116,28 @@
     
     UserSearch *_userSearch = [sectionContacts objectAtIndex:indexPath.row];
 
-    if (![_userSearch.urlAvatar isEqualToString:@""]) {
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_userSearch.urlAvatar] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-            
-        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            
-            if (image && finished) {
-                [scCell.imgAvatar setImage:image];
-            }
-            
-        }];
+    [scCell.imgAvatar setImage:[helperIns getDefaultAvatar]];
+    
+    if (_userSearch.imgThumbnail) {
+        
+        scCell.imgAvatar.image = _userSearch.imgThumbnail;
+        
     }else{
-        [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+        if (![_userSearch.urlAvatar isEqualToString:@""]) {
+            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_userSearch.urlAvatar] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                
+            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                
+                if (image && finished) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [scCell.imgAvatar setImage:image];
+                        _userSearch.imgThumbnail = image;
+                    });
+                }
+                
+            }];
+        }
+
     }
     
     [scCell.lblFullName setText:[NSString stringWithFormat:@"%@ %@", _userSearch.firstName, _userSearch.lastName]];
@@ -167,16 +167,17 @@
         [scCell.btnAddFriend setUserInteractionEnabled:YES];
         [scCell.btnAddFriend setBackgroundColor:[UIColor clearColor]];
         [scCell.btnAddFriend setTitle:@"ADD" forState:UIControlStateNormal];
-    }
-    
-    if (_userSearch.isAddFriend == 1) {
-        [scCell.btnAddFriend setHidden:YES];
-        [scCell.vAddFriend setHidden:NO];
-        UIActivityIndicatorView *waiting = (UIActivityIndicatorView*)[scCell.vAddFriend viewWithTag:6666];
-        [waiting startAnimating];
-    }else{
-        [scCell.vAddFriend setHidden:YES];
-        [scCell.btnAddFriend setHidden:NO];
+        
+        if (_userSearch.isAddFriend == 1) {
+            [scCell.btnAddFriend setHidden:YES];
+            [scCell.vAddFriend setHidden:NO];
+            UIActivityIndicatorView *waiting = (UIActivityIndicatorView*)[scCell.vAddFriend viewWithTag:6666];
+            [waiting startAnimating];
+        }else{
+            [scCell.vAddFriend setHidden:YES];
+            [scCell.btnAddFriend setHidden:NO];
+        }
+        
     }
     
     for (UIView *currentView in tableView.subviews) {
@@ -211,6 +212,7 @@
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [storeIns playSoundPress];
     
     NSString *sectionTitle = [contactIndex objectAtIndex:indexPath.section];
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
@@ -262,13 +264,14 @@
 }
 
 - (void) tapAddFriend:(UITapGestureRecognizer*)recognizer{
+    [storeIns playSoundPress];
     
     CGPoint tapLocation = [recognizer locationInView:self];
     NSIndexPath *tapIndexPath = [self indexPathForRowAtPoint:tapLocation];
-    SCSearchFriendTableViewCell *scCell = [self cellForRowAtIndexPath:tapIndexPath];
+    SCSearchFriendTableViewCell *scCell = (SCSearchFriendTableViewCell*)[self cellForRowAtIndexPath:tapIndexPath];
     
     UIView *vAddFriend = scCell.vAddFriend;
-    UIActivityIndicatorView *waiting = [vAddFriend viewWithTag:6666];
+    UIActivityIndicatorView *waiting = (UIActivityIndicatorView*)[vAddFriend viewWithTag:6666];
     if (waiting.isAnimating) {
         [waiting stopAnimating];
         [scCell.vAddFriend setBackgroundColor:[UIColor clearColor]];
@@ -277,14 +280,12 @@
         [scCell.vAddFriend setBackgroundColor:[UIColor orangeColor]];
     }
     
-    UILabel *lblText = [vAddFriend viewWithTag:7777];
-//    Messenger *_messenger = [friendIns.friendMessage objectAtIndex:tapIndexPath.row];
-//    
-//    [self showImageFull:_messenger];
+//    UILabel *lblText = (UILabel*)[vAddFriend viewWithTag:7777];
+
 }
 
 - (void) btnAddFriendClick:(id)sender{
-
+    [storeIns playSoundPress];
     UIButton *btnAddFriend = (UIButton*)sender;
     [btnAddFriend setHighlighted:YES];
 
