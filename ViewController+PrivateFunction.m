@@ -1,4 +1,4 @@
-//
+    //
 //  ViewController+PrivateFunction.m
 //  Cozi
 //
@@ -13,6 +13,8 @@
 
 //
 - (void) showHiddenLeftMenu{
+    [self.storeIns playSoundPress];
+    
     [self.view endEditing:YES];
 
     if (isShowMenuRight) {
@@ -21,16 +23,28 @@
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
-            [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:rightView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:rightView];
             
             [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
+            [rightView setHidden:YES];
             isShowMenuRight = NO;
+            
+            //Hidden button
+            //chang size tbContact
+            [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                [self.btnNewChat setFrame:CGRectMake(self.btnNewChat.frame.origin.x, self.view.bounds.size.height - (heightHeader + heightStatusBar), self.btnNewChat.bounds.size.width, self.btnNewChat.bounds.size.height)];
+                [tbContact setFrame:CGRectMake(tbContact.frame.origin.x, tbContact.frame.origin.y, tbContact.bounds.size.width, self.view.bounds.size.height - (heightHeader + heightStatusBar + 40))];
+            } completion:^(BOOL finished) {
+                
+            }];
+            
+            [tbContact resetCell];
+            
         }];
         
     }
@@ -40,29 +54,29 @@
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
             [leftView setFrame:CGRectMake(-widthMenu - 2, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
-            [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:leftView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:leftView];
             
             [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
         } completion:^(BOOL finished) {
+            [leftView setHidden:YES];
             isShowMenuLeft = NO;
         }];
         
     }else{
         
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [leftView setFrame:CGRectMake(0, leftView.frame.origin.y, widthMenu , leftView.bounds.size.height)];
             [leftView setHidden:NO];
-            
+            [leftView setFrame:CGRectMake(0, leftView.frame.origin.y, widthMenu , leftView.bounds.size.height)];
+
             [blurView setAlpha:alphatView];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:leftView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:leftView];
             
             [mainScroll setFrame:CGRectMake(widthMenu, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
@@ -73,6 +87,8 @@
 }
 
 - (void) showHiddenRightMenu{
+    [self.storeIns playSoundPress];
+    
     [self.view endEditing:YES];
     
     if (isShowMenuLeft) {
@@ -80,16 +96,16 @@
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             
             [leftView setFrame:CGRectMake(-widthMenu + 2, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
-            [leftView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:leftView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:leftView];
             
             [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
         } completion:^(BOOL finished) {
+            [leftView setHidden:YES];
             isShowMenuLeft = NO;
         }];
     }
@@ -100,16 +116,28 @@
         //hidden menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [rightView setFrame:CGRectMake(self.view.bounds.size.width + 2, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
-            [rightView setHidden:YES];
             
             [blurView setAlpha:0.0];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:rightView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:rightView];
             
             [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
         } completion:^(BOOL finished) {
+            [rightView setHidden:YES];
             isShowMenuRight = NO;
+
+            //Hidden button
+            //chang size tbContact
+            [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                [self.btnNewChat setFrame:CGRectMake(self.btnNewChat.frame.origin.x, self.view.bounds.size.height - (heightHeader + heightStatusBar), self.btnNewChat.bounds.size.width, self.btnNewChat.bounds.size.height)];
+                [tbContact setFrame:CGRectMake(tbContact.frame.origin.x, tbContact.frame.origin.y, tbContact.bounds.size.width, self.view.bounds.size.height - (heightHeader + heightStatusBar + 40))];
+            } completion:^(BOOL finished) {
+                
+            }];
+            
+            [tbContact resetCell];
+            
         }];
         
     }else{
@@ -118,13 +146,13 @@
         
         //show menu
         [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-            [rightView setFrame:CGRectMake((self.view.bounds.size.width / 4), rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             [rightView setHidden:NO];
+            [rightView setFrame:CGRectMake((self.view.bounds.size.width / 4), rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
             
             [blurView setAlpha:alphatView];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:rightView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:rightView];
             
             [mainScroll setFrame:CGRectMake(-widthMenu, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
             
@@ -136,64 +164,95 @@
 }
 
 - (void) hiddenMenu{
-    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        if (isShowMenuRight) {
-            //hidden right
-            [rightView setFrame:CGRectMake(self.view.bounds.size.width, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
+    
+    if (isShowMenuRight) {
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+            if (isShowMenuRight) {
+                //hidden right
+                [rightView setFrame:CGRectMake(self.view.bounds.size.width, rightView.frame.origin.y, widthMenu, self.view.bounds.size.height)];
+                
+                [blurView setAlpha:0.0];
+                
+                [self.view bringSubviewToFront:blurView];
+                [self.view bringSubviewToFront:rightView];
+                
+                [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
+                
+                isShowMenuRight = NO;
+                
+                //Hidden button
+                //chang size tbContact
+                [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                    [self.btnNewChat setFrame:CGRectMake(self.btnNewChat.frame.origin.x, self.view.bounds.size.height - (heightHeader + heightStatusBar), self.btnNewChat.bounds.size.width, self.btnNewChat.bounds.size.height)];
+                    [tbContact setFrame:CGRectMake(tbContact.frame.origin.x, tbContact.frame.origin.y, tbContact.bounds.size.width, self.view.bounds.size.height - (heightHeader + heightStatusBar + 40))];
+                } completion:^(BOOL finished) {
+                    
+                }];
+                
+                [tbContact resetCell];
+            }
+        } completion:^(BOOL finished) {
             [rightView setHidden:YES];
-            
-            [blurView setAlpha:0.0];
-            
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:rightView];
-            
-            [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
-            
-            isShowMenuRight = NO;
-        }
-        
-        if (isShowMenuLeft) {
+        }];
+    }
+    
+    if (isShowMenuLeft) {
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             //hidden left
             [leftView setFrame:CGRectMake(-widthMenu, leftView.frame.origin.y, widthMenu, leftView.bounds.size.height)];
-            [leftView setHidden:YES];
+
             
             [blurView setAlpha:0.0];
             
-            [self.vMain bringSubviewToFront:blurView];
-            [self.vMain bringSubviewToFront:leftView];
+            [self.view bringSubviewToFront:blurView];
+            [self.view bringSubviewToFront:leftView];
             
             [mainScroll setFrame:CGRectMake(0, mainScroll.frame.origin.y, mainScroll.bounds.size.width, mainScroll.bounds.size.height)];
-
+            
             isShowMenuLeft = NO;
-        }
-    } completion:^(BOOL finished) {
-        
-    }];
+        } completion:^(BOOL finished) {
+            [leftView setHidden:YES];
+        }];
+    }
+    
+    
 }
 
 - (void) showShareMenu{
+    [self.storeIns playSoundPress];
     
     if (inShowShareMenu) {
         return;
     }
     
+    [self hiddenMenu];
+    
     if (!isShow) {
         inShowShareMenu = YES;
-        [self.vMain bringSubviewToFront:scrollHeader];
+        [self.view bringSubviewToFront:vBlurShareMenu];
+        [self.view bringSubviewToFront:self.shareMenu];
+
+        [self.view bringSubviewToFront:self.scrollHeader];
+        
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [self.shareMenu setHidden:NO];
             [vBlurShareMenu setHidden:NO];
             
-            [self.shareMenu setFrame:CGRectMake(self.shareMenu.frame.origin.x, heightHeader, self.shareMenu.bounds.size.width, self.shareMenu.bounds.size.height)];
+            [self.shareMenu setFrame:CGRectMake(self.shareMenu.frame.origin.x, heightHeader + heightStatusBar, self.shareMenu.bounds.size.width, self.shareMenu.bounds.size.height)];
             
             [vBlurShareMenu setAlpha:0.5];
         } completion:^(BOOL finished) {
-            [self.vMain bringSubviewToFront:self.shareMenu];
+            [self.view bringSubviewToFront:self.shareMenu];
+            [self.view bringSubviewToFront:vBlurShareMenu];
+            [self.view bringSubviewToFront:self.shareMenu];
+            
             isShow = YES;
             inShowShareMenu = NO;
         }];
     }else{
-        [self.vMain bringSubviewToFront:scrollHeader];
+        [self.view bringSubviewToFront:self.scrollHeader];
+//        [self.view bringSubviewToFront:self.statusBarView];
+        
         [UIView animateWithDuration:0.3 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
             [self.shareMenu setFrame:CGRectMake(self.shareMenu.frame.origin.x, -(self.shareMenu.bounds.size.height), self.view.bounds.size.width, self.shareMenu.bounds.size.height)];
             [vBlurShareMenu setAlpha:0.0];
@@ -208,30 +267,21 @@
 
 - (void) logout{
     
-//    [mainScroll removeFromSuperview];
-//    mainScroll = nil;
-//    
-//    [leftView removeFromSuperview];
-//    leftView = nil;
-//    
-//    [rightView removeFromSuperview];
-//    rightView = nil;
-//    
-//    [headerView removeFromSuperview];
-//    headerView = nil;
-//    
-//    [scrollHeader removeFromSuperview];
-//    scrollHeader = nil;
+    [SDWebImageManager.sharedManager.imageCache clearMemory];
+    [SDWebImageManager.sharedManager.imageCache clearDisk];
     
-//    if (self.loginPage == nil) {
-//        self.loginPage = [[LoginPage alloc] initWithFrame:self.view.bounds];
-//        [self.loginPage.signInView.btnSignInView addTarget:self action:@selector(btnSignInTouches) forControlEvents:UIControlEventTouchUpInside];
-//        [self.view addSubview:self.loginPage];
-//    }
+//    [self.vLineFirstStatusConnect.layer removeAllAnimations];
+//    [self.vLineSecondStatusConnect.layer removeAllAnimations];
 //    
-//    [self.loginPage resetFirstFrom];
+//    [self.vLineFirstStatusConnect setHidden:YES];
+//    [self.vLineSecondStatusConnect setHidden:YES];
 //    
-//    [self.view addSubview:self.loginPage];
+//    [self.vLineFirstStatusConnect setFrame:CGRectMake(0, (heightStatusBar + heightHeader) - 5, self.view.bounds.size.width, 5)];
+//    [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), (heightStatusBar + heightHeader) - 5, self.view.bounds.size.width, 5)];
+
+    [self.vLineFirstStatusConnect removeFromSuperview];
+    [self.vLineSecondStatusConnect removeFromSuperview];
+    [viewStatusConnect removeFromSuperview];
     
     isFirstLoadNoise = YES;
     isFirstLoadWall = YES;
@@ -244,7 +294,6 @@
         [self.view addSubview:self.loginPageV3.view];
         [self.loginPageV3 didMoveToParentViewController:self];
         
-//        [self.loginPageV3.btnSignIn addTarget:self action:@selector(btnSignInTouchesV3) forControlEvents:UIControlEventTouchUpInside];
     }else{
         [self.loginPageV3.view setHidden:NO];
         [self addChildViewController:self.loginPageV3];
@@ -252,10 +301,28 @@
         [self.loginPageV3 didMoveToParentViewController:self];
     }
     
+    [self.storeIns setup];
+    
+    [self.homePageV6 removeFromSuperview];
+    
+    [self.wallPageV8 stopStartOnTick:NO];
+    [self.wallPageV8 initWithData:self.storeIns.walls withType:0];
+    [self.wallPageV8 removeFromSuperview];
+    
+    [self.noisePageV6.scCollection initData:self.storeIns.noises withType:0];
+    [self.noisePageV6 removeFromSuperview];
+
+    [self.scrollHeader removeFromSuperview];
+    [mainScroll removeFromSuperview];
+    
+    [self.chatViewPage.view removeFromSuperview];
+    [blurView removeFromSuperview];
+    [blurImage removeFromSuperview];
+    [leftView removeFromSuperview];
+    [rightView removeFromSuperview];
+    
     NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
     [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
-    
-    [self.storeIns setup];
     
     [self.networkIns sendData:@"LOGOUT{<EOF>"];
 
@@ -273,20 +340,30 @@
 
     if (_isConnected == 1) {
         if (isConnected != 1) {
+
+            [viewStatusConnect setFrame:CGRectMake(0, -heightStatusBar, self.view.bounds.size.width, heightHeader)];
             [viewStatusConnect setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor4"]]];
+
+            [self.chatViewPage.view bringSubviewToFront:self.chatViewPage.tbView];
+            [self.view bringSubviewToFront:self.chatViewPage.view];
+            [self.view bringSubviewToFront:mainScroll];
             
             [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, heightStatusBar, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
                 [lblStatusConnect setText:@"Connecting..."];
                 
             } completion:^(BOOL finished) {
                 
                 [UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 5), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
-                    
+//                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - heightStatusBar - 10), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+
+                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, (heightStatusBar + heightHeader) - 5, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];;
+                                    
                 } completion:^(BOOL finished) {
+
                     [viewStatusConnect setHidden:YES];
+                    
                     [self.vLineFirstStatusConnect setHidden:NO];
                     [self.vLineSecondStatusConnect setHidden:NO];
                     
@@ -297,29 +374,35 @@
                 
             }];
         }
-
+        
         isConnected = 1;
         
     }else{
         
         if (isConnected != 0) {
+            [viewStatusConnect setFrame:CGRectMake(0, -heightStatusBar, self.view.bounds.size.width, heightHeader)];
             [viewStatusConnect setBackgroundColor:[UIColor redColor]];
             
-            [self.vLineFirstStatusConnect.layer removeAllAnimations];
-            [self.vLineSecondStatusConnect.layer removeAllAnimations];
+            [self.vLineFirstStatusConnect setHidden:YES];
+            [self.vLineSecondStatusConnect setHidden:YES];
             
-            [self.vLineFirstStatusConnect setFrame:CGRectMake(0, -5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-            [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), -5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+//            [self.view bringSubviewToFront:self.statusBarView];
+            [self.chatViewPage.view bringSubviewToFront:self.chatViewPage.tbView];
+            [self.view bringSubviewToFront:self.chatViewPage.view];
+            [self.view bringSubviewToFront:mainScroll];
             
             [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, 0, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, heightStatusBar, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
                 [viewStatusConnect setHidden:NO];
                 [lblStatusConnect setText:@"No internet"];
                 
             } completion:^(BOOL finished) {
                 [UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - 4), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
-                    
+
+                    //                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, -(viewStatusConnect.bounds.size.height - heightStatusBar - 5), viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                
+                    [viewStatusConnect setFrame:CGRectMake(viewStatusConnect.frame.origin.x, (heightStatusBar + heightHeader) - 5, viewStatusConnect.bounds.size.width, viewStatusConnect.bounds.size.height)];
+                
                 } completion:^(BOOL finished) {
                     
                 }];
@@ -333,13 +416,13 @@
 }
 
 - (void) loopStatusConnect{
-
-    [self.vLineFirstStatusConnect setFrame:CGRectMake(self.vLineFirstStatusConnect.frame.origin.x, 0, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-    [self.vLineSecondStatusConnect setFrame:CGRectMake(self.vLineSecondStatusConnect.frame.origin.x, 0, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+    
+    [self.vLineFirstStatusConnect setFrame:CGRectMake(0, (heightStatusBar + heightHeader) - 5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+    [self.vLineSecondStatusConnect setFrame:CGRectMake(-(self.view.bounds.size.width + heightHeader), (heightStatusBar + heightHeader) - 5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
     
     [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionRepeat animations:^{
-        [self.vLineFirstStatusConnect setFrame:CGRectMake(self.view.bounds.size.width + heightHeader, 0, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
-        [self.vLineSecondStatusConnect setFrame:CGRectMake(0, 0, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
+        [self.vLineFirstStatusConnect setFrame:CGRectMake(self.view.bounds.size.width + heightHeader, (heightStatusBar + heightHeader) - 5, self.vLineFirstStatusConnect.bounds.size.width, self.vLineFirstStatusConnect.bounds.size.height)];
+        [self.vLineSecondStatusConnect setFrame:CGRectMake(0, (heightStatusBar + heightHeader) - 5, self.vLineSecondStatusConnect.bounds.size.width, self.vLineSecondStatusConnect.bounds.size.height)];
     } completion:^(BOOL finished) {
 
     }];
@@ -360,34 +443,63 @@
 
 - (void) onTick:(id)sender{
     self.storeIns.timeServer = [self.storeIns.timeServer dateByAddingTimeInterval:1];
+//    NSLog(@"%@", self.storeIns.timeServer);
 }
 
 - (void) btnNewChatClick:(id)sender{
+    [self.storeIns playSoundPress];
     
-    NSMutableArray *selectList = [tbContact getSelectList];
+    __strong NSMutableArray *selectList = [tbContact getSelectList];
     
     if ([selectList count] > 1) {//Group Chat
+        
+        return;
+        
+        SCGroupChatViewController *post = [[SCGroupChatViewController alloc] init];
+        [post initData:selectList];
+        [post showHiddenBack:YES];
+        [post showHiddenClose:NO];
+        
+        UINavigationController  *naviController = [[UINavigationController alloc] initWithRootViewController:post];
+        [naviController setModalPresentationStyle:UIModalPresentationFormSheet];
+        [naviController setDelegate:self];
+        
+        [self presentViewController:naviController animated:YES completion:^{
+            
+            [self hiddenMenu];
+            
+        }];
+
         
     }else{
         Friend *_friend  = (Friend*)[selectList lastObject];
         
         if (_friend) {
-            [self.chatViewPage setTag:10000];
-            [self.chatViewPage addFriendIns:_friend];
+            Recent *_recent = [Recent new];
+            _recent.recentID = _friend.friendID;
+            _recent.typeRecent = 0;
+            _recent.thumbnail = _friend.thumbnail;
+            _recent.urlThumbnail = _friend.urlThumbnail;
+            _recent.nameRecent = _friend.nickName;
+            _recent.friendIns = _friend;
+            _recent.friendRecent = [NSMutableArray new];
+            _recent.messengerRecent = [NSMutableArray new];
+            
+//            [self.chatViewPage addFriendIns:_friend];
+            [self.chatViewPage addRecent:_recent];
             [self.chatViewPage.lblNickName setText:[_friend.nickName uppercaseString]];
             [self.chatViewPage reloadFriend];
             [self.chatViewPage resetUI];
-//            [self.chatViewPage resetCamera];
             [self.chatViewPage.tbView setClearData:NO];
             [self.chatViewPage.tbView reloadData];
+            isVisibleChatView = YES;
             
             [self hiddenMenu];
             
             [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-                //        [mainScroll setContentOffset:CGPointMake(0, 0) animated:YES];
                 [mainScroll setFrame:CGRectMake(self.view.bounds.size.width, mainScroll.frame.origin.y, self.view.bounds.size.width, mainScroll.bounds.size.height)];
-                [scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, scrollHeader.frame.origin.y, scrollHeader.bounds.size.width, scrollHeader.bounds.size.height)];
-                [self.chatViewPage setFrame:CGRectMake(0, self.chatViewPage.frame.origin.y, self.chatViewPage.bounds.size.width, self.chatViewPage.bounds.size.height)];
+                [self.scrollHeader setFrame:CGRectMake(self.view.bounds.size.width, self.scrollHeader.frame.origin.y, self.scrollHeader.bounds.size.width, self.scrollHeader.bounds.size.height)];
+                [self.chatViewPage.view setFrame:CGRectMake(0, self.chatViewPage.view.frame.origin.y, self.chatViewPage.view.bounds.size.width, self.chatViewPage.view.bounds.size.height)];
             } completion:^(BOOL finished) {
                 page = 0;
             }];
@@ -400,6 +512,15 @@
                 [self.chatViewPage.tbView setContentOffset:bottomOffset animated:NO];
         }
     }
+    
+    //Hidden button
+    //chang size tbContact
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        [self.btnNewChat setFrame:CGRectMake(self.btnNewChat.frame.origin.x, self.view.bounds.size.height - (heightHeader + heightStatusBar), self.btnNewChat.bounds.size.width, self.btnNewChat.bounds.size.height)];
+        [tbContact setFrame:CGRectMake(tbContact.frame.origin.x, tbContact.frame.origin.y, tbContact.bounds.size.width, self.view.bounds.size.height - (heightHeader + heightStatusBar + 40))];
+    } completion:^(BOOL finished) {
+        
+    }];
     
     [tbContact resetCell];
 }
@@ -422,4 +543,9 @@
     }
     
 }
+
+- (void) tapUserLeftMenu:(UIGestureRecognizer*)recognizer{
+    
+}
+
 @end

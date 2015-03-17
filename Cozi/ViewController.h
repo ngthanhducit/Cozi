@@ -10,9 +10,11 @@
 #import <CoreLocation/CoreLocation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
+#import <QuartzCore/QuartzCore.h>
 #import "SVGKImage.h"
 #import "LoginPage.h"
 #import "Store.h"
+#import "Store+CoreData.h"
 #import "Helper.h"
 #import "DataMap.h"
 #import "NetworkCommunication.h"
@@ -46,6 +48,8 @@
 #import "SCSearchFriendViewController.h"
 #import "SCFriendRequestViewController.h"
 #import "SCLookAroundViewController.h"
+#import "SCGroupChatViewController.h"
+#import "SCChatViewV2ViewController.h"
 
 @interface ViewController : UIViewController <UIScrollViewDelegate, UIAlertViewDelegate, NSURLConnectionDataDelegate, HPGrowingTextViewDelegate, StoreDelegate, UINavigationControllerDelegate, UISearchBarDelegate>
 {
@@ -73,33 +77,32 @@
     CGPoint                                     preScrollLocation;
     CGPoint                                     beginScroll;
     
-    UIPanGestureRecognizer *panGestureRecognizer;
+    UIPanGestureRecognizer                      *panGestureRecognizer;
     LoginPage                                   *_loginPage;
     BOOL                                        isEnterBackground;
-    BOOL    isBecomeActive;
-    BOOL        isActiveFromBackground;
+    BOOL                                        isBecomeActive;
+    BOOL                                        isActiveFromBackground;
     
-    NSString                    *_long;
-    NSString                    *_lati;
-    NSString                    *deviceToken;
+    NSString                                    *_long;
+    NSString                                    *_lati;
+    NSString                                    *deviceToken;
     
-    CLLocationManager           *locationManager;
-    CLGeocoder                  *geoCoder;
-    CLPlacemark                 *placeMark;
+    CLLocationManager                           *locationManager;
+    CLGeocoder                                  *geoCoder;
+    CLPlacemark                                 *placeMark;
     
-    NSOperationQueue            *loginQueue;
+    NSOperationQueue                            *loginQueue;
     
-    NSMutableArray                    *contactList;
+    NSMutableArray                              *contactList;
     
-    AmazonInfo                      *amazonThumbnail;
-    AmazonInfo                      *amazonAvatar;
+    AmazonInfo                                  *amazonThumbnail;
+    AmazonInfo                                  *amazonAvatar;
     
-    NSMutableData                   *dataLocation;
+    NSMutableData                               *dataLocation;
     UIView *containerView;
     HPGrowingTextView *textView;
     SCContactTableView                  *tbContact;
 //    UIView                              *headerView;
-    UIScrollView                        *scrollHeader;
     
     //Parameter Right Menu
     UIView                              *rmHeader;
@@ -107,7 +110,7 @@
     UIButton                            *rmButtonPhone;
     UIButton                            *rmButtonCozi;
     UIButton                            *rmButtonOnline;
-    UIView                              *rmLine;
+//    UIView                              *rmLine;
     
     //network status
     Reachability                        *hostReachability;
@@ -150,10 +153,14 @@
     NetworkController           *netController;
     
     CGFloat                     heightStatusBar;
-    
+    BOOL                        isVisibleChatView;
+    BOOL                        isGroupChat;
+    BOOL                        inShowButtonStartChat;
 }
 
-@property (nonatomic, strong) UIView                *vMain;
+@property (nonatomic, strong)     UIScrollView                        *scrollHeader;
+@property (nonatomic, strong) UIPanGestureRecognizer    *pan;
+//@property (nonatomic, strong) UIView                *vMain;
 @property (nonatomic, strong) UILabel              *lblNickName;
 
 @property (nonatomic, strong) Store                *storeIns;
@@ -162,11 +169,11 @@
 @property (nonatomic, strong) DataMap              *dataMapIns;
 @property (nonatomic        ) NetworkCommunication *networkIns;
 
-@property (nonatomic, strong) LoginPage            *loginPage;
 @property (nonatomic, strong) SCLoginPageV3            *loginPageV3;
 @property (nonatomic, strong) SCWallTableViewV2       *wallPageV8;
 @property (nonatomic, strong) NoisesPage               *noisePageV6;
-@property (nonatomic, strong) ChatView             *chatViewPage;
+//@property (nonatomic, strong) ChatView             *chatViewPage;
+@property (nonatomic, strong) SCChatViewV2ViewController             *chatViewPage;
 @property (nonatomic, strong) MainPageV7           *homePageV6;
 @property (nonatomic, strong) SCShareMenu           *shareMenu;
 
@@ -174,6 +181,7 @@
 @property (nonatomic, strong) UIView                *vLineSecondStatusConnect;
 
 @property (nonatomic, strong) UIButton              *btnNewChat;
+@property (nonatomic, strong) UIView                *statusBarView;
 
 - (void) setup;
 - (void) initializeGestures;

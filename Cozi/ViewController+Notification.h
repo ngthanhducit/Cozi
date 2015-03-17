@@ -40,4 +40,9 @@
 - (void) notificationSelectLikes:(NSNotification*)notification;
 - (void) notificationReloadListFriend:(NSNotification*)notification;
 - (void) notificationDeviceToken:(NSNotification*)notification;
+- (void) notificationDenyRequestChat:(NSNotificationCenter*)notification;
+- (void) notificationAllowRequestChat:(NSNotificationCenter*)notification;
+- (void) notificationChatBackToHome:(NSNotificationCenter*)notification;
+- (void) notificationCreateNewGroup:(NSNotification*)notification;
+- (void) notificationOfflineMessage:(NSNotification*)notification;
 @end
