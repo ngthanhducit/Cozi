@@ -28,13 +28,12 @@
 - (void) setupVariable{
     
     networkControllerIns = [NetworkController shareInstance];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setResultAddWall:) name:@"setResultAddWall" object:nil];
+
 }
 
 - (void) setupUI{
     
-    self.vCaption = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, 100)];
+    self.vCaption = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, 100)];
     [self.vCaption setBackgroundColor:[UIColor colorWithRed:248.0/255.0f green:248.0/255.0f blue:248.0/255.0f alpha:1]];
     [self.view addSubview:self.vCaption];
     
@@ -51,7 +50,7 @@
     self.txtCaption.internalTextView.scrollIndicatorInsets = UIEdgeInsetsMake(5, 0, 5, 0);
     [self.txtCaption setMaxNumberOfLines:5];
     [self.txtCaption setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-    [self.txtCaption setAlpha:0.3];
+//    [self.txtCaption setAlpha:0.3];
     [self.txtCaption setFont:[helperIns getFontLight:15.0f]];
     [self.txtCaption setTextColor:[UIColor blackColor]];
     [self.txtCaption setTextAlignment:NSTextAlignmentJustified];
@@ -73,12 +72,12 @@
     
     self.btnPostMood = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPostMood setFrame:CGRectMake(0, (vCaption.bounds.size.height) - 100, self.view.bounds.size.width, 100)];
-    [self.btnPostMood setBackgroundColor:[UIColor blackColor]];
+    [self.btnPostMood setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.btnPostMood setImage:imgJoinNow forState:UIControlStateNormal];
     [self.btnPostMood.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnPostMood setContentMode:UIViewContentModeCenter];
     [self.btnPostMood setTitle:@"POST PHOTO" forState:UIControlStateNormal];
-    [self.btnPostMood setTitleColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] forState:UIControlStateNormal];
+    [self.btnPostMood setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.btnPostMood addTarget:self action:@selector(btnPostMood:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnPostMood.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
@@ -91,7 +90,6 @@
 
 - (void) initAddFB{
     self.vAddFacebook = [[UIView alloc] initWithFrame:CGRectMake(0, self.vCaption.bounds.size.height + hHeader + 20, self.view.bounds.size.width, 60)];
-    //    [self.vAddFacebook setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.vAddFacebook setBackgroundColor:[UIColor grayColor]];
     [self.vAddFacebook setUserInteractionEnabled:YES];
     [self.view addSubview:self.vAddFacebook];
@@ -119,6 +117,7 @@
 }
 
 - (void) tapSelectFB{
+    [storeIns playSoundPress];
     
     if (isSelectFB) {
         [self.vAddFacebook setBackgroundColor:[UIColor grayColor]];
@@ -152,6 +151,8 @@
 }
 
 - (void) btnPostMood:(id)sender{
+    [storeIns playSoundPress];
+    
     if (![self.txtCaption.text isEqualToString:@""]) {
         NSString *contentEncode = [helperIns encodedBase64:[self.txtCaption.text dataUsingEncoding:NSUTF8StringEncoding]];
         _clientKeyID = [storeIns randomKeyMessenger];
@@ -160,45 +161,6 @@
         [networkControllerIns addMood:contentEncode withClientKey:tempClientKey withCode:0];
     }
 }
-
-//- (void) setResultAddWall:(NSNotification*)notification{
-//    NSDictionary *userInfo = [notification userInfo];
-//    NSString *_strResult = (NSString*)[userInfo objectForKey:@"ADDPOST"];
-//    
-//    NSArray *subCommand = [_strResult componentsSeparatedByString:@"}"];
-//    if ([subCommand count] == 2) {
-//        NSInteger key = [[helperIns decode:[subCommand objectAtIndex:1]] integerValue];
-//        if (key > 0) {
-//            
-//            DataWall *_newWall = [DataWall new];
-//            _newWall.userPostID = storeIns.user.userID;
-//            _newWall.content = self.txtCaption.text;
-//            _newWall.images = [NSMutableArray new];
-//            _newWall.video = @"";
-//            _newWall.longitude = @"";
-//            _newWall.latitude = @"";
-////            __weak NSString *strFullName = storeIns.user.nickName;
-//            _newWall.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
-//            _newWall.firstName = storeIns.user.firstname;
-//            _newWall.lastName = storeIns.user.lastName;
-//            _newWall.time = [subCommand objectAtIndex:0];
-////            _newWall.typePost = 0;
-//            _newWall.codeType = 0;
-//            _newWall.clientKey = [NSString stringWithFormat:@"%i", (int)_clientKeyID];
-//            
-//            [storeIns insertWallData:_newWall];
-//            
-//            [[NSNotificationCenter defaultCenter] postNotificationName:@"reloadWallAndNoises" object:nil];
-//        }else{
-//            //Error add post
-//        }
-//    }
-//    
-//    [self dismissViewControllerAnimated:YES completion:^{
-//        
-//    }];
-//    
-//}
 
 - (void) setResult:(NSString *)_strResult{
     _strResult = [_strResult stringByReplacingOccurrencesOfString:@"<EOF>" withString:@""];

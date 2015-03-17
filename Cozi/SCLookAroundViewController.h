@@ -11,9 +11,16 @@
 #import "PNetworkCommunication.h"
 #import "UserSearch.h"
 #import "networkController.h"
+#import "SCSearchFriendTableView.h"
+#import "SCActivityIndicatorView.h"
 
 @interface SCLookAroundViewController : SCPostParentViewController <PNetworkCommunication>
 {
     NetworkController           *netIns;
+    UIActivityIndicatorView     *waiting;
+    NSMutableArray              *items;
+    SCActivityIndicatorView     *loading;
 }
+
+@property (nonatomic, strong) SCSearchFriendTableView *tbSearchRanger;
 @end

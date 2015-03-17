@@ -82,7 +82,7 @@
     self.txtCaption.internalTextView.scrollIndicatorInsets = UIEdgeInsetsMake(5, 0, 5, 0);
     [self.txtCaption setMaxNumberOfLines:5];
     [self.txtCaption setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-    [self.txtCaption setAlpha:0.3];
+//    [self.txtCaption setAlpha:0.3];
     [self.txtCaption setFont:[helperIns getFontLight:15.0f]];
     [self.txtCaption setTextColor:[UIColor blackColor]];
     [self.txtCaption setTextAlignment:NSTextAlignmentJustified];
@@ -100,16 +100,19 @@
     
     self.btnPostPhoto = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPostPhoto setFrame:CGRectMake(0, (vCaption.bounds.size.height) - 100, self.view.bounds.size.width, 100)];
-    [self.btnPostPhoto setBackgroundColor:[UIColor blackColor]];
+    [self.btnPostPhoto setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.btnPostPhoto setImage:imgJoinNow forState:UIControlStateNormal];
     [self.btnPostPhoto.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnPostPhoto setContentMode:UIViewContentModeCenter];
     [self.btnPostPhoto setTitle:@"POST PHOTO" forState:UIControlStateNormal];
-    [self.btnPostPhoto setTitleColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] forState:UIControlStateNormal];
+    [self.btnPostPhoto setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.btnPostPhoto addTarget:self action:@selector(btnPostPhoto:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnPostPhoto.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLable = [self.btnPostPhoto.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+//    CGSize sizeTitleLable = [self.btnPostPhoto.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    
+    CGSize sizeTitleLable = [self.btnPostPhoto.titleLabel.text boundingRectWithSize:size options:NSStringDrawingUsesFontLeading| NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
     [self.btnPostPhoto setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
     self.btnPostPhoto.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
     
@@ -153,6 +156,7 @@
 }
 
 - (void) tapSelectFB{
+    [storeIns playSoundPress];
     
     if (isSelectFB) {
         [self.vAddFacebook setBackgroundColor:[UIColor grayColor]];
@@ -225,9 +229,15 @@
 }
 
 - (void) btnPostPhoto:(id)sender{
+    [storeIns playSoundPress];
+    
     if (self.imgPost.image != nil && ![self.txtCaption.text isEqualToString:@""]) {
-        vLoading = [[SCWaitingView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
-        [self.view addSubview:vLoading];
+//        vLoading = [[SCWaitingView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - hHeader - hStatusBar)];
+//        [self.view addSubview:vLoading];
+        
+        waiting = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - hHeader - hStatusBar)];
+        [waiting setText:@"Waiting..."];
+        [self.view addSubview:waiting];
         
         [networkControllerIns getUploadPostUrl];
     }
@@ -317,13 +327,35 @@
                     _newWall.longitude = @"0";
                     _newWall.latitude = @"0";
                     _newWall.time = [subCommand objectAtIndex:0];
+                    _newWall.datePost = [helperIns convertStringToDate:[subCommand objectAtIndex:0]];
                     _newWall.codeType = 1;
                     _newWall.clientKey = _clientKeyID;
                     _newWall.comments = [NSMutableArray new];
                     _newWall.likes = [NSMutableArray new];
                     
                     [storeIns insertWallData:_newWall];
-                    [storeIns insertNoisesData:_newWall];
+                    
+                    DataWall *_newNoise = [DataWall new];
+                    _newNoise.userPostID = storeIns.user.userID;
+                    _newNoise.content = self.txtCaption.text;
+                    _newNoise.fullName = [NSString stringWithFormat:@"%@ %@", storeIns.user.firstname, storeIns.user.lastName];
+                    _newNoise.firstName = storeIns.user.firstname;
+                    _newNoise.lastName = storeIns.user.lastName;
+                    _newNoise.urlFull = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.key];
+                    _newNoise.urlThumb = [NSString stringWithFormat:@"%@%@", amazonInfomation.url, amazonInfomation.keyThumb];
+                    _newNoise.urlAvatarThumb = storeIns.user.urlThumbnail;
+                    _newNoise.urlAvatarFull = storeIns.user.urlAvatar;
+                    _newNoise.video = @"";
+                    _newNoise.longitude = @"0";
+                    _newNoise.latitude = @"0";
+                    _newNoise.time = [subCommand objectAtIndex:0];
+                    _newNoise.datePost = [helperIns convertStringToDate:[subCommand objectAtIndex:0]];
+                    _newNoise.codeType = 1;
+                    _newNoise.clientKey = _clientKeyID;
+                    _newNoise.comments = [NSMutableArray new];
+                    _newNoise.likes = [NSMutableArray new];
+                    
+                    [storeIns insertNoisesData:_newNoise];
                     
                     [storeIns.listHistoryPost addObject:_newWall];
                     
@@ -334,7 +366,8 @@
                 }
             }
             
-            [vLoading removeFromSuperview];
+//            [vLoading removeFromSuperview];
+            [waiting removeFromSuperview];
             
             [self dismissViewControllerAnimated:YES completion:^{
                 

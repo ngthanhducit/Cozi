@@ -89,11 +89,15 @@
 }
 
 - (void) btnSendComment:(id)sender{
+    [storeIns playSoundPress];
     
     if (inComment) {
         return;
     }
-    if (![self.txtComment.text isEqualToString:@""]) {
+    
+    NSString *strComment = [self.txtComment.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    
+    if (![strComment isEqualToString:@""]) {
         inComment = YES;
         NSString *_clientKey = wallItems.clientKey;
         NSString *_commentKey = [storeIns randomKeyMessenger];
@@ -189,7 +193,33 @@
                 }
 
                 //Map list like comment
-                [wallItems.comments addObject:_newComment];
+//                [wallItems.comments addObject:_newComment];
+                
+                if (storeIns.walls) {
+                    int count = (int)[storeIns.walls count];
+                    for (int i = 0; i < count; i++) {
+                        if ([[[storeIns.walls objectAtIndex:i] clientKey] isEqualToString:wallItems.clientKey]) {
+                            if ([[storeIns.walls objectAtIndex:i] comments] == nil) {
+                                ((DataWall*)[storeIns.walls objectAtIndex:i]).comments = [NSMutableArray new];
+                            }
+                            [[[storeIns.walls objectAtIndex:i] comments] addObject:_newComment];
+                            break;
+                        }
+                    }
+                }
+                
+                if (storeIns.noises) {
+                    int count = (int)[storeIns.noises count];
+                    for (int i = 0; i < count; i++) {
+                        if ([[[storeIns.noises objectAtIndex:i] clientKey] isEqualToString: wallItems.clientKey]) {
+                            if ([[storeIns.noises objectAtIndex:i] comments] == nil) {
+                                ((DataWall*)[storeIns.noises objectAtIndex:i]).comments = [NSMutableArray new];
+                            }
+                            [[[storeIns.noises objectAtIndex:i] comments] addObject:_newComment];
+                            break;
+                        }
+                    }
+                }
                 
                 self.txtComment.text = @"";
                 inComment = NO;

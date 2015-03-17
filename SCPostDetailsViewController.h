@@ -31,6 +31,7 @@
     AmazonInfoPost                  *amazonInfomation;
     NSString                   *_clientKeyID;
     SCWaitingView         *vLoading;
+    SCActivityIndicatorView         *waiting;
 }
 
 @property (nonatomic, strong) UIImageView        *imgPost;

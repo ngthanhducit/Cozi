@@ -15,16 +15,9 @@
 @interface SCLikeViewController : SCPostParentViewController <PNetworkCommunication>
 {
     DataWall                *wallItems;
-//    CGFloat                 hHeader;
-//    Helper                  *helperIns;
-//    Store                   *storeIns;
     NetworkController       *netControllerIns;
 }
 
-//@property (nonatomic, strong) UILabel           *lblTitle;
-//@property (nonatomic, strong) UIButton          *btnBack;
-//@property (nonatomic, strong) UIButton          *btnClose;
-//@property (nonatomic, strong) UIView            *vHeader;
 @property (nonatomic, strong) SCLikeTableView    *tbLike;
 
 - (void) setData:(DataWall*)data;

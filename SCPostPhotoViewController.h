@@ -14,10 +14,15 @@
 #import "Cozi/SCPhotoCollectionViewLayout.h"
 #import "Cozi/SCPreviewPhotoViewController.h"
 #import "SCPostParentViewController.h"
+#import "SCActivityIndicatorView.h"
 
 @interface SCPostPhotoViewController : SCPostParentViewController
 {
     UIScrollView            *scrollImageLibrary;
+    NSMutableArray              *urlAssetsImage;
+    NSMutableArray              *assetsThumbnail;
+    
+    SCActivityIndicatorView     *waiting;
 }
 
 @property (nonatomic        ) UIEdgeInsets          itemInsets;

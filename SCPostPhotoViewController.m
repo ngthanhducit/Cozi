@@ -36,6 +36,8 @@
 }
 
 - (void) initUI{
+    assetsThumbnail = [NSMutableArray new];
+    urlAssetsImage = [NSMutableArray new];
     
     self.itemInsets = UIEdgeInsetsMake(5.0f, 5.0f, 5.0f, 5.0f);
     self.itemSize = CGSizeMake(100.0f, 100.0f);
@@ -47,14 +49,64 @@
     [self.view setBackgroundColor:[UIColor blackColor]];
     [self.navigationController setNavigationBarHidden:YES];
     
-    [self.lblTitle setText:@"SELECT"];
+    [self.lblTitle setText:@"SELECT PHOTO"];
     
     self.vLibrary = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader , self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
     [self.vLibrary setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.vLibrary];
     
-    [self initLibraryImage];
+//    [self initLibraryImage];
     
+    waiting = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    [waiting setText:@"Loading..."];
+    [self.view addSubview:waiting];
+    
+    [self loadAssets];
+    
+}
+
+-(void) loadAssets{
+    
+    __block ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [library enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos | ALAssetsGroupLibrary usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+            
+            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+            
+            if (group == nil) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [self initLibraryImage];
+                    
+                });
+            }
+            
+            [group enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                if (result) {
+                    CGImageRef iref = [result aspectRatioThumbnail];
+                    
+                    UIImage *img =  [UIImage imageWithCGImage:iref];
+                    
+                    if (img) {
+                        
+                        [assetsThumbnail addObject:img];
+                        
+                        [urlAssetsImage addObject:[[result defaultRepresentation] url]];
+                        
+                    }else{
+                        
+                        NSLog(@"image error");
+                        
+                    }
+                }
+            }];
+            
+        } failureBlock:^(NSError *error) {
+            NSLog(@"No groups: %@", error);
+        }];
+        
+    });
 }
 
 - (void) initLibraryImage{
@@ -62,16 +114,19 @@
     SCPhotoCollectionViewLayout *layout = [[SCPhotoCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:3];
     
     self.scPhotoCollectionView = [[SCPhotoCollectionView alloc] initWithFrame: CGRectMake(0, 0, self.vLibrary.bounds.size.width, self.vLibrary.bounds.size.height) collectionViewLayout:layout];
-    
+    [self.scPhotoCollectionView initData:assetsThumbnail];
     [self.scPhotoCollectionView setShowsHorizontalScrollIndicator:NO];
     [self.scPhotoCollectionView setShowsVerticalScrollIndicator:NO];
     [self.scPhotoCollectionView setBackgroundColor:[UIColor clearColor]];
     [self.vLibrary addSubview:self.scPhotoCollectionView];
+    
+    [waiting removeFromSuperview];
 }
 
 - (void) getFullImageAssets:(int)index{
     
-    NSURL *assetURL = (NSURL*)[[storeIns getAssetsLibrary] objectAtIndex:index];
+//    NSURL *assetURL = (NSURL*)[[storeIns getAssetsLibrary] objectAtIndex:index];
+    NSURL *assetURL = (NSURL*)[urlAssetsImage objectAtIndex:index];
     
     ALAssetsLibrary *assetsLibrary = [[ALAssetsLibrary alloc] init];
     [assetsLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
@@ -119,11 +174,11 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void) btnCloseTap:(id)sender{
-    [self dismissViewControllerAnimated:YES completion:^{
-        
-    }];
-}
+//- (void) btnCloseTap:(id)sender{
+//    [self dismissViewControllerAnimated:YES completion:^{
+//        
+//    }];
+//}
 
 /*
 #pragma mark - Navigation

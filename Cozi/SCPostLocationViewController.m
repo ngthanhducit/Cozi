@@ -41,6 +41,8 @@
 }
 
 - (void) setupNotification{
+    isFinishLoadMap = NO;
+    
     self.nearItems = [NSMutableArray new];
     networkControllerIns = [NetworkController shareInstance];
     
@@ -56,7 +58,7 @@
 }
 
 - (void) setupUI{
-    vSearch = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, hHeader)];
+    vSearch = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, hHeader)];
     [vSearch setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:vSearch];
 
@@ -66,21 +68,21 @@
     
     [vSearch addSubview:searchBar];
 
-    self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height), self.view.bounds.size.width, self.view.bounds.size.height / 3)];
+    self.vMaps = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + (vSearch.bounds.size.height) + hStatusBar, self.view.bounds.size.width, (self.view.bounds.size.height / 3) + hStatusBar)];
     [self.vMaps setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.vMaps];
     
-    RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithMapID:@"ngthanhducit.kok79pln"];
-    mapView = [[RMMapView alloc] initWithFrame:self.vMaps.bounds andTilesource:tileSource];
-//    [mapView setShowsUserLocation:YES];
-    [mapView setDelegate:self];
-    CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
-    [mapView setCenterCoordinate:center];
-    mapView.zoom = 12;
+    self.mapView = [[MKMapView alloc] initWithFrame:self.vMaps.bounds];
+    [self.mapView setDelegate:self];
+    [self.mapView setShowsUserLocation:YES];
+
+//    CLLocationCoordinate2D center = CLLocationCoordinate2DMake([[storeIns getlatitude] doubleValue], [[storeIns getLongitude] doubleValue]);
+//    [mapView setCenterCoordinate:center];
+//    mapView.zoom = 12;
     
-    [self.vMaps addSubview:mapView];
+    [self.vMaps addSubview:self.mapView];
     
-    self.vMarket = [[UIView alloc] initWithFrame:mapView.bounds];
+    self.vMarket = [[UIView alloc] initWithFrame:self.mapView.bounds];
     [self.vMarket setBackgroundColor:[UIColor clearColor]];
     [self.vMarket setUserInteractionEnabled:NO];
     [self.vMarket setAlpha:0.5];
@@ -121,11 +123,12 @@
     [self.tbNearLocation setBackgroundColor:[UIColor clearColor]];
     [self.vNear addSubview:self.tbNearLocation];
     
-    self.waiting = [[UIActivityIndicatorView alloc] initWithFrame:self.tbNearLocation.bounds];
+    self.waiting = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height)];
     [self.waiting setHidden:YES];
+    [self.waiting setText:@"Waiting..."];
     [self.vNear addSubview:self.waiting];
     
-    self.vBlur = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader * 2, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader * 2))];
+    self.vBlur = [[UIView alloc] initWithFrame:CGRectMake(0, (hHeader * 2) + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - ((hHeader * 2) + hStatusBar))];
     [self.vBlur setUserInteractionEnabled:YES];
     [self.vBlur setBackgroundColor:[UIColor lightGrayColor]];
     [self.vBlur setAlpha:0.6];
@@ -149,7 +152,8 @@
     [self.btnPostLocation addTarget:self action:@selector(btnSendLocation:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnPostLocation.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLable = [self.btnPostLocation.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnPostLocation.titleLabel.text boundingRectWithSize:size options:NSStringDrawingUsesFontLeading| NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
     [self.btnPostLocation setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
     self.btnPostLocation.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
     
@@ -254,9 +258,10 @@
                 [self.tbNearLocation setData:self.nearItems];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.tbNearLocation reloadData];
-                    [self.waiting setHidden:YES];
                     if (nextToken != nil) {
                         [self downloadLocationWithNextPage:url withToken:nextToken];
+                    }else{
+                        [self.waiting setHidden:YES];
                     }
 
                 });
@@ -305,6 +310,8 @@
                     
                     if (nextToken != nil) {
                         [self downloadLocationWithNextPage:url withToken:nextToken];
+                    }else{
+                        [self.waiting setHidden:YES];
                     }
 
                 });
@@ -335,7 +342,7 @@
             
             // If it's other than 200, then show it on the console.
             if (HTTPStatusCode != 200) {
-                NSLog(@"HTTP status code = %d", HTTPStatusCode);
+                NSLog(@"HTTP status code = %d", (int)HTTPStatusCode);
             }
             
             // Call the completion handler with the returned data on the main thread.
@@ -375,25 +382,37 @@
     }];
 }
 
-#pragma -mark RMMapView Delegate
-//- (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
-//    CLLocationCoordinate2D l = CLLocationCoordinate2DMake(userLocation.location.coordinate.latitude, userLocation.location.coordinate.longitude);
-//    
-//    [mapView setCenterCoordinate:l animated:YES];
-//}
+#pragma -mark MKMapView Delegate
+- (void) mapViewDidFinishLoadingMap:(MKMapView *)mapView{
+    isFinishLoadMap = YES;
+}
 
-- (void) beforeMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
+- (void) mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation{
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(userLocation.coordinate, userLocation.coordinate.latitude, userLocation.coordinate.longitude);
+    
+    region.span.latitudeDelta = 0.00725;
+    region.span.longitudeDelta = 0.00725;
+    
+    [mapView setRegion:[mapView regionThatFits:region] animated:YES];
+    
+    [self downloadLocation:[NSString stringWithFormat:@"%f", userLocation.coordinate.latitude] withLongitude:[NSString stringWithFormat:@"%f",userLocation.coordinate.longitude]];
+    
+    [mapView setShowsUserLocation:NO];
+}
 
+- (void) mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated{
+    NSLog(@"region will change animation");
     [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.imgMarket setFrame:CGRectMake((self.vMaps.bounds.size.width / 2) - 15, (self.vMaps.bounds.size.height / 2) - 25, 30, 30)];
     } completion:^(BOOL finished) {
         
     }];
-    
+
 }
 
-- (void) afterMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
-
+- (void) mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated{
+    NSLog(@"region did change animated");
+    
     [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         
         [self.imgMarket setFrame:CGRectMake((self.vMaps.bounds.size.width / 2) - 15, (self.vMaps.bounds.size.height / 2) - 15, 30, 30)];
@@ -403,28 +422,67 @@
         
     } completion:^(BOOL finished) {
         
+        CLLocationCoordinate2D center = [mapView centerCoordinate];
+        NSString *strLa = [NSString stringWithFormat:@"%g", center.latitude];
+        NSString *strLo = [NSString stringWithFormat:@"%g", center.longitude];
+        
+        if (isFinishLoadMap) {
+            [self downloadLocation:strLa withLongitude:strLo];
+        }
+        
     }];
-
-    CLLocationCoordinate2D center = [mapView centerCoordinate];
-    NSString *strLa = [NSString stringWithFormat:@"%g", center.latitude];
-    NSString *strLo = [NSString stringWithFormat:@"%g", center.longitude];
     
-//    CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:center.latitude longitude:center.longitude];
-    
-//    CLLocationDistance dis = [lastLocation distanceFromLocation:newLocation];
-
-    [self downloadLocation:strLa withLongitude:strLo];
 }
 
-- (void) mapViewRegionDidChange:(RMMapView *)mapView{
+#pragma -mark RMMapView Delegate
+//- (void) mapView:(RMMapView *)mapView didUpdateUserLocation:(RMUserLocation *)userLocation{
+//    CLLocationCoordinate2D l = CLLocationCoordinate2DMake(userLocation.location.coordinate.latitude, userLocation.location.coordinate.longitude);
+//    
+//    [mapView setCenterCoordinate:l animated:YES];
+//}
 
-    NSLog(@"RMMapView region did change");
+//- (void) beforeMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
+//
+//    [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+//        [self.imgMarket setFrame:CGRectMake((self.vMaps.bounds.size.width / 2) - 15, (self.vMaps.bounds.size.height / 2) - 25, 30, 30)];
+//    } completion:^(BOOL finished) {
+//        
+//    }];
+//    
+//}
+//
+//- (void) afterMapMove:(RMMapView *)map byUser:(BOOL)wasUserAction{
+//
+//    [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+//        
+//        [self.imgMarket setFrame:CGRectMake((self.vMaps.bounds.size.width / 2) - 15, (self.vMaps.bounds.size.height / 2) - 15, 30, 30)];
+//        [self.vButton setFrame:CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, 80)];
+//        [self.vNear setFrame:CGRectMake(0, hHeader + vSearch.bounds.size.height + self.vMaps.bounds.size.height, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + vSearch.bounds.size.height + self.vMaps.bounds.size.height))];
+//        [self.tbNearLocation setFrame:CGRectMake(0, vNearTitle.bounds.size.height, self.view.bounds.size.width, self.vNear.bounds.size.height - vNearTitle.bounds.size.height)];
+//        
+//    } completion:^(BOOL finished) {
+//        
+//    }];
+//
+//    CLLocationCoordinate2D center = [mapView centerCoordinate];
+//    NSString *strLa = [NSString stringWithFormat:@"%g", center.latitude];
+//    NSString *strLo = [NSString stringWithFormat:@"%g", center.longitude];
+//    
+////    CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:center.latitude longitude:center.longitude];
+//    
+////    CLLocationDistance dis = [lastLocation distanceFromLocation:newLocation];
+//
+//    [self downloadLocation:strLa withLongitude:strLo];
+//}
+
+//- (void) mapViewRegionDidChange:(RMMapView *)mapView{
+
+//    NSLog(@"RMMapView region did change");
 //    CLLocationCoordinate2D l = CLLocationCoordinate2DMake(mapView.userLocation.location.coordinate.latitude, mapView.userLocation.location.coordinate.longitude);
 //    
 //    [mapView setCenterCoordinate:l animated:YES];
 
-
-}
+//}
 
 - (void) selectNearLocation:(NSNotification*)_notification{
     NSDictionary *userInfo = [_notification userInfo];
@@ -448,8 +506,8 @@
     
     if (near) {
         
-        _clientKeyID = [storeIns randomKeyMessenger];
-        NSString *tempClientKey = [helperIns encodedBase64:[[NSString stringWithFormat:@"%i", (int)_clientKeyID] dataUsingEncoding:NSUTF8StringEncoding]];
+//        _clientKeyID = [storeIns randomKeyMessenger];
+//        NSString *tempClientKey = [helperIns encodedBase64:[[NSString stringWithFormat:@"%i", (int)_clientKeyID] dataUsingEncoding:NSUTF8StringEncoding]];
         
 //        NSString *location = [NSString stringWithFormat:@"%@|%@", near.lng, near.lat];
 //        

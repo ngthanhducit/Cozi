@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "Helper.h"
 #import "Store.h"
+#import "Store+CoreData.h"
 
 @interface SCPostParentViewController : UIViewController
 {
     CGFloat                 hHeader;
+    CGFloat                 hStatusBar;
     Helper                  *helperIns;
     Store                   *storeIns;
 }

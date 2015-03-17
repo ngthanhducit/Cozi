@@ -33,16 +33,23 @@
 
 - (void) initVariable{
     hHeader = 40;
+    hStatusBar = [UIApplication sharedApplication].statusBarFrame.size.height;
+    
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
 }
 
 - (void) setup{
     [self.view setBackgroundColor:[UIColor whiteColor]];
-    [self.navigationController setNavigationBarHidden:YES];
     
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-    [self.vHeader setBackgroundColor:[UIColor blackColor]];
+    CGFloat hStatus = [UIApplication sharedApplication].statusBarFrame.size.height;
+    
+    UIView *statusBarView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hStatus)];
+    statusBarView.backgroundColor = [helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]];
+    [self.view addSubview:statusBarView];
+    
+    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, hStatusBar, self.view.bounds.size.width, hHeader)];
+    [self.vHeader setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.view addSubview:self.vHeader];
     
     self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
@@ -59,14 +66,8 @@
     [self.vHeader addSubview:self.btnBack];
     
     self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-//    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
     [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
     [self.btnClose setImage:[helperIns getImageFromSVGName:@"icon-cross-25px.svg"] forState:UIControlStateNormal];
-//    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-//    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-    //    [self.btnClose.titleLabel setFont:[helperIns getFontLight:20.0f]];
     [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.vHeader addSubview:self.btnClose];
     
@@ -74,10 +75,13 @@
 }
 
 - (void) btnBackTap:(id)sender{
+    [storeIns playSoundPress];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void) btnCloseTap:(id)sender{
+    [storeIns playSoundPress];
+    
     [self.navigationController popToRootViewControllerAnimated:YES];
     [self dismissViewControllerAnimated:YES completion:^{
         

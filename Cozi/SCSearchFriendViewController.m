@@ -32,7 +32,7 @@
 }
 
 - (void) setupUI{
-    scSearchFriend = [[SCSearchBar alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, 39)];
+    scSearchFriend = [[SCSearchBar alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, 39)];
     [scSearchFriend setPlaceholder:@"SEARCH NAME / NUMBER / EMAIL"];
     [scSearchFriend setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
     [scSearchFriend setTintColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
@@ -46,22 +46,27 @@
     [bottomSearch setBackgroundColor:[UIColor whiteColor].CGColor];
     [self.view.layer addSublayer:bottomSearch];
     
-    tbSearchFriend = [[SCSearchFriendTableView alloc] initWithFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height)) style:UITableViewStylePlain];
+    tbSearchFriend = [[SCSearchFriendTableView alloc] initWithFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height + hStatusBar)) style:UITableViewStylePlain];
     [tbSearchFriend setKeyboardDismissMode:UIScrollViewKeyboardDismissModeOnDrag | UIScrollViewKeyboardDismissModeInteractive];
     [self.view addSubview:tbSearchFriend];
     
-    vBlur = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height))];
+    vBlur = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height + hStatusBar))];
     [vBlur setUserInteractionEnabled:YES];
     [vBlur setBackgroundColor:[UIColor blackColor]];
     [vBlur setAlpha:0.6];
     [vBlur setHidden:YES];
     [self.view addSubview:vBlur];
     
-    waiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    [waiting setFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height))];
-    [waiting setBackgroundColor:[UIColor blackColor]];
-    [waiting setAlpha:0.6];
-    [self.view addSubview:waiting];
+//    waiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    [waiting setFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height + hStatusBar))];
+//    [waiting setBackgroundColor:[UIColor blackColor]];
+//    [waiting setAlpha:0.6];
+//    [self.view addSubview:waiting];
+    
+    loading = [[SCActivityIndicatorView alloc] initWithFrame:CGRectMake(0, hHeader + scSearchFriend.bounds.size.height + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader + scSearchFriend.bounds.size.height + hStatusBar))];
+    [loading setText:@"Loading..."];
+    [loading setHidden:YES];
+    [self.view addSubview:loading];
 }
 
 - (void) viewWillAppear:(BOOL)animated{
@@ -114,7 +119,8 @@
 
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar{
     
-    [waiting startAnimating];
+//    [waiting startAnimating];
+    [loading setHidden:NO];
     
     [netIns getUserByString:scSearchFriend.text];
     scSearchFriend.text = @"";
@@ -147,19 +153,18 @@
                 }
             }
             
-            [waiting stopAnimating];
+//            [waiting stopAnimating];
+            [loading setHidden:YES];
             
             [tbSearchFriend initData:items];
             [tbSearchFriend reloadData];
         }
         
         if ([[subData objectAtIndex:0] isEqualToString:@"SENDFRIENDREQUEST"]) {
-            NSString *result = [[subData objectAtIndex:1] stringByReplacingOccurrencesOfString:@"<EOF>" withString:@""];
-            if ([result isEqualToString:@"0"]) {
+            int _userID = [[[subData objectAtIndex:1] stringByReplacingOccurrencesOfString:@"<EOF>" withString:@""] intValue];
+            if (_userID > 0) {
                 
                 [netIns getUserProfile:userSearch.friendID];
-                
-            }else{
                 
             }
         }

@@ -30,7 +30,7 @@
 }
 
 - (void) setupUI{
-    tbFriendRequest = [[SCFriendRequestTableView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader) style:UITableViewStylePlain];
+    tbFriendRequest = [[SCFriendRequestTableView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - (hHeader)) style:UITableViewStylePlain];
     [tbFriendRequest setKeyboardDismissMode:UIScrollViewKeyboardDismissModeInteractive | UIScrollViewKeyboardDismissModeOnDrag];
     [tbFriendRequest initData:storeIns.friendsRequest];
     [self.view addSubview:tbFriendRequest];
@@ -43,7 +43,6 @@
     [self.lblTitle setText:@"FRIEND REQUESTS"];
     
     [netIns addListener:self];
-
 }
 
 - (void) viewWillDisappear:(BOOL)animated{

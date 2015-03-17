@@ -102,15 +102,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"notificationTapFollowing" object:nil];
 }
 
-//- (void) btnCloseTap:(id)sender{
-//    [netIns removeListener:self];
-//    [self removeNotification];
-    
-//    [self dismissViewControllerAnimated:YES completion:^{
-//        
-//    }];
-//}
-
 - (void) setResult:(NSString *)_strResult{
     
     NSArray *subData = [_strResult componentsSeparatedByString:@"{"];
@@ -222,21 +213,16 @@
 }
 
 - (void) tapFollowingUser{
+    [storeIns playSoundPress];
+    
     [mainPage.vFollowingUser setHidden:YES];
     [mainPage.waitingFollow startAnimating];
     [netIns removeFollow:profile.userID];
-    
-//    BOOL isFollowing = [storeIns isFollowing:profile.userID];
-//    if (isFollowing) {
-//
-//    }else{
-//        [netIns addFollow:profile.userID];
-//    }
-    
 }
 
 - (void) btnFollowUserClick:(id)sender{
-
+    [storeIns playSoundPress];
+    
     [mainPage.btnFollow setHidden:YES];
     [mainPage.waitingFollow startAnimating];
     [netIns addFollow:profile.userID];

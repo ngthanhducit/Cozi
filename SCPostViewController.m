@@ -196,7 +196,7 @@
     self.btnTakePhoto.layer.cornerRadius = self.btnTakePhoto.bounds.size.width / 2;
     self.btnTakePhoto.clipsToBounds = YES;
     self.btnTakePhoto.contentMode = UIViewContentModeScaleAspectFill;
-    [self.btnTakePhoto setTitle:@"TAKE A SHOT" forState:UIControlStateNormal];
+//    [self.btnTakePhoto setTitle:@"TAKE A SHOT" forState:UIControlStateNormal];
     [self.btnTakePhoto addTarget:self action:@selector(btnTakePhotoTap:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnTakePhoto.titleLabel setFont:[helperIns getFontLight:15.0f]];
     [vTakePhoto addSubview:self.btnTakePhoto];
@@ -214,6 +214,13 @@
 //}
 
 - (void) btnTakePhotoTap:(id)sender{
+    [storeIns playSoundPress];
+    
+    if (inCapture) {
+        return;
+    }
+    
+    inCapture = YES;
     [self.cameraCapture captureImage:nil];
 }
 
@@ -235,6 +242,8 @@
     [self.navigationController pushViewController:post animated:YES];
     
     [self.cameraCapture closeImage];
+    
+    inCapture = NO;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -258,11 +267,14 @@
 }
 
 - (void) btnShowHiddenGridTap:(id)sender{
+    [storeIns playSoundPress];
     
     [self.vGridLine setHidden:!self.vGridLine.isHidden];
 }
 
 - (void) btnSwitchCamera:(id)sender{
+    [storeIns playSoundPress];
+    
     if (inSwitchCamera) {
         return;
     }
@@ -273,6 +285,8 @@
 }
 
 - (void) btnChangeFlash:(id)sender{
+    [storeIns playSoundPress];
+    
     if (inChangeFlash) {
         return;
     }

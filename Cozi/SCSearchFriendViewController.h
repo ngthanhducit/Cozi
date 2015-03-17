@@ -13,6 +13,7 @@
 #import "PNetworkCommunication.h"
 #import "NetworkController.h"
 #import "UserSearch.h"
+#import "SCActivityIndicatorView.h"
 
 @interface SCSearchFriendViewController : SCPostParentViewController <UISearchBarDelegate, PNetworkCommunication>
 {
@@ -26,6 +27,7 @@
     
     UserSearch                  *userSearch;
     
+    SCActivityIndicatorView     *loading;
     UIActivityIndicatorView     *waiting;
 }
 @end

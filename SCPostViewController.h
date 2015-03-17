@@ -25,6 +25,7 @@
     int                 statusFlash; //0:off-1:on:2:auto
     BOOL                inSwitchCamera;
     BOOL                inChangeFlash;
+    BOOL                inCapture;
 }
 
 //@property (nonatomic, strong) UIButton          *btnClose;

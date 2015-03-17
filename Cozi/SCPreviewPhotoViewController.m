@@ -23,6 +23,7 @@
 
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
+    self.lblTitle.text = @"EDIT PHOTO";
     [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
@@ -72,19 +73,19 @@
 
 - (void) initToolkit{
     CGFloat hLibrary = (self.view.bounds.size.height - self.view.bounds.size.width) - hHeader;
-    self.vTool = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - hLibrary , self.view.bounds.size.width, hLibrary)];
+    self.vTool = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height - 100 , self.view.bounds.size.width, 100)];
     [self.vTool setBackgroundColor:[UIColor purpleColor]];
     [self.view addSubview:self.vTool];
     
     CGSize size = { self.view.bounds.size.width, self.view.bounds.size.height };
     
     TriangleView *triangleJoinNow = [[TriangleView alloc] initWithFrame:CGRectMake(0, 0, 8, 8)];
-    [triangleJoinNow setBackgroundColor:[UIColor colorWithRed:117.0/255.0f green:117.0/255.0f blue:117.0/255.0f alpha:1]];
+    [triangleJoinNow setBackgroundColor:[UIColor whiteColor]];
     [triangleJoinNow drawTriangleSignIn];
     UIImage *imgJoinNow = [helperIns imageWithView:triangleJoinNow];
     
     self.btnSelect = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnSelect setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    [self.btnSelect setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.btnSelect setImage:imgJoinNow forState:UIControlStateNormal];
     [self.btnSelect.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnSelect setContentMode:UIViewContentModeCenter];
@@ -94,12 +95,13 @@
     [self.btnSelect.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
     CGSize sizeTitleLable = [self.btnSelect.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnSelect setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
     self.btnSelect.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
     
-    [self.btnSelect setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.btnSelect setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
-    [self.btnSelect setAlpha:0.8];
+//    [self.btnSelect setAlpha:0.8];
     [self.vTool addSubview:self.btnSelect];
 }
 
@@ -119,6 +121,7 @@
 //}
 
 - (void) btnSelectPhoto:(id)sender{
+    [storeIns playSoundPress];
     
     CGRect visibleRect;
     float scale = (1.0f / self.vPreviewPhoto.scrollView.zoomScale);

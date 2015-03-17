@@ -23,15 +23,8 @@
     MainPageV6              *mainPage;
     User                    *my;
     Friend                  *friend;
-//    CGFloat                 hHeader;
-//    Helper                  *helperIns;
-//    Store                   *storeIns;
     NetworkController       *netIns;
 }
-
-//@property (nonatomic, strong) UILabel                   *lblTitle;
-//@property (nonatomic, strong) UIButton                  *btnClose;
-//@property (nonatomic, strong) UIView                    *vHeader;
 
 - (void) setProfile:(User*)_myProfile;
 @end

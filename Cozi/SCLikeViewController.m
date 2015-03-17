@@ -25,7 +25,6 @@
         
         [self setupVariable];
         [self registerNotification];
-//        [self setup];
         [self setupUI];
     }
     
@@ -45,47 +44,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationAddRemoveFollowing:) name:@"notificationAddRemoveFollowing" object:nil];
 }
 
-//- (void) setup{
-//    [self.view setBackgroundColor:[UIColor whiteColor]];
-//    [self.navigationController setNavigationBarHidden:YES];
-//    
-//    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
-//    [self.vHeader setBackgroundColor:[UIColor blackColor]];
-//    [self.view addSubview:self.vHeader];
-//    
-//    self.lblTitle = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, self.view.bounds.size.width - 80, hHeader)];
-//    [self.lblTitle setText:@"LIKES"];
-//    [self.lblTitle setFont:[helperIns getFontLight:18.0f]];
-//    [self.lblTitle setTextColor:[UIColor whiteColor]];
-//    [self.lblTitle setTextAlignment:NSTextAlignmentCenter];
-//    [self.vHeader addSubview:self.lblTitle];
-//    
-//    self.btnClose = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [self.btnClose setAlpha:0.3];
-//    [self.btnClose setImage:[helperIns getImageFromSVGName:@"icon-cross-25px.svg"] forState:UIControlStateNormal];
-////    [self.btnClose setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
-////    [self.btnClose setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-//    [self.btnClose setFrame:CGRectMake(self.view.bounds.size.width - hHeader, 0, hHeader, hHeader)];
-////    [self.btnClose setTitle:@"x" forState:UIControlStateNormal];
-////    [self.btnClose setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-////    [self.btnClose.titleLabel setFont:[UIFont systemFontOfSize:20.0f]];
-//    [self.btnClose addTarget:self action:@selector(btnCloseTap:) forControlEvents:UIControlEventTouchUpInside];
-//    [self.vHeader addSubview:self.btnClose];
-//    
-//    self.btnBack = [UIButton buttonWithType:UIButtonTypeCustom];
-////    [self.btnBack setAlpha:0.3];
-//    [self.btnBack setFrame:CGRectMake(0, 0, hHeader, hHeader)];
-//    [self.btnBack setImage:[helperIns getImageFromSVGName:@"icon-backarrow-25px-V2.svg"] forState:UIControlStateNormal];
-//    [self.btnBack addTarget:self action:@selector(btnBackTap:) forControlEvents:UIControlEventTouchUpInside];
-//    [self.vHeader addSubview:self.btnBack];
-//    
-//    [self.view addSubview:self.vHeader];
-//}
-
 - (void) setupUI{
     wallItems = [DataWall new];
 
-    self.tbLike = [[SCLikeTableView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width, self.view.bounds.size.height - hHeader) style:UITableViewStylePlain];
+    self.tbLike = [[SCLikeTableView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width, self.view.bounds.size.height - hHeader - hStatusBar) style:UITableViewStylePlain];
     [self.tbLike setKeyboardDismissMode:UIScrollViewKeyboardDismissModeOnDrag];
     [self.view addSubview:self.tbLike];
 
