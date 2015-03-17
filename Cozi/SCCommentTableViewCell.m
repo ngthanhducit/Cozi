@@ -43,7 +43,7 @@
     [self.lblLoadMore setFont:[helperIns getFontLight:14.0f]];
     [self.lblLoadMore setText:@"Load more comments"];
     [self.lblLoadMore setTextAlignment:NSTextAlignmentLeft];
-    [self.lblLoadMore setTextColor:[UIColor clearColor]];
+    [self.lblLoadMore setTextColor:[UIColor blackColor]];
     [self.contentView addSubview:self.lblLoadMore];
     
     self.lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 2.5, sizeScreen.size.width - 100, 20)];

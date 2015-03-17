@@ -32,7 +32,7 @@
 - (void) setup{
     helperIns = [Helper shareInstance];
     storeIns = [Store shareInstance];
-    maxRow = 50;
+    maxRow = 100;
     
     self.wallData = [DataWall new];
     sizeText = CGSizeMake(self.bounds.size.width - 110, CGFLOAT_MAX);
@@ -148,9 +148,9 @@
                 [scCell.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
             }
 
-            scCell.lblNickName.text = [NSString stringWithFormat:@"%@", _user.nickName];
+            scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", _user.firstname, _user.lastName];
             [scCell.lblNickName setDelegate:self];
-            NSString *str = [NSString stringWithFormat:@"%@", _user.nickName];
+            NSString *str = [NSString stringWithFormat:@"%@ %@", _user.firstname, _user.lastName];
             
             NSRange r = [str rangeOfString:scCell.lblNickName.text];
             NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _user.userID];
@@ -259,8 +259,10 @@
             }
         }
     }
+    
+    CGSize sizeContent = [_comment.contentComment boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:13.0f]} context:nil].size;
 
-    CGSize sizeContent = [_comment.contentComment sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
+//    CGSize sizeContent = [_comment.contentComment sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByCharWrapping];
     
     scCell.lblNickName.text = [NSString stringWithFormat:@"%@ %@", _comment.firstName, _comment.lastName];
     [scCell.lblNickName setDelegate:self];
@@ -288,6 +290,8 @@
 #pragma mark - TTTAttributedLabelDelegate
 
 - (void)attributedLabel:(__unused TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+    [storeIns playSoundPress];
+    
     if ([[url scheme] hasPrefix:@"action"]) {
         if ([[url host] hasPrefix:@"show-profile"]) {
             //             load help screen
@@ -332,12 +336,14 @@
             NSInteger h = components.hour;
             if (h <=0) {
                 NSInteger m = [components minute];
-                if (m <= 0) {
-                    NSInteger s = [components second];
-                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
-                }else{
-                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
-                }
+//                if (m <= 0) {
+//                    NSInteger s = [components second];
+//                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
+//                }else{
+//
+//                }
+                
+                timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
             }else{
                 timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
             }
