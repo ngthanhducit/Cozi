@@ -124,6 +124,8 @@
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [storeIns playSoundPress];
+    
     FollowerUser *_follow = [items objectAtIndex:indexPath.row];
     
     if (storeIns.user.userID == _follow.userID) {
@@ -138,6 +140,8 @@
 
 
 - (void) btnFollowingClick:(id)sender{
+    [storeIns playSoundPress];
+    
     NSLog(@"click Following");
     UIButton *btnFollowing = (UIButton*)sender;
     NSInteger _tagFollowing = btnFollowing.tag;
