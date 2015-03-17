@@ -73,7 +73,7 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     NSData *token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DeviceToken"];
-    NSString *_deviceToken = @"";
+    NSString *_deviceToken = @"fjsdlfjlkdsfj";
     
     if (token != nil) {
         _deviceToken = [NSString stringWithFormat:@"%@", token];
@@ -217,6 +217,24 @@
             }
         }
     }
+}
+
+//===============GROUP==========
+- (void) createGroupChat:(NSString*)_groupName withFriend:(NSMutableArray*)_friends{
+    NSString *cmdFriend = @"";
+    int count = (int)[_friends count];
+    for (int i = 0; i < count; i++) {
+        if (i == (count - 1)) {
+            cmdFriend = [cmdFriend stringByAppendingString:[NSString stringWithFormat:@"%i", [[_friends objectAtIndex:i] friendID]]];
+        }else{
+            cmdFriend = [cmdFriend stringByAppendingString:[NSString stringWithFormat:@"%i}", [[_friends objectAtIndex:i] friendID]]];
+        }
+    }
+    
+    NSString *encodeGroupName = [helperIns encodedBase64:[_groupName dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *cmd = [NSString stringWithFormat:@"ADDGROUP{%@~%@<EOF>", encodeGroupName,cmdFriend];
+    
+    [networkIns sendData:cmd];
 }
 
 @end

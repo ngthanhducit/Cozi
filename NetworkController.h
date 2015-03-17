@@ -59,4 +59,7 @@
 - (void) addFriend:(int)_userID withDigit:(NSString*)_digit;
 - (void) acceptOrDenyAddFriend:(int)_userRequestID withIsAllow:(int)_isAllow;
 - (void) findUserInRanger:(CGFloat)_ranger;
+
+//GROUP
+- (void) createGroupChat:(NSString*)_groupName withFriend:(NSMutableArray*)_friends;
 @end
