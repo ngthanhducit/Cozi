@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6751" systemVersion="14C1510" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C109" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Comments" syncable="YES">
         <attribute name="comment_client_key" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="comment_time" optional="YES" attributeType="String" syncable="YES"/>
@@ -153,13 +153,13 @@
         <element name="Comments" positionX="-756" positionY="252" width="128" height="223"/>
         <element name="Follower" positionX="-387" positionY="428" width="128" height="148"/>
         <element name="FriendRequest" positionX="-189" positionY="432" width="128" height="135"/>
-        <element name="GroupChat" positionX="-945" positionY="476" width="128" height="118"/>
-        <element name="GroupChatFriends" positionX="-954" positionY="623" width="128" height="133"/>
-        <element name="GroupMessages" positionX="-783" positionY="626" width="128" height="283"/>
         <element name="Likes" positionX="-747" positionY="54" width="128" height="165"/>
         <element name="MessengerFriend" positionX="-36" positionY="54" width="128" height="285"/>
         <element name="Posts" positionX="-578" positionY="54" width="128" height="268"/>
         <element name="UserFriend" positionX="-216" positionY="54" width="128" height="300"/>
         <element name="UserLogin" positionX="-387" positionY="53" width="128" height="330"/>
+        <element name="GroupChat" positionX="-945" positionY="476" width="128" height="118"/>
+        <element name="GroupMessages" positionX="-783" positionY="626" width="128" height="283"/>
+        <element name="GroupChatFriends" positionX="-954" positionY="623" width="128" height="133"/>
     </elements>
 </model>
