@@ -13,8 +13,8 @@
 #import "DataWall.h"
 #import "SDWebImage/UIImageView+WebCache.h"
 
-static NSString * const NoiseCellIdentifier = @"PhotoCell";
-@interface SCNoiseCollectionView : UICollectionView <UICollectionViewDataSource, UICollectionViewDelegate>
+static NSString * const NoiseCellIdentifier = @"NoiseCell";
+@interface SCNoiseCollectionView : UICollectionView <UICollectionViewDataSource, UICollectionViewDelegate, UIScrollViewDelegate>
 {
     Store                       *storeIns;
     Helper                      *helperIns;
@@ -27,4 +27,5 @@ static NSString * const NoiseCellIdentifier = @"PhotoCell";
 
 - (void) initData:(NSMutableArray*)_data withType:(int)_type;
 - (void) stopLoadNoise:(BOOL)_isEnd;
+- (void) reloadVisibleCell:(NSMutableArray*)_indexes;
 @end

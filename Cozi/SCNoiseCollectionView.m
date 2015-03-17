@@ -9,7 +9,7 @@
 #import "SCNoiseCollectionView.h"
 
 @implementation SCNoiseCollectionView
-static NSString * const reuseIdentifier = @"Cell";
+static NSString * const reuseIdentifier = @"reuseNoiseCell";
 
 - (id) initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout{
     self = [super initWithFrame:frame collectionViewLayout:layout];
@@ -67,8 +67,10 @@ static NSString * const reuseIdentifier = @"Cell";
     DataWall *_noise;
     if (type == 0) {
         _noise = [storeIns.noises objectAtIndex:indexPath.section];
-        
-        if (indexPath.section == ([storeIns.noises count] - 4) && !inLoadMoreNoise) {
+
+//        NSLog(@"current noise section: %i - %i", (int)indexPath.section, (int)[storeIns.noises count]);
+        if (indexPath.section == ([storeIns.noises count] - 2) && !inLoadMoreNoise) {
+//            NSLog(@"current noise section: %i - %i", (int)indexPath.section, [storeIns.noises count]);
             inLoadMoreNoise = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"loadMoreNoise" object:nil];
         }
@@ -95,6 +97,7 @@ static NSString * const reuseIdentifier = @"Cell";
 #pragma mark <UICollectionViewDelegate>
 
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    [storeIns playSoundPress];
     
     DataWall *_noise;
     if (type == 0) {
@@ -116,15 +119,68 @@ static NSString * const reuseIdentifier = @"Cell";
     }
 }
 
+- (void) reloadVisibleCell:(NSMutableArray*)_indexes{
+
+//    [self reloadItemsAtIndexPaths:[self indexPathsForVisibleItems]];
+    NSMutableArray *indexPaths = [NSMutableArray new];
+    int count = (int)[_indexes count];
+    for (int i = 0; i < count; i++) {
+        [storeIns.noises addObject:[_indexes objectAtIndex:i]];
+        [indexPaths addObject:[NSIndexPath indexPathForItem:0 inSection:i]];
+    }
+    
+    [self performBatchUpdates:^{
+        [self insertItemsAtIndexPaths:indexPaths];
+    } completion:^(BOOL finished) {
+        
+    }];
+}
+
 - (void) stopLoadNoise:(BOOL)_isEnd{
     inLoadMoreNoise = NO;
     isEndData = _isEnd;
     [refresh endRefreshing];
     
     if (!isEndData) {
-        [self reloadData];
+
+//        [self performBatchUpdates:^{
+//            
+//            [self reloadData];
+//            
+//        } completion:^(BOOL finished) {
+//            
+//        }];
+        
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//            [self reloadData];
+//        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self reloadData];
+        });
+
     }
 }
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+//    if (CGRectIntersectsRect(scrollView.bounds, CGRectMake(0, self.contentSize.height, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))) && self.contentSize.height > 0)
+//    {
+//        inLoadMoreNoise = YES;
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"loadMoreNoise" object:nil];
+//    }
+}
+
+- (void) collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (type == 0) {
+        if (indexPath.section >= ([storeIns.noises count] - 1) && !inLoadMoreNoise) {
+//            NSLog(@"current noise section: %i - %i", (int)indexPath.section, [storeIns.noises count]);
+//            inLoadMoreNoise = YES;
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"loadMoreNoise" object:nil];
+        }
+    }
+}
+
 
 - (void) handleRefresh:(id)sender{
 

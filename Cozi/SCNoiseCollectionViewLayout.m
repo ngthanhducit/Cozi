@@ -130,12 +130,10 @@ static NSString * const SCLayoutPhotoCellKind = @"PhotoCell";
     
     if (self.numberOfColumns > 1) spacingX = spacingX / (self.numberOfColumns - 1);
     
-    CGFloat originX = floorf(self.itemInsets.left + (self.itemSize.width + spacingX) * column);
+    CGFloat originX = (self.itemInsets.left + (self.itemSize.width + spacingX) * column);
     
-    CGFloat originY = floor(self.itemInsets.top +
+    CGFloat originY = (self.itemInsets.top +
                             (self.itemSize.height + self.interItemSpacingY) * row);
-    
-//    NSLog(@"origin x: %f - origin y: %f - row: %i", originX, originY, (int)row);
     
     return CGRectMake(originX, originY, self.itemSize.width, self.itemSize.height);
 }
