@@ -42,7 +42,7 @@
     [view addSubview:imgAvatar];
     
     __weak DataWall *_wall = _data;
-    [imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
+    [imgAvatar setImage:[helperIns getDefaultAvatar]];
     
     if (_wall.userPostID == storeIns.user.userID) {
         if (storeIns.user.thumbnail) {
@@ -74,8 +74,8 @@
     CGSize sizeFullName ;
     CGSize sizeLocation ;
     
-    TTTAttributedLabel *lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 5, self.bounds.size.width - 100, 20)];
-    [lblNickName setDelegate:self];
+    UILabel *lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(55, 5, self.bounds.size.width - 100, 20)];
+    [lblNickName setUserInteractionEnabled:YES];
     [lblNickName setTextAlignment:NSTextAlignmentJustified];
     lblNickName.font = [helperIns getFontLight:15.0f];
     lblNickName.textColor = [UIColor blackColor];
@@ -84,41 +84,60 @@
     NSString *string = [NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName];
     lblNickName.text = string;
     lblNickName.highlightedTextColor = [UIColor whiteColor];
-    lblNickName.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
-    [lblNickName setFont:[helperIns getFontLight:12.0f]];
-    
-    NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
-    [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
-    [mutableLinkAttributes setValue:(__bridge id)[[UIColor blackColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
-    lblNickName.linkAttributes = mutableLinkAttributes;
-    
-    NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
-    [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor blueColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
-//    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
-    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
-    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
-    lblNickName.activeLinkAttributes = mutableActiveLinkAttributes;
-    
+    [lblNickName setTag:_data.userPostID];
     [view addSubview:lblNickName];
     
-    NSRange r = [string rangeOfString:lblNickName.text];
-    NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _data.userPostID];
-    strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
-    [lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+    UITapGestureRecognizer *tapNickName = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapNickName:)];
+    [tapNickName setNumberOfTapsRequired:1];
+    [tapNickName setNumberOfTouchesRequired:1];
+    [lblNickName addGestureRecognizer:tapNickName];
+    
+//    TTTAttributedLabel *lblNickName = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(55, 5, self.bounds.size.width - 100, 20)];
+//    [lblNickName setDelegate:self];
+//    [lblNickName setTextAlignment:NSTextAlignmentJustified];
+//    lblNickName.font = [helperIns getFontLight:15.0f];
+//    lblNickName.textColor = [UIColor blackColor];
+//    lblNickName.lineBreakMode = NSLineBreakByCharWrapping;
+//    lblNickName.numberOfLines = 0;
+//    NSString *string = [NSString stringWithFormat:@"%@ %@", _wall.firstName, _wall.lastName];
+//    lblNickName.text = string;
+//    lblNickName.highlightedTextColor = [UIColor whiteColor];
+//    lblNickName.verticalAlignment = TTTAttributedLabelVerticalAlignmentCenter;
+//    
+//    NSMutableDictionary *mutableLinkAttributes = [NSMutableDictionary dictionary];
+//    [mutableLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+//    [mutableLinkAttributes setValue:(__bridge id)[[UIColor blackColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+//    lblNickName.linkAttributes = mutableLinkAttributes;
+//    
+//    NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
+//    [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+//    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
+//    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
+//    lblNickName.activeLinkAttributes = mutableActiveLinkAttributes;
+//    
+//    [view addSubview:lblNickName];
+//    
+//    NSRange r = [string rangeOfString:lblNickName.text];
+//    NSString *strLink = [NSString stringWithFormat:@"action://show-profile?%i", _data.userPostID];
+//    strLink = [strLink stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding];
+//    [lblNickName addLinkToURL:[NSURL URLWithString:strLink] withRange:r];
+    
+    ///==============
     
     if (_wall.longitude && _wall.longitude) {
         if (![_wall.longitude isEqualToString:@"0"] || ![_wall.latitude isEqualToString:@"0"]) {
             
             /* Create custom view to display section header... */
+            sizeFullName = [string boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
             
-            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+//            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
             
             [lblNickName setFrame:CGRectMake(50, 5, sizeFullName.width + 80, 20)];
             
             NSString *strLocation = @"LONDON";
-            sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+            sizeLocation = [strLocation boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:10.0f]} context:nil].size;
+            
+//            sizeLocation = [strLocation sizeWithFont:[helperIns getFontLight:10.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
             
             UIImageView *imgLocation = [[UIImageView alloc] initWithImage:[helperIns getImageFromSVGName:@"icon-LocationGreen.svg"]];
             //        [imgLocation setBackgroundColor:[UIColor redColor]];
@@ -134,7 +153,9 @@
         }else{
             /* Create custom view to display section header... */
             
-            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+            sizeFullName = [string boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+            
+//            sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
             
             [lblNickName setFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
             
@@ -142,49 +163,56 @@
     }else{
         /* Create custom view to display section header... */
         
-        sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+        sizeFullName = [string boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+        
+//        sizeFullName = [string sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
         
         [lblNickName setFrame:CGRectMake(50, 20 - (sizeFullName.height / 2), sizeFullName.width + 80, 20)];
     }
 
     //Calculation count down time
-    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
-    NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
-    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
+//    NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
+//    NSDate *timeMessage = [helperIns convertStringToDate:_wall.time];
+//    NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
     
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
-                                                        fromDate:_dateTimeMessage
-                                                          toDate:[NSDate date]
-                                                         options:0];
+//    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+//    NSDateComponents *components = [gregorianCalendar components:NSYearCalendarUnit | NSMonthCalendarUnit | NSWeekCalendarUnit |  NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit
+//                                                        fromDate:_dateTimeMessage
+//                                                          toDate:[NSDate date]
+//                                                         options:0];
     
-    NSString *timeAgo = @"";
-    NSInteger w = [components week];
-    if (w <= 0) {
-        NSInteger d = [components day];
-        if (d <= 0) {
-            NSInteger h = components.hour;
-            if (h <=0) {
-                NSInteger m = [components minute];
-                if (m <= 0) {
-                    NSInteger s = [components second];
-                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
-                }else{
-                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
-                }
-            }else{
-                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
-            }
-        }else{
-            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
-        }
-    }else{
-        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
-    }
+    NSString *timeAgo = @"24:00";
+//    NSInteger w = [components weekOfYear];
+//    if (w <= 0) {
+//        NSInteger d = [components day];
+//        if (d <= 0) {
+//            NSInteger h = components.hour;
+//            if (h <=0) {
+//                NSInteger m = [components minute];
+//                if (m <= 0) {
+//                    NSInteger s = [components second];
+//                    timeAgo = [NSString stringWithFormat:@"%i s", (int)s];
+//                }else{
+//                    timeAgo = [NSString stringWithFormat:@"%i m", (int)m];
+//                }
+//            }else{
+//                timeAgo = [NSString stringWithFormat:@"%i h", (int)h];
+//            }
+//        }else{
+//            timeAgo = [NSString stringWithFormat:@"%i d", (int)d];
+//        }
+//    }else{
+//        timeAgo = [NSString stringWithFormat:@"%i w", (int)w];
+//    }
     
-    timeAgo = [helperIns convertNSDateToString:timeMessage withFormat:@"HH:mm"];
+//    NSArray *subTime = [_wall.time componentsSeparatedByString:@" "];
     
-    CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
+//    timeAgo = [subTime lastObject];
+//    timeAgo = [helperIns convertNSDateToString:timeMessage withFormat:@"HH:mm"];
+    
+    CGSize sizeTime = [timeAgo boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:13.0f]} context:nil].size;
+    
+//    CGSize sizeTime = [timeAgo sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByWordWrapping];
     
     self.lblTime = [[UILabel alloc] initWithFrame:CGRectMake(self.bounds.size.width - (sizeTime.width + 20), 20 - (sizeFullName.height / 2), sizeTime.width + 10, sizeTime.height)];
     [self.lblTime setBackgroundColor:[UIColor clearColor]];
@@ -199,6 +227,22 @@
     [view addSubview:clock];
     
     [self addSubview:view];
+}
+
+- (void) tapNickName:(UIGestureRecognizer*) recognizer{
+    [storeIns playSoundPress];
+    
+    UILabel *lblNickName = (UILabel*)[recognizer view];
+    int userPost = (int)lblNickName.tag;
+    
+    if (userPost == storeIns.user.userID) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"tapMyProfile" object:nil userInfo:nil];
+    }else{
+        NSString *key = @"tapFriend";
+        NSNumber *headerUser = [NSNumber numberWithInt:userPost];
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:headerUser forKey:key];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+    }
 }
 
 #pragma mark - TTTAttributedLabelDelegate

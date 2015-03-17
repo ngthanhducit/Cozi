@@ -32,8 +32,8 @@
     
     [self setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [self setUserInteractionEnabled:YES];
-//    [self setShowsHorizontalScrollIndicator:NO];
-//    [self setShowsVerticalScrollIndicator:NO];
+    [self setShowsHorizontalScrollIndicator:NO];
+    [self setShowsVerticalScrollIndicator:NO];
     [self setDelegate:self];
     [self setDataSource:self];
     
@@ -98,8 +98,8 @@
     SCHeaderFooterView *header = [[SCHeaderFooterView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 40)];
     [header initWithData:_wall withSection:section];
     
-    NSString *_timeCountDown = [self calTimeCoundDown:_wall.time];
-    [header.lblTime setText:_timeCountDown];
+//    NSString *_timeCountDown = [self calTimeCoundDown:_wall.datePost];
+//    [header.lblTime setText:_timeCountDown];
     return header;
 }
 
@@ -160,7 +160,71 @@
         [scCell.bottomStatusTextOnly setHidden:YES];
         [scCell.vImages setHidden:NO];
         
-        [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_wall.urlFull] placeholderImage:[UIImage imageNamed:@"placeholder"] options:SDWebImageRefreshCached];
+        scCell.tag = indexPath.section;
+        
+//        [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_wall.urlFull] placeholderImage:[UIImage imageNamed:@"placeholder"] options:SDWebImageRefreshCached];
+        
+        [scCell.imgView sd_setImageWithURL:[NSURL URLWithString:_wall.urlFull] placeholderImage:[UIImage imageNamed:@"placeholder"] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            NSLog(@"progress downlaod %i/%i", (int)expectedSize, (int)receivedSize);
+        } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            if (image) {
+                [scCell.imgView setNeedsDisplay];
+            }
+        }];
+        
+        //===============
+//        [scCell.imgView performSelector:@selector(setImage:) withObject:[UIImage imageNamed:@"placeholder.png"]];
+//        
+//        BOOL isCahce = [SDWebImageManager.sharedManager cachedImageExistsForURL:[NSURL URLWithString:_wall.urlFull]];
+//        if (isCahce) {
+//            NSLog(@"cache");
+//            
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                UIImage *img = [SDImageCache.sharedImageCache imageFromMemoryCacheForKey:_wall.urlFull];
+//                if (img) {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        [scCell.imgView setImage:img];
+//                        [scCell.imgView setNeedsDisplay];
+//                    });
+//                }else{
+//                    UIImage *img = [SDImageCache.sharedImageCache imageFromDiskCacheForKey:_wall.urlFull];
+//                    if (img) {
+//                        
+//                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//                            [SDImageCache.sharedImageCache storeImage:img forKey:_wall.urlFull toDisk:NO];
+//                            dispatch_async(dispatch_get_main_queue(), ^{
+//                                [scCell.imgView setImage:img];
+//                                [scCell.imgView setNeedsDisplay];
+//                            });
+//                            
+//                        });
+//                        
+//                    }
+//                }
+//
+//            });
+//
+//        }else{
+//            NSLog(@"no cache");
+//            
+//            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_wall.urlFull] options:SDWebImageDownloaderUseNSURLCache progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+//                NSLog(@"total size image: %i/%i", (int)expectedSize, (int)receivedSize);
+//            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+//                if (scCell.tag == indexPath.section && image && finished) {
+//                    
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        [SDImageCache.sharedImageCache storeImage:image forKey:_wall.urlFull toDisk:NO];
+//                        [scCell.imgView setImage:image];
+//                    });
+//                    
+//                }
+//            }];
+//        }
+        
+        [scCell.imgView setTag:5000 + indexPath.section];
+        UITapGestureRecognizer *doubleGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didImageViewDoubleTapping:)];
+        [doubleGesture setNumberOfTapsRequired:2];
+        [scCell.imgView addGestureRecognizer:doubleGesture];
 
         CGFloat heightMain = [self calculationHeightRow:indexPath.section];
         
@@ -177,8 +241,12 @@
         [scCell setTextStatus];
         
         //calculation height cell + spacing top and bottom
-        CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
-        CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+        CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, CGFLOAT_MAX);
+        NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
+        paragraph.lineBreakMode = NSLineBreakByCharWrapping;
+        NSDictionary *attributes = @{NSFontAttributeName:[helperIns getFontLight:14.0f], NSParagraphStyleAttributeName: paragraph};
+        
+        CGSize sizeStatus = [str boundingRectWithSize:textSize options:NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading attributes:attributes context:nil].size;
 
         if (sizeStatus.height < 40) {
             if (sizeStatus.height > 20) {
@@ -223,7 +291,8 @@
             if ([_wall.comments count] > 4) {
                 [scCell.vAllComment setHidden:NO];
                 
-                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height + spacingViewAllComment, scCell.lblViewAllComment.bounds.size.width, 40)];
+                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vStatus.frame.origin.y + scCell.vStatus.bounds.size.height + spacingViewAllComment, self.bounds.size.width, 40)];
+                
                 [scCell.lblViewAllComment setText:[NSString stringWithFormat:@"View all %i comments", (int)[_wall.comments count]]];
                 
                 CGFloat heightComment = [self calculationHeightComemnt:indexPath.section];
@@ -289,7 +358,8 @@
         
         //calculation height cell + spacing top and bottom
         CGSize textSize = CGSizeMake(self.bounds.size.width - deltaWithStatus, 10000);
-        CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+        
+        CGSize sizeStatus = [str boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:14.0f]} context:nil].size;
         
         if (sizeStatus.height < 60) {
             sizeStatus.height = 60;
@@ -325,7 +395,7 @@
             if ([_wall.comments count] > 4) {
                 [scCell.vAllComment setHidden:NO];
                 
-                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vLike.frame.origin.y + scCell.vLike.bounds.size.height + spacingViewAllComment, scCell.lblViewAllComment.bounds.size.width, 40)];
+                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vLike.frame.origin.y + scCell.vLike.bounds.size.height + spacingViewAllComment, self.bounds.size.width, 40)];
                 [scCell.lblViewAllComment setText:[NSString stringWithFormat:@"View all %i comments", (int)[_wall.comments count]]];
                 
                 CGFloat heightComment = [self calculationHeightComemnt:indexPath.section];
@@ -451,7 +521,8 @@
             if ([_wall.comments count] > 4) {
                 [scCell.vAllComment setHidden:NO];
                 
-                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vDistance.frame.origin.y + scCell.vDistance.bounds.size.height + spacingViewAllComment, scCell.lblViewAllComment.bounds.size.width, 40)];
+                [scCell.vAllComment setFrame:CGRectMake(scCell.vAllComment.frame.origin.x, scCell.vDistance.frame.origin.y + scCell.vDistance.bounds.size.height + spacingViewAllComment, self.bounds.size.width, 40)];
+                
                 [scCell.lblViewAllComment setText:[NSString stringWithFormat:@"View all %i comments", (int)[_wall.comments count]]];
                 
                 CGFloat heightComment = [self calculationHeightComemnt:indexPath.section];
@@ -512,6 +583,8 @@
 #pragma mark - TTTAttributedLabelDelegate
 
 - (void)attributedLabel:(__unused TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+    [storeIns playSoundPress];
+    
     if ([[url scheme] hasPrefix:@"action"]) {
         if ([[url host] hasPrefix:@"show-profile"]) {
 //             load help screen
@@ -556,7 +629,6 @@
         if (!spinner.isAnimating && !isMoreData && !isEnd) {
             isMoreData = YES;
             NSLog(@"load more data");
-            
             self.tableFooterView = spinner;
             [spinner startAnimating];
             
@@ -602,11 +674,12 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             
             [spinner stopAnimating];
-            self.tableFooterView = nil;
+
             
         });
     } completion:^(BOOL finished) {
         [self reloadData];
+        self.tableFooterView = nil;
     }];
 
 }
@@ -632,7 +705,9 @@
 
     CGSize sizeComment = { 0, 0 };
     
-    CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+    CGSize sizeStatus = [str boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:14.0f]} context:nil].size;
+    
+//    CGSize sizeStatus = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
     
     //if size status < 40 then equal 40 else....
     sizeStatus.height = sizeStatus.height < 40 ? 40 : sizeStatus.height;
@@ -656,7 +731,11 @@
             for (int i = count - 1; i >= count - max; i--) {
                 PostComment *postComment = (PostComment*)[_wall.comments objectAtIndex:i];
                 NSString *str = [NSString stringWithFormat:@"%@ %@", _wall.fullName, postComment.contentComment];
-                CGSize tempSize = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+                
+                CGSize tempSize = [str boundingRectWithSize:textSize options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:14.0f]} context:nil].size;
+                
+//                CGSize tempSize = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
+                
                 sizeComment.height += tempSize.height + spacingLineComment;
                 sizeComment.width += tempSize.width;
             }
@@ -757,9 +836,10 @@
 - (void) onTick:(id)sender{
     
     if (isOnTick) {
-        NSArray *paths = [self indexPathsForVisibleRows];
-        
-        for (NSIndexPath *path in paths) {
+        NSArray *visibleCells = [self visibleCells];
+        for (SCWallTableViewCellV2 *cell in visibleCells) {
+            NSIndexPath *path = [self indexPathForCell:cell];
+            NSLog(@"visible row: %i", (int)path.section);
             DataWall *_wall;
             if (type == 0) {
                 _wall = [storeIns.walls objectAtIndex:path.section];
@@ -767,18 +847,37 @@
                 _wall = [items objectAtIndex:path.section];
             }
             
-            NSString *_timeCountDown = [self calTimeCoundDown:_wall.time];
+            NSString *_timeCountDown = [self calTimeCoundDown:_wall.datePost];
             
             SCHeaderFooterView *viewHeader = (SCHeaderFooterView*)[self headerViewForSection:path.section];
             
             viewHeader.lblTime.text = _timeCountDown;
-            
         }
+        
+//        NSArray *paths = [self indexPathsForVisibleRows];
+//        
+//        for (NSIndexPath *path in paths) {
+//            NSLog(@"visible row: %i", (int)path.section);
+//            DataWall *_wall;
+//            if (type == 0) {
+//                _wall = [storeIns.walls objectAtIndex:path.section];
+//            }else{
+//                _wall = [items objectAtIndex:path.section];
+//            }
+//            
+//            NSString *_timeCountDown = [self calTimeCoundDown:_wall.datePost];
+//            
+//            SCHeaderFooterView *viewHeader = (SCHeaderFooterView*)[self headerViewForSection:path.section];
+//            
+//            viewHeader.lblTime.text = _timeCountDown;
+//            
+//        }
     }
 }
 
-- (NSString*)calTimeCoundDown:(NSString*)strTime{
-    NSDate *timeMessage = [helperIns convertStringToDate:strTime];
+- (NSString*)calTimeCoundDown:(NSDate*)strTime{
+//    NSDate *timeMessage = [helperIns convertStringToDate:strTime];
+    NSDate *timeMessage = strTime;
     
     NSDate *_endTimeMessage = [timeMessage dateByAddingTimeInterval:86400];
     NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:storeIns.timeServer];
@@ -811,8 +910,10 @@
     NSDateComponents *difference = [calendar components:(NSSecondCalendarUnit | NSMinuteCalendarUnit | NSHourCalendarUnit)
                                                fromDate:fromDate toDate:toDate options:0];
     
-    NSInteger h = [difference hour];
-    NSInteger m = [difference minute];
+    NSInteger h = 0;
+    h = [difference hour] > 0 ? [difference hour] : 0;
+    NSInteger m = 0;
+    m = [difference minute] > 0 ? [difference minute] : 0;
 //    NSInteger s = [difference second];
     
     NSString *sHour, *sMinute, *sSecond;
@@ -836,6 +937,8 @@
 }
 
 - (void) btnMore:(id)sender{
+    [storeIns playSoundPress];
+    
     UIButton *btnMore = (UIButton*)sender;
     NSInteger _tagButton = btnMore.tag;
     NSLog(@"button click: %i", (int)_tagButton);
@@ -880,6 +983,8 @@
 }
 
 - (void) btnLike:(id)sender{
+    [storeIns playSoundPress];
+    
     UIButton *btnLike = (UIButton*)sender;
     NSInteger _tagButton = btnLike.tag;
     
@@ -908,6 +1013,8 @@
 }
 
 - (void) btnComment:(id)sender{
+    [storeIns playSoundPress];
+    
     UIButton *btnComment = (UIButton*)sender;
     NSInteger _tagButton = btnComment.tag - 2000;
     DataWall *_wall ;
@@ -926,6 +1033,8 @@
 }
 
 - (void) tapViewAllComment:(UIGestureRecognizer*)recognizer{
+    [storeIns playSoundPress];
+    
     UIView *viewAllComment = recognizer.view;
     
     NSInteger _tagComment = viewAllComment.tag - 3000;
@@ -945,6 +1054,8 @@
 }
 
 - (void) tapLikes:(UIGestureRecognizer*)recognizer{
+    [storeIns playSoundPress];
+    
     UIView *viewLikes = recognizer.view;
     
     NSInteger _tagComment = viewLikes.tag - 4000;
@@ -977,6 +1088,38 @@
         default:
             break;
     }
+}
+
+- (void) didImageViewDoubleTapping:(UITapGestureRecognizer*)recognizer{
+    UIImageView *img = (UIImageView*)[recognizer view];
+    NSInteger _tagImage = img.tag - 5000;
+    DataWall *_wall ;
+    if (type == 0) {
+        _wall = [storeIns.walls objectAtIndex:_tagImage];
+    }else{
+        _wall = [items objectAtIndex:_tagImage];
+    }
+    
+    if (_wall && _wall.userPostID > 0) {
+        
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:_tagImage];
+        SCWallTableViewCellV2 *scCell = (SCWallTableViewCellV2*)[self cellForRowAtIndexPath:indexPath];
+        
+        if (scCell) {
+            [UIView animateWithDuration:0.3 delay:0.2 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                [scCell.imgAddFavorite setAlpha:1.0f];
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:0.2 delay:0.3 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                    [scCell.imgAddFavorite setAlpha:0.0f];
+                } completion:^(BOOL finished) {
+                    
+                }];
+            }];
+            
+        }
+        
+    }
+    
 }
 
 @end

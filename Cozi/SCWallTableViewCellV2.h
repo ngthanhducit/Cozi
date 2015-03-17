@@ -81,6 +81,9 @@
 @property (nonatomic, strong ) TTTAttributedLabel      *lblStatus;
 @property (nonatomic, strong ) TTTAttributedLabel      *lblStatusTextOnly;
 
+@property (nonatomic, strong) UIImageView               *imgAddFavorite;
+@property (nonatomic, strong) UIImageView               *imgRemoveFavorite;
+
 - (void) renderComment;
 - (void) setTextStatus;
 @end

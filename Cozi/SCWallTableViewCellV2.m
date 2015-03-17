@@ -103,23 +103,36 @@
     [self.imgView setContentMode:UIViewContentModeScaleAspectFill];
     [self.imgView setAutoresizingMask:UIViewAutoresizingNone];
     self.imgView.layer.borderWidth = 0.0f;
+    [self.imgView setUserInteractionEnabled:YES];
     [self.imgView setClipsToBounds:YES];
     
     [self.vImages addSubview:self.imgView];
     
-    self.imgWaiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    [self.imgWaiting setFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
-    [self.vImages addSubview:self.imgWaiting];
+//    self.imgWaiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+//    [self.imgWaiting setFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
+//    [self.vImages addSubview:self.imgWaiting];
+//    
+//    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+//    [self.spinner setBackgroundColor:[UIColor clearColor]];
+//    [self.spinner stopAnimating];
+//    self.spinner.hidesWhenStopped = NO;
+//    [self.spinner setContentMode:UIViewContentModeCenter];
+//    [self.spinner setHidden:YES];
+//    self.spinner.frame = CGRectMake(0, 0, widthBlock, widthBlock);
+//    
+//    [self.vImages addSubview:self.spinner];
     
-    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    [self.spinner setBackgroundColor:[UIColor clearColor]];
-    [self.spinner stopAnimating];
-    self.spinner.hidesWhenStopped = NO;
-    [self.spinner setContentMode:UIViewContentModeCenter];
-    [self.spinner setHidden:YES];
-    self.spinner.frame = CGRectMake(0, 0, widthBlock, widthBlock);
+    self.imgAddFavorite = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"addFavorite.png"]];
+    [self.imgAddFavorite setFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
+    [self.imgAddFavorite setContentMode:UIViewContentModeCenter];
+    [self.imgAddFavorite setAlpha:0.0f];
+    [self.vImages addSubview:self.imgAddFavorite];
     
-    [self.vImages addSubview:self.spinner];
+    self.imgRemoveFavorite = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"removeFavorite.png"]];
+    [self.imgRemoveFavorite setFrame:CGRectMake(0, 0, widthBlock, widthBlock)];
+    [self.imgRemoveFavorite setContentMode:UIViewContentModeCenter];
+    [self.imgRemoveFavorite setAlpha:0.0f];
+    [self.vImages addSubview:self.imgRemoveFavorite];
 
     [self.mainView addSubview:_vImages];
 
@@ -174,7 +187,7 @@
     [self.bottomStatusTextOnly setBackgroundColor:[UIColor colorWithWhite:0.8f alpha:1.0f].CGColor];
     [self.vStatus.layer addSublayer:self.bottomStatusTextOnly];
 
-    self.lblStatus = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, self.bounds.size.width - 60, 18.5)];
+    self.lblStatus = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, widthBlock - 60, 18.5)];
     self.lblStatus.font = [helperIns getFontLight:14.0f];
     self.lblStatus.textColor = [UIColor darkGrayColor];
     self.lblStatus.lineBreakMode = NSLineBreakByCharWrapping;
@@ -205,7 +218,7 @@
     [vStatus addSubview:self.lblStatus];
     
     //Status Text Only
-    self.lblStatusTextOnly = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, self.bounds.size.width - 60, 18.5)];
+    self.lblStatusTextOnly = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacing, 0, widthBlock - 60, 18.5)];
     self.lblStatusTextOnly.font = [helperIns getFontLight:14.0f];
     self.lblStatusTextOnly.textColor = [UIColor darkGrayColor];
     self.lblStatusTextOnly.lineBreakMode = NSLineBreakByCharWrapping;
@@ -395,9 +408,8 @@
 }
 
 - (void) renderComment{
-    
     //calculation height cell + spacing top and bottom
-    CGSize textSize = CGSizeMake(self.bounds.size.width - 40, 10000);
+    CGSize textSize = CGSizeMake(widthBlock - 40, 10000);
 
     if ([self.wallData.comments count] > 0) {
         int max = 4;
@@ -447,7 +459,7 @@
             NSString *str = [NSString stringWithFormat:@"%@ %@", strFullName, postComment.contentComment];
             CGSize sizeComment = [str sizeWithFont:[helperIns getFontLight:14.0f] constrainedToSize:textSize lineBreakMode:NSLineBreakByCharWrapping];
             
-            TTTAttributedLabel *_lblComment = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacingComment, y, self.bounds.size.width - 45, sizeComment.height + 15)];
+            TTTAttributedLabel *_lblComment = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(leftSpacingComment, y, widthBlock - 45, sizeComment.height + 15)];
             [_lblComment setContentMode:UIViewContentModeCenter];
             [_lblComment setDelegate:self];
             _lblComment.font = [helperIns getFontLight:14.0f];
@@ -500,6 +512,8 @@
 }
 
 - (void) attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+    [storeIns playSoundPress];
+    
     if ([[url scheme] hasPrefix:@"action"]) {
         if ([[url host] hasPrefix:@"show-profile"]) {
             //             load help screen
