@@ -105,14 +105,54 @@
     NSArray *sectionContacts = [contacts objectForKey:sectionTitle];
     __weak Friend *_friend = [sectionContacts objectAtIndex:indexPath.row];
 
-    if (_friend.statusAddFriend == 1) {
-        [cell setBackgroundColor:[UIColor orangeColor]];
+//    if (_friend.statusAddFriend == 1) {
+//        [cell setBackgroundColor:[UIColor orangeColor]];
+//    }
+    
+    BOOL isExists = NO;
+    if ([selectList count] > 0) {
+        int count = (int)[selectList count];
+        for (int i = 0; i < count; i++) {
+            Friend *temp = (Friend*)[selectList objectAtIndex:i];
+            if (temp.friendID == _friend.friendID) {
+                [selectList removeObjectAtIndex:i];
+                [selectCell removeObjectAtIndex:i];
+                isExists= YES;
+                break;
+            }
+        }
+    }
+    
+    if (isExists) {
+        [selectList addObject:_friend];
+        [selectCell addObject:cell];
+        [self setCellColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] ForCell:cell];
+        [cell.imgViewCheck setHidden:NO];
+        [cell.lblFullName setTextColor:[UIColor whiteColor]];
+    }else{
+        [self setCellColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f] ForCell:cell];
+        [cell.imgViewCheck setHidden:YES];
+//        [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
+        [cell.lblFullName setTextColor:[UIColor blackColor]];
     }
     
     [cell.iconContact setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
     UIImage *imgThumb = [storeIns getAvatarThumbFriend:_friend.friendID];
     if (imgThumb) {
         [cell.iconContact setImage:imgThumb];
+    }else{
+        if (![_friend.urlThumbnail isEqualToString:@""]) {
+            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                
+            } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                if (finished && image) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        _friend.thumbnail = image;
+                        cell.iconContact.image = image;
+                    });
+                }
+            }];
+        }
     }
     
 //    [cell.iconContact sd_setImageWithURL:[NSURL URLWithString:_friend.urlThumbnail] placeholderImage:imgPlaceHolder];
@@ -170,10 +210,12 @@
         [self setCellColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] ForCell:cell];
         [cell.imgViewCheck setHidden:NO];
         [cell.lblFullName setTextColor:[UIColor whiteColor]];
+        
     }else{
         [self setCellColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f] ForCell:cell];
         [cell.imgViewCheck setHidden:YES];
-        [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
+//        [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
+        [cell.lblFullName setTextColor:[UIColor blackColor]];
     }
     
     NSString *key = @"countSelect";
@@ -231,7 +273,8 @@
             
             [self setCellColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f] ForCell:cell];
             [cell.imgViewCheck setHidden:YES];
-            [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
+//            [cell.lblFullName setTextColor:[UIColor colorWithRed:186.0f/255.0f green:186.0f/255.0f blue:186.0f/255.0f alpha:1.0f]];
+            [cell.lblFullName setTextColor:[UIColor blackColor]];
         }
     }
     

@@ -63,12 +63,13 @@
         [self.contentView addSubview:self.vTriangle];
         
         self.blackTriangle = [[TriangleView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
-        [self.blackTriangle setBackgroundColor:[UIColor blackColor]];
+        [self.blackTriangle setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor3"]]];
         [self.blackTriangle drawTrianMessageBlack];
         [self.contentView addSubview:self.blackTriangle];
         
         self.lblTime = [[UILabel alloc] initWithFrame:CGRectZero];
         [self.lblTime setFont:[helperIns getFontLight:9]];
+        [self.lblTime setTextColor:[UIColor lightGrayColor]];
         [self.lblTime setTextAlignment:NSTextAlignmentLeft];
         [self.viewMain addSubview:self.lblTime];
         
