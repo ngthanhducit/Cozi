@@ -39,6 +39,8 @@ const NSString                  *_cKey = @"PTCSYC22";
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"colors" ofType:@"plist"];
     self.dictColor = [[NSDictionary alloc]initWithContentsOfFile:plistPath];
  
+    imgAvatarDefault = [self getImageFromSVGName:@"icon-AvatarGrey.svg"];
+    
     if (self.dictColor) {
         for (NSString *c in self.dictColor) {
             int cHex = [self getHexIntColorWithKey:c];
@@ -61,8 +63,8 @@ const NSString                  *_cKey = @"PTCSYC22";
 }
 
 - (NSString*) encoded:(NSString*)data{
-    const char *cKey = [_cKey cStringUsingEncoding:NSASCIIStringEncoding];
-    const char *cData = [data cStringUsingEncoding:NSASCIIStringEncoding];
+    const char *cKey = [_cKey cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cData = [data cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
     CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
     NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
@@ -73,8 +75,8 @@ const NSString                  *_cKey = @"PTCSYC22";
 
 - (NSString*) encoded:(NSString*)data withKey:(NSString*)_key{
     NSString *newKey = [NSString stringWithFormat:@"%@%@", _cKey, _key];
-    const char *cKey = [newKey cStringUsingEncoding:NSASCIIStringEncoding];
-    const char *cData = [data cStringUsingEncoding:NSASCIIStringEncoding];
+    const char *cKey = [newKey cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cData = [data cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
     CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
     NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
@@ -84,7 +86,7 @@ const NSString                  *_cKey = @"PTCSYC22";
 }
 
 - (NSString*) decode:(NSString *)data{
-    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:data options:0];
+    NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:data options:1];
     NSString *decodedString = [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
     
     return decodedString;
@@ -129,6 +131,15 @@ const NSString                  *_cKey = @"PTCSYC22";
     NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
     NSPredicate *emailValid = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
     return [emailValid evaluateWithObject:_email];
+}
+
+- (BOOL) validatePhone:(NSString*)_phone{
+    NSString *phoneRegex = @"^((\\+)|(00))[0-9]{6,14}$";
+    NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", phoneRegex];
+    
+    BOOL phoneValidates = [phoneTest evaluateWithObject:_phone];
+    
+    return phoneValidates;
 }
 
 - (int) saveUser:(NSString *)str{
@@ -743,6 +754,20 @@ const NSString                  *_cKey = @"PTCSYC22";
     
     // Save image.
     return [UIImagePNGRepresentation(_img) writeToFile:filePath atomically:YES];
+}
+
+- (UIImage*)loadImage:(NSString*)_key
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                         NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString* path = [documentsDirectory stringByAppendingPathComponent:_key];
+    UIImage* image = [UIImage imageWithContentsOfFile:path];
+    return image;
+}
+
+- (UIImage *) getDefaultAvatar{
+    return imgAvatarDefault;
 }
 
 #pragma mark - private function

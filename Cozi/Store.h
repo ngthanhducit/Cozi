@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <CoreLocation/CoreLocation.h>
+#import <AudioToolbox/AudioToolbox.h>
 #import "User.h"
 #import "Messenger.h"
 #import "AmazonInfo.h"
@@ -24,11 +25,12 @@
 #import "PersonContact.h"
 #import "SDWebImage/SDImageCache.h"
 #import "SDWebImage/SDWebImageManager.h"
+#import "Recent.h"
 
 @protocol StoreDelegate <NSObject>
 
 @required
-- (void) reloadChatView;
+- (void) reloadChatView:(Messenger*)_messenger;
 
 @end
 
@@ -52,6 +54,8 @@
     NSString                    *_keyGoogleMaps;
     NSMutableDictionary           *staticImageDictionary;
     NSDictionary                  *dicColor;
+    
+    void (^completeUpdate)(BOOL finish);
 }
 
 @property (nonatomic) BOOL              isConnected;
@@ -89,18 +93,7 @@
 
 - (NSMutableArray*) getAssetsLibrary;
 - (NSMutableArray*) getAssetsThumbnail;
-- (void) processSaveData;
-
-//Core Data Follower
-- (BOOL) addNewFollower:(FollowerUser*)_follower;
-- (void) loadFollower:(int)_userID;
-- (BOOL) checkFollowerExists:(int)_userID withParentID:(int)_parentID;
-
-//Core Data
-- (void) loadUser:(int)_userID;
-- (void) loadFriend:(int)_userID;
-- (void) loadMessenger;
-- (void) processSaveCoreData;
+//- (void) processSaveData;
 
 - (void) fillAmazonInfomation:(AmazonInfo *)_amazon;
 - (void) updateStatusSendImage;
@@ -110,6 +103,8 @@
 - (NSString *)getLongitude;
 - (NSString *)getlatitude;
 - (void) updateLocation;
+- (void) updateLocationcomplete:(void (^)(BOOL finish))completeHandler;
+
 - (void) initLocation;
 
 - (UIImage*) getAvatarThumbFriend:(int)_friendID;
@@ -117,22 +112,20 @@
 - (void) sortMessengerFriend;
 - (NSString*) geturlThumbnailFriend:(NSString*)_phoneNumber;
 
-- (void) getPostHistory:(int)_userPostID;
-- (void) insertWallData:(DataWall*)_dataWall;
-- (void) addWallData:(DataWall *)_dataWall;
-- (void) addNoisesData:(DataWall *)_dataWall;
-- (void) insertNoisesData:(DataWall *)_dataWall;
-- (void) updateWall:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
-- (void) updateNoise:(NSString*)_clientKey withUserPost:(int)_userPostID withData:(DataWall*)_wall;
-- (DataWall *) getWall:(NSString*)_clientKey withUserPost:(int)_userPostID;
-- (DataWall*) getPostFromNoise:(NSString*)_clientKey withUserPostID:(int)_userPostID;
-
 - (BOOL) isFollowing:(int)_userID;
 - (BOOL) isFollower:(int)_userID;
 - (BOOL) isFriend:(int)_userID;
 
-//Friend Request
-- (void) loadFriendRequest:(int)_userID;
-- (void) removeFriendRequest:(int)_friendRequestID;
-- (void) progressResultAddFriend:(int)_friendID withIsAllow:(BOOL)_isAllow;
+- (UIImage*) renderGroupImageWithFriend:(NSMutableArray*)_friends;
+- (UIImage*) renderGroupImageWithMessage:(NSMutableArray*)_messenger;
+
+- (Recent *) getRecentByRecentID:(int)_recentID;
+//Group Chat
+- (Recent *) getGroupChatByGroupID:(int)groupID;
+- (Messenger *) getMessageGroupID:(int)groupID withKeyMessage:(NSString*)keySendMessage;
+- (void) updateStatusGroupMessage:(int)groupID withKeyMessage:(NSString*)_keyMessage withStatus:(int)_statusID withTime:(NSString*)_time;
+- (void) updateKeyAmazoneForGroupChat:(int)_groupID withKeyMessage:(NSString*)_keyMessage withKeyAmazon:(NSString *)_keyAmazon withUrl:(NSString *)_urlImage;
+
+- (void) playSoundPress;
+- (void) playSoundTouchOne;
 @end

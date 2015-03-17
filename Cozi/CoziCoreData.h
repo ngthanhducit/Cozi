@@ -16,6 +16,7 @@
 #import "FollowerUser.h"
 #import "DataWall.h"
 #import "UserSearch.h"
+#import "Recent.h"
 
 @interface CoziCoreData : NSObject
 {
@@ -71,4 +72,30 @@
 - (BOOL) saveFriendRequest:(UserSearch*)_friendRequest;
 - (BOOL) updateFriendRequest:(UserSearch*)_friendRequest;
 - (void) deleteFriendRequest:(int)_userID withFriendRequestID:(int)_friendRequestID;
+
+//Group Chat
+- (NSMutableArray*) getGroupChat;
+- (NSMutableArray*) getGroupChatWithUserID:(int)_userID;
+- (NSMutableArray*) getGroupChatWithID:(int)_userID withGroupChatID:(int)_groupChatID;
+- (BOOL) isExistsGroupChat:(int)_userID withGroupChatID:(int)_groupChatID;
+- (BOOL) saveGroupChat:(Recent*)_recent;
+- (BOOL) updateGroupChat:(Recent*)_recent;
+- (void) deleteGroupChat:(int)_userID withGroupChatID:(int)_groupChatID;
+
+//Group Chat Friend
+- (NSMutableArray*) getGroupChatFriend;
+- (NSMutableArray*) getGroupChatFriendWithGroupID:(int)_groupID;
+- (BOOL) isExistsGroupChatFriend:(int)_groupChatFriendID;
+- (BOOL) saveGroupChatFriend:(Recent*)_recent;
+- (BOOL) updateGroupChatFriend:(Friend*)_friend withGroupChatID:(int)_groupChatID;
+- (void) deleteGroupChatFriend:(int)_groupID withFriendID:(int)_friendID;
+
+//Group Chat Message
+- (NSMutableArray*) getGroupChatMessage;
+- (NSMutableArray*) getGroupChatMessageWithGroupID:(int)_groupID;
+- (NSMutableArray*) getGroupChatMessageWithUserID:(int)_groupID withFriendID:(int)_friendID;
+- (BOOL) isExistsGroupChatMessage:(NSString*)_keyMessage;
+- (BOOL) saveGroupChatMessage:(Messenger*)_message withGroupID:(int)_groupID;
+- (BOOL) updateGroupChatMessage:(Messenger*)_message;
+- (void) deleteGroupChatMessage:(NSString*)_keyMessage;
 @end

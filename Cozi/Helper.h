@@ -22,6 +22,7 @@
 @interface Helper : NSObject
 {
         Reachability        *internetReachable;
+    UIImage                 *imgAvatarDefault;
 }
 
 @property (nonatomic, strong) NSDictionary          *dictColor;
@@ -41,6 +42,7 @@
 - (BOOL) endOfWith:(NSString*)data withKey:(NSString*)key;
 - (int) indexof:(NSString*)value withKey:(NSString*)key;
 - (BOOL) validateEmail:(NSString*)_email;
+- (BOOL) validatePhone:(NSString*)_phone;
 - (int) saveUser:(NSString*)str;
 - (NSString*) loaduser;
 - (int) saveFriends:(NSString*)str;
@@ -49,7 +51,6 @@
 - (UIImage *) resizeImage:(UIImage*)orginalImage resizeSize:(CGSize)size;
 - (NSData *) compressionImage: (UIImage*)img;
 
-//- (void) cacheMessage:(int)friendIns withMessage:(Messenger *)_newMessage;
 - (UIFont*) getFontLight:(CGFloat)size;
 - (UIFont *) getFontMedium:(CGFloat)size;
 - (UIFont *) getFontThin:(CGFloat)size;
@@ -74,6 +75,7 @@
 - (UIImage *)squareImageWithImage:(UIImage *)image scaledToSize:(CGSize)newSize;
 - (UIImage*)imageByScalingAndCroppingForSize:(UIImage*)_img withSize:(CGSize)targetSize;
 
+- (UIImage *) getDefaultAvatar;
 - (NSString *) getDateFormatMessage:(NSDate *)_time;
 - (void)downloadImageWithURL:(NSURL *)url completionBlock:(void (^)(BOOL succeeded, UIImage *image))completionBlock;
 
@@ -83,6 +85,7 @@
 - (UIImage *)scaleUIImage:(UIImage *)_img scaledToSize:(CGSize)newSize;
 
 - (BOOL) saveImageToDocument:(UIImage*)_img withName:(NSString*)_name;
+- (UIImage*)loadImage:(NSString*)_key;
 
 - (int) uploadAvatarAmazon:(AmazonInfo *)info withImage:(NSData *)imgData;
 @end
