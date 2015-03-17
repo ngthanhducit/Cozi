@@ -44,6 +44,10 @@ static NSString * const reuseIdentifier = @"Cell";
     [self setAlwaysBounceVertical:YES];
 }
 
+- (void) initData:(NSMutableArray*)_items{
+    assets = _items;
+}
+
 #pragma mark <UICollectionViewDataSource>
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
@@ -80,6 +84,8 @@ static NSString * const reuseIdentifier = @"Cell";
 #pragma mark <UICollectionViewDelegate>
 
 - (void) collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    [storeIns playSoundPress];
+    
     lastSelect = (int)indexPath.section;
     
     if (lastSelectIndex) {

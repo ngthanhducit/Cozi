@@ -23,4 +23,6 @@ static NSString * const PostPhotoCellIdentifier = @"PhotoCell";
     int                         lastSelect;
     NSIndexPath                 *lastSelectIndex;
 }
+
+- (void) initData:(NSMutableArray*)_items;
 @end
