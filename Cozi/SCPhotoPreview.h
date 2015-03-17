@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Helper.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface SCPhotoPreview : UIView <UIScrollViewDelegate>
 {

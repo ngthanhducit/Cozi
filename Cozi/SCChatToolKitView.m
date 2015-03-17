@@ -42,6 +42,7 @@
     
     self.vTextView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)];
     [self.vTextView setBackgroundColor:[UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1]];
+//    [self.vTextView setBackgroundColor:[UIColor redColor]];
     [self addSubview:self.vTextView];
     
     self.vTextChat = [[UIView alloc] initWithFrame:CGRectMake(0, 5, self.bounds.size.width, self.bounds.size.height)];
@@ -67,7 +68,7 @@
     [self.btnSendMessage setImage:[helperIns getImageFromSVGName:@"icon-Chat-Send.svg"] forState:UIControlStateNormal];
     [self.vTextChat addSubview:self.btnSendMessage];
 
-    self.vLine = [[UIView alloc] initWithFrame:CGRectMake(0, 10, 4, self.vTextView.bounds.size.height - 20)];
+    self.vLine = [[UIView alloc] initWithFrame:CGRectMake(5, 5, 4, self.vTextView.bounds.size.height - 10)];
     [self.vLine setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.vTextView addSubview:self.vLine];
     
@@ -79,31 +80,31 @@
 - (void) setupToolkit{
     self.btnText = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnText setFrame:CGRectMake(0, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
-    [self.btnText setImage:[helperIns getImageFromSVGName:@"icon-QuotesGrey-V2.svg"] forState:UIControlStateNormal];
+    [self.btnText setImage:[helperIns getImageFromSVGName:@"icon-QuotesWhite-V2.svg"] forState:UIControlStateNormal];
     [self.btnText setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor1"]];
     [self.vTool addSubview:self.btnText];
     
     self.btnCamera = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnCamera setFrame:CGRectMake(self.vTool.bounds.size.width / 5, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
-    [self.btnCamera setImage:[helperIns getImageFromSVGName:@"icon-CameraGrey.svg"] forState:UIControlStateNormal];
+    [self.btnCamera setImage:[helperIns getImageFromSVGName:@"icon-CameraWhite-V2.svg"] forState:UIControlStateNormal];
     [self.btnCamera setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor2"]];
     [self.vTool addSubview:self.btnCamera];
     
     self.btnPhoto = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPhoto setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 2, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
-    [self.btnPhoto setImage:[helperIns getImageFromSVGName:@"icon-PhotoGrey.svg"] forState:UIControlStateNormal];
+    [self.btnPhoto setImage:[helperIns getImageFromSVGName:@"icon-PhotoWhite.svg"] forState:UIControlStateNormal];
     [self.btnPhoto setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor3"]];
     [self.vTool addSubview:self.btnPhoto];
     
     self.btnLocation = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnLocation setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 3, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
-    [self.btnLocation setImage:[helperIns getImageFromSVGName:@"icon-LocationGrey.svg"] forState:UIControlStateNormal];
+    [self.btnLocation setImage:[helperIns getImageFromSVGName:@"icon-LocationWhite.svg"] forState:UIControlStateNormal];
     [self.btnLocation setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor4"]];
     [self.vTool addSubview:self.btnLocation];
     
     self.btnPing = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.btnPing setFrame:CGRectMake((self.vTool.bounds.size.width / 5) * 4, 0, self.vTool.bounds.size.width / 5, self.vTool.bounds.size.height)];
-    [self.btnPing setImage:[helperIns getImageFromSVGName:@"icon-PokeGrey.svg"] forState:UIControlStateNormal];
+    [self.btnPing setImage:[helperIns getImageFromSVGName:@"icon-PokeWhite.svg"] forState:UIControlStateNormal];
     [self.btnPing setBackgroundColor:[helperIns.dicColor objectForKey:@"GreenColor1"]];
     [self.vTool addSubview:self.btnPing];
 }

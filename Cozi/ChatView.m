@@ -7,7 +7,6 @@
 //
 
 #import "ChatView.h"
-#import "ViewController.h"
 
 @implementation ChatView
 
@@ -67,6 +66,10 @@ const CGSize sizeButtonSend = { 30, 30 };
     
     //endDeceleration
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(touchEndTableView) name:@"endDeceleration" object:nil];
+    
+    //endDeceleration
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showIsShowFullImage) name:@"showFullImage" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(closeIsFullImage) name:@"closeFullImage" object:nil];
 }
 
 - (void) setup{
@@ -83,28 +86,39 @@ const CGSize sizeButtonSend = { 30, 30 };
     self.friendIns = [Friend new];
     
     vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, hHeader)];
-    [vHeader setBackgroundColor:[UIColor blackColor]];
+    [vHeader setBackgroundColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self addSubview:vHeader];
     
-    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, vHeader.bounds.size.width, vHeader.bounds.size.height)];
+    self.lblNickName = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, vHeader.bounds.size.width - 80, vHeader.bounds.size.height)];
     [self.lblNickName setText:@"NICK NAME"];
+    [self.lblNickName setUserInteractionEnabled:YES];
     [self.lblNickName setTextAlignment:NSTextAlignmentCenter];
-//    [self.lblNickName setTextColor:[UIColor whiteColor]];
-    [self.lblNickName setTextColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor2"]]];
+    [self.lblNickName setTextColor:[UIColor whiteColor]];
     [self.lblNickName setFont:[self.helperIns getFontLight:16.0f]];
     [vHeader addSubview:self.lblNickName];
     
+    UITapGestureRecognizer *tapHeader = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFriendHeader)];
+    [tapHeader setNumberOfTapsRequired:1];
+    [tapHeader setNumberOfTouchesRequired:1];
+    [self.lblNickName addGestureRecognizer:tapHeader];
+    
+    self.btnBack = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.btnBack setFrame:CGRectMake(self.bounds.size.width - hHeader, 0, hHeader, hHeader)];
+    [self.btnBack setImage:[self.helperIns getImageFromSVGName:@"icon-backarrow-25px-V2.svg"] forState:UIControlStateNormal];
+    [self.btnBack addTarget:self action:@selector(btnBackClick:) forControlEvents:UIControlEventTouchUpInside];
+    [vHeader addSubview:self.btnBack];
+    
     self.tbView = [[SCMessageTableViewV2 alloc] initWithFrame:CGRectMake(0, hHeader, self.bounds.size.width, self.bounds.size.height - hHeader - heightTextField - heightToolkitNormal) style:UITableViewStylePlain];
-//    [self.tbView setBackgroundColor:[UIColor purpleColor]];
     [self.tbView setScMessageTableViewDelegate:self];
     [self.tbView setContentOffset:CGPointMake(20, 0) animated:NO];
     self.tbView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag | UIScrollViewKeyboardDismissModeInteractive;
     [self addSubview:self.tbView];
     
     self.viewSendMessage = [[UIView alloc] initWithFrame:CGRectMake(0, self.bounds.size.height - heightTextField, self.bounds.size.width, heightTextField)];
+//    [self.viewSendMessage setBackgroundColor:[UIColor orangeColor]];
     [self addSubview:self.viewSendMessage];
     
-    self.chatToolKit = [[SCChatToolKitView alloc] initWithFrame:CGRectMake(10, 0, self.bounds.size.width - 20, self.viewSendMessage.bounds.size.height)];
+    self.chatToolKit = [[SCChatToolKitView alloc] initWithFrame:CGRectMake(0, 3, self.bounds.size.width, self.viewSendMessage.bounds.size.height - 6)];
     [self.chatToolKit setBackgroundColor:[UIColor clearColor]];
     [self.viewSendMessage addSubview:self.chatToolKit];
     
@@ -127,7 +141,7 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self setupCamera];
     
     //init view new messenger
-    self.vNewMessage = [[UIView alloc] initWithFrame:CGRectMake(50, self.viewSendMessage.frame.origin.y - (50), self.bounds.size.width - 100, 40)];
+    self.vNewMessage = [[UIView alloc] initWithFrame:CGRectMake(50, self.viewSendMessage.frame.origin.y - (30), self.bounds.size.width - 100, 30)];
     [self.vNewMessage setHidden:YES];
     [self.vNewMessage setBackgroundColor:[UIColor lightGrayColor]];
     [self addSubview:self.vNewMessage];
@@ -138,11 +152,18 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self.vNewMessage addGestureRecognizer:tap];
     
     self.lblNewMessenger = [[UILabel alloc] initWithFrame:self.vNewMessage.bounds];
-    [self.lblNewMessenger setText:@"new messenger"];
+    [self.lblNewMessenger setText:@"New Message"];
     [self.lblNewMessenger setTextAlignment:NSTextAlignmentCenter];
     [self.lblNewMessenger setFont:[self.helperIns getFontLight:12.0f]];
     [self.lblNewMessenger setTextColor:[UIColor whiteColor]];
     [self.vNewMessage addSubview:self.lblNewMessenger];
+    
+    self.vRequestChat = [[SCRequestChat alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.viewSendMessage.bounds.size.height)];
+    [self.vRequestChat setHidden:YES];
+    [self.viewSendMessage addSubview:self.vRequestChat];
+    
+    [self.vRequestChat.btnDeny addTarget:self action:@selector(btnDenyChatClick) forControlEvents:UIControlEventTouchUpInside];
+    [self.vRequestChat.btnAllow addTarget:self action:@selector(btnAllowChatClick) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void) setupCamera{
@@ -212,13 +233,9 @@ const CGSize sizeButtonSend = { 30, 30 };
         NSMutableArray *assets = [self.storeIns getAssetsThumbnail];
         
         scrollImageLibrary = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, 250)];
-//        [scrollImageLibrary setDelegate:self];
-//        [scrollImageLibrary setDirectionalLockEnabled:YES];
         [viewLibrary addSubview:scrollImageLibrary];
         
         [scrollImageLibrary setBackgroundColor:[UIColor clearColor]];
-//        [scrollImageLibrary setShowsHorizontalScrollIndicator:YES];
-//        [scrollImageLibrary setShowsVerticalScrollIndicator:YES];
         [scrollImageLibrary setBounces:YES];
         CGFloat widthContent = [[self.storeIns getAssetsThumbnail] count] * 202;
         [scrollImageLibrary setContentSize:CGSizeMake(widthContent, viewLibrary.bounds.size.height)];
@@ -330,11 +347,6 @@ const CGSize sizeButtonSend = { 30, 30 };
     }
 }
 
-- (void) autoScrollTbView{
-    
-    [self.tbView reloadTableView];
-}
-
 - (void) tapImage:(UITapGestureRecognizer *)recognizer{
     
     UIImageView *imgView = (UIImageView*)[recognizer view];
@@ -413,6 +425,13 @@ const CGSize sizeButtonSend = { 30, 30 };
     }
 }
 
+- (void) autoScrollTbView{
+    
+    [self.vNewMessage setFrame:CGRectMake(self.vNewMessage.frame.origin.x, self.viewSendMessage.frame.origin.y - self.vNewMessage.bounds.size.height, self.vNewMessage.bounds.size.width, self.vNewMessage.bounds.size.height)];
+    
+    [self.tbView reloadTableView];
+}
+
 - (void) btnSendImage:(UIButton*)sender{
     int tagNumber = (int)sender.tag - 100;
 
@@ -440,7 +459,6 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) btnTextTap:(id)sender{
-    
     [self hiddenToolkit];
     
     [self upChatView];
@@ -462,14 +480,22 @@ const CGSize sizeButtonSend = { 30, 30 };
     Messenger *_messenger = [self.friendIns.friendMessage lastObject];
     if (_messenger.userID == storeIns.user.userID) {
 
-        NSDate *timeCurrent = [NSDate date];
+//        NSDate *timeCurrent = [NSDate date];
         
         NSTimeInterval deltaTime = [[NSDate date] timeIntervalSinceDate:self.storeIns.timeServer];
 //        NSDate *timeMessage = [self.helperIns convertStringToDate:[subValue objectAtIndex:3]];
         NSDate *_dateTimeMessage = [_messenger.timeServerMessage dateByAddingTimeInterval:deltaTime];
-        
         NSTimeInterval delta = [[NSDate date] timeIntervalSinceDate:_dateTimeMessage];
-        if (delta > 5) {
+        
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSDateComponents *components = [calendar components:NSSecondCalendarUnit
+                                                   fromDate:_messenger.timeServerMessage
+                                                     toDate:self.storeIns.timeServer
+                                                    options:0];
+        
+        NSLog(@"Difference in date components: %i/%i/%i/%i/%i/%i", components.day, components.month, components.year, components.hour, components.minute, components.second);
+
+        if (components.second > 5) {
             [self sendMessage:@"(Ping)"];
         }
     }else{
@@ -478,9 +504,12 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) btnTakePhotoTap{
-    [scrollImageLibrary removeFromSuperview];
+    
+     [scrollImageLibrary removeFromSuperview];
     
     [self resetCamera];
+    
+    [self enablePan:NO];
     
     [viewLibrary addSubview:cameraPreview];
     
@@ -495,6 +524,7 @@ const CGSize sizeButtonSend = { 30, 30 };
 }
 
 - (void) btnSendLocationTap{
+    
     [self.storeIns updateLocation];
     
     NSString *_keyMessage = [self.storeIns randomKeyMessenger];
@@ -514,6 +544,8 @@ const CGSize sizeButtonSend = { 30, 30 };
     [newMessage setLatitude:_lati];
     [newMessage setKeySendMessage:_keyMessage];
     [newMessage setUserID:self.storeIns.user.userID];
+    NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _lati, _long, @"%7c" , _lati, _long];
+    [newMessage setUrlImage:url];
     
     [self.networkIns sendData:cmd];
     
@@ -521,20 +553,24 @@ const CGSize sizeButtonSend = { 30, 30 };
     
     [self autoScrollTbView];
     
-    [self.tbView reloadData];
+    [self playSoundSendMessage];
+//
+//    [self.tbView reloadData];
     
-    ReceiveLocation *_receiveLoca = [[ReceiveLocation alloc] init];
-    _receiveLoca.senderID = 0;
-    _receiveLoca.friendID = self.friendIns.friendID;
-    _receiveLoca.keySendMessage = _keyMessage;
-    _receiveLoca.longitude = _long;
-    _receiveLoca.latitude = _lati;
+    //Comment
     
-    [self.storeIns.receiveLocation addObject:_receiveLoca];
-    [self.storeIns processReceiveLocation];
+//    ReceiveLocation *_receiveLoca = [[ReceiveLocation alloc] init];
+//    _receiveLoca.friendID = self.friendIns.friendID;
+//    _receiveLoca.keySendMessage = _keyMessage;
+//    _receiveLoca.longitude = _long;
+//    _receiveLoca.latitude = _lati;
+//    
+//    [self.storeIns.receiveLocation addObject:_receiveLoca];
+//    [self.storeIns processReceiveLocation];
 }
 
 - (void) btnPhotoLibraryTap{
+    
     [scrollImageLibrary bringSubviewToFront:self];
     [cameraPreview removeFromSuperview];
     
@@ -618,6 +654,8 @@ const CGSize sizeButtonSend = { 30, 30 };
 
 - (void) hiddenToolkit{
 
+    [self enablePan:YES];
+    
     [UIView animateWithDuration:0.2f delay:0.0f options:UIViewAnimationOptionCurveLinear animations:^{
         if (isShowKeyboar) {
             [viewLibrary setFrame:CGRectMake(0, self.bounds.size.height, self.bounds.size.width, 200)];
@@ -643,6 +681,8 @@ const CGSize sizeButtonSend = { 30, 30 };
             
             UIButton *btnSend = (UIButton*)[mainView viewWithTag:lastPhotoSelected + 100];
             UIImageView *imgView = (UIImageView*)[mainView viewWithTag:lastPhotoSelected];
+            UIView *lastLayer = [mainView viewWithTag:lastPhotoSelected + 500];
+            [lastLayer setHidden:YES];
             
             imgView.image = lastImageSelected;
             [UIView animateWithDuration:0.2
@@ -723,16 +763,20 @@ const CGSize sizeButtonSend = { 30, 30 };
     [newMessage setStatusMessage:0];
     [newMessage setTimeMessage:[self.helperIns getDateFormatMessage:[NSDate date]]];
     [newMessage setFriendID:self.friendIns.friendID];
-//    [newMessage setDataImage:imgDataSend];
     [newMessage setKeySendMessage:keyMessage];
     [newMessage setStrMessage: @""];
     [newMessage setUserID:self.storeIns.user.userID];
     
+    UIImage *newImageSize = [self.helperIns resizeImage:newImage resizeSize:CGSizeMake(newImage.size.width / 2, newImage.size.height / 2)];
+    newMessage.thumnail = newImageSize;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self.helperIns saveImageToDocument:newImage withName:keyMessage];
+    });
+    
     [self.friendIns.friendMessage addObject:newMessage];
     
     [self autoScrollTbView];
-    
-    [self.tbView reloadData];
     
     if (lastPhotoSelected > -1) {
         UIView *mainView = [scrollImageLibrary viewWithTag:lastPhotoSelected + 300];
@@ -760,6 +804,8 @@ const CGSize sizeButtonSend = { 30, 30 };
     }
     
     imgDataSend = nil;
+    
+    [self playSoundSendMessage];
 }
 
 - (void) sendMessage:(NSString*)_content{
@@ -785,6 +831,8 @@ const CGSize sizeButtonSend = { 30, 30 };
         [self autoScrollTbView];
         
         self.chatToolKit.hpTextChat.text = @"";
+        
+        [self playSoundSendMessage];
     }
 }
 
@@ -856,6 +904,7 @@ const CGSize sizeButtonSend = { 30, 30 };
     [lblCancelSend setHidden:YES];
     [lblSendPhoto setHidden:YES];
     [lblTapTakePhoto setHidden:NO];
+    [lblChangeCamera setHidden:NO];
 }
 
 - (void) tapCancelSendPhoto:(UITapGestureRecognizer *)recognizer{
@@ -882,10 +931,35 @@ const CGSize sizeButtonSend = { 30, 30 };
     [self resetUI];
     
     isTouchTableView = YES;
+    
+    
 }
 
 - (void) touchEndTableView{
     isTouchTableView = NO;
+}
+
+- (void) showIsShowFullImage{
+
+    [self enablePan:NO];
+    
+}
+
+- (void) closeIsFullImage{
+
+    [self enablePan:YES];
+}
+
+- (void) enablePan:(BOOL)isEnable{
+    
+    if (self.gestureRecognizers) {
+        for (UIPanGestureRecognizer *pan in self.gestureRecognizers) {
+            if ([pan isKindOfClass:[UIPanGestureRecognizer class]]) {
+                pan.enabled = isEnable;
+            }
+        }
+    }
+    
 }
 
 - (void) resetUI{
@@ -898,10 +972,20 @@ const CGSize sizeButtonSend = { 30, 30 };
     [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         
         [self.viewSendMessage setFrame:CGRectMake(0, self.bounds.size.height - heightTextField, self.bounds.size.width, heightTextField)];
+        
+        [self.vNewMessage setFrame:CGRectMake(self.vNewMessage.frame.origin.x, self.viewSendMessage.frame.origin.y - self.vNewMessage.bounds.size.height, self.vNewMessage.bounds.size.width, self.vNewMessage.bounds.size.height)];
     
     } completion:^(BOOL finished) {
         
     }];
+    
+    if (self.friendIns.isFriendWithYour == 0) {
+        [self.chatToolKit setHidden:NO];
+        [self.vRequestChat setHidden:YES];
+    }else{
+        [self.vRequestChat setHidden:NO];
+        [self.chatToolKit setHidden:YES];
+    }
 }
 
 - (NSData*) getImgDataSend{
@@ -910,7 +994,7 @@ const CGSize sizeButtonSend = { 30, 30 };
 
 - (void) scrollToBottom{
     //scroll to bottom
-    self.vNewMessage.hidden = !self.vNewMessage.hidden;
+    self.vNewMessage.hidden = YES;
     double y = self.tbView.contentSize.height - self.tbView.bounds.size.height;
     CGPoint bottomOffset = CGPointMake(0, y);
     if (y > -self.tbView.contentInset.top)
@@ -941,11 +1025,11 @@ const CGSize sizeButtonSend = { 30, 30 };
     
     NSString *cmd = @"";
     if (_messenger.typeMessage == 0) {
-        cmd = [self.dataMapIns removeMessage:_messenger.friendID withKeyMessage:(int)_messenger.keySendMessage];
+        cmd = [self.dataMapIns removeMessage:_messenger.friendID withKeyMessage:_messenger.keySendMessage];
     }else if (_messenger.typeMessage == 1){
-        cmd = [self.dataMapIns removePhoto:_messenger.friendID withKeyMessage:(int)_messenger.keySendMessage];
+        cmd = [self.dataMapIns removePhoto:_messenger.friendID withKeyMessage:_messenger.keySendMessage];
     }else{
-        cmd = [self.dataMapIns removeLocation:_messenger.friendID withKeyMessage:(int)_messenger.keySendMessage];
+        cmd = [self.dataMapIns removeLocation:_messenger.friendID withKeyMessage:_messenger.keySendMessage];
     }
     
     if (![cmd isEqualToString:@""]) {
@@ -1026,5 +1110,33 @@ const CGSize sizeButtonSend = { 30, 30 };
 - (void) tapNewMessenger:(UIGestureRecognizer*)recognizer{
     [self.vNewMessage setHidden:YES];
     [self scrollToBottom];
+}
+
+- (BOOL) getStatusIsShowPanel{
+    return isShowPanel;
+}
+
+- (void) btnDenyChatClick{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationDenyRequestChat" object:nil];
+}
+
+- (void) btnAllowChatClick{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationAllowRequestChat" object:nil];
+}
+
+- (void) btnBackClick:(id)sender{
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationChatBack" object:nil];
+}
+
+- (void) tapFriendHeader{
+    NSString *key = @"tapFriend";
+    NSNumber *headerUser = [NSNumber numberWithInt:self.friendIns.friendID];
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObject:headerUser forKey:key];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"tapFriendProfile" object:nil userInfo:dictionary];
+}
+
+- (void) playSoundSendMessage{
+    AudioServicesPlaySystemSound(1003);
 }
 @end

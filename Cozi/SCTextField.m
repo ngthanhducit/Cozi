@@ -90,6 +90,7 @@
 
 - (CGRect) placeholderRectForBounds:(CGRect)bounds{
     CGSize size = [self.placeholder sizeWithFont:self.fontName];
+//    CGSize size = [self.placeholder sizeWithAttributes:@{NSFontAttributeName:self.fontName}];
     CGFloat sizeTextField = self.bounds.size.height / 2;
     
     return CGRectMake(self.paddingLeft, sizeTextField - (size.height / 2), self.bounds.size.width, self.bounds.size.height);
@@ -104,6 +105,7 @@
     }
 
     [[self placeholder] drawInRect:rect withFont:self.fontName];
+//    [[self placeholder] drawInRect:rect withAttributes:@{NSFontAttributeName:self.fontName}];
 }
 
 - (CGRect) textRectForBounds:(CGRect)bounds{

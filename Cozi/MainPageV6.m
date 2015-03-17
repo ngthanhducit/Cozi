@@ -32,7 +32,8 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        _top=[self getHeaderHeight];
+        CGFloat hStatusBar = [UIApplication sharedApplication].statusBarFrame.size.height;
+        _top=[self getHeaderHeight] + hStatusBar;
         _avartaH=frame.size.width;
         _searchH=160;
         [self initVariable];
@@ -163,7 +164,7 @@
 }
 
 -(void) drawAvatar:(UIImage*)_imgAvatar{
-
+    
     _avarta=[[UIImageView alloc] initWithFrame:CGRectMake(0, _top, self.bounds.size.width, _avartaH)];
     if (_avarta != nil) {
         [_avarta setImage:_imgAvatar];
@@ -427,7 +428,6 @@
         if(y>_avartaH)
         {
             int delta=y-_avartaH;
-//            _searchView.frame=CGRectMake(0, _avartaH+delta, self.frame.size.width, _searchH);
             [_followInfo setTransform:CGAffineTransformMakeTranslation(0, delta)];
         }
         else{
@@ -437,15 +437,19 @@
 }
 
 - (void) followersTap:(UITapGestureRecognizer*)recognizer{
+    [storeIns playSoundPress];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapFollowers" object:nil];
 }
 
 - (void) followingTap:(UITapGestureRecognizer*)recognizer{
+    [storeIns playSoundPress];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"notificationTapFollowing" object:nil];
 }
 
 - (void) postsTap:(UITapGestureRecognizer*)recognizer{
-    NSLog(@"tap posts");
+    [storeIns playSoundPress];
 //    [_mScroll setContentOffset:CGPointMake(0, 0) animated:YES];
     [_followInfo setTransform:CGAffineTransformMakeTranslation(0, 0)];
 //    [UIView animateWithDuration:0.2 animations:^{

@@ -185,8 +185,12 @@
                 [self.imagePreview setHidden:YES];
                 
                 UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationLeftMirrored];
+                
                 [imgViewImageCapture setImage: flippedImage];
-                imgCaptureComplete = flippedImage;
+                
+                UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
+
+                imgCaptureComplete = imgResize;
             }else{
                 [self.imagePreview setHidden:YES];
 

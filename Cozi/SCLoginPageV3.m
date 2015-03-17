@@ -14,7 +14,6 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
 }
 
 - (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
@@ -38,6 +37,8 @@
     netIns = [NetworkController shareInstance];
     [netIns addListener:self];
     
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    
     cPage = 0;
     pPage = -1;
     totalPage = 7;
@@ -53,6 +54,8 @@
     sizeText = CGSizeMake(self.view.bounds.size.width, self.view.bounds.size.height);
     
     borderColor = [UIColor colorWithRed:110.0f/255.0f green:110.0f/255.0f blue:110.0f/255.0f alpha:1];
+    
+    hStatusBar = [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 - (void) initNotification{
@@ -61,13 +64,13 @@
 
 - (void) setup{
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:[UIColor clearColor]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
     
-    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, hHeader)];
+    self.vHeader = [[UIView alloc] initWithFrame:CGRectMake(0, hStatusBar, self.view.bounds.size.width, hHeader)];
     [self.vHeader setBackgroundColor:[UIColor orangeColor]];
     [self.vHeader setAlpha:0.5];
 //    [self.view addSubview:self.vHeader];
@@ -76,27 +79,28 @@
     [self.btnPrevious setBackgroundColor:[UIColor blackColor]];
     [self.btnPrevious setAlpha:0.3];
     [self.btnPrevious setHidden:YES];
+//    [self.btnPrevious setBackgroundColor:[UIColor purpleColor]];
 //    [self.btnPrevious setTitle:@"<" forState:UIControlStateNormal];
     [self.btnPrevious setImage:[helperIns getImageFromSVGName:@"icon-backarrow-25px-V2.svg"] forState:UIControlStateNormal];
     [self.btnPrevious setTitleColor:borderColor forState:UIControlStateNormal];
-    [self.btnPrevious setFrame:CGRectMake(0, 0, hHeader, hHeader)];
+    [self.btnPrevious setFrame:CGRectMake(0, hStatusBar, hHeader, hHeader)];
     [self.btnPrevious addTarget:self action:@selector(previous) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:self.btnPrevious];
 //    [self.vHeader addSubview:self.btnPrevious];
     
-    self.imgLogo = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width / 2) - 40, hHeader, 80, 80)];
+    self.imgLogo = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.bounds.size.width / 2) - 40, hHeader + hStatusBar, 80, 80)];
     [self.imgLogo setImage:[helperIns getImageFromSVGName:@"header-4-white.svg"]];
     [self.view addSubview:self.imgLogo];
     
-    self.lblCozi = [[UILabel alloc] initWithFrame:CGRectMake((self.view.bounds.size.width / 2) - 50, hHeader * 2, 100, 100)];
+    self.lblCozi = [[UILabel alloc] initWithFrame:CGRectMake((self.view.bounds.size.width / 2) - 50, (hHeader * 2) + hStatusBar, 100, 100)];
     [self.lblCozi setText:@"COZI"];
     [self.lblCozi setTextAlignment:NSTextAlignmentCenter];
     [self.lblCozi setTextColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.lblCozi setFont:[helperIns getFontLight:20.0f]];
     [self.view addSubview:self.lblCozi];
     
-    self.vParentPage = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader, self.view.bounds.size.width * totalPage, self.view.bounds.size.height - hHeader)];
+    self.vParentPage = [[UIView alloc] initWithFrame:CGRectMake(0, hHeader + hStatusBar, self.view.bounds.size.width * totalPage, self.view.bounds.size.height - hHeader - hStatusBar)];
     [self.vParentPage setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.vParentPage];
     
@@ -143,7 +147,10 @@
     [self.btnRegister addTarget:self action:@selector(btnRegisterClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnRegister.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLable = [self.btnRegister.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnRegister.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnRegister.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnRegister setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangle.size.width, 0, imgTriangle.size.width)];
     self.btnRegister.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangle.size.width, 0, -((sizeTitleLable.width) + imgTriangle.size.width));
     
@@ -166,7 +173,10 @@
     [self.btnLogin addTarget:self action:@selector(btnLoginClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnLogin.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLogin = [self.btnLogin.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLogin = [self.btnLogin.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLogin = [self.btnLogin.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnLogin setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangle.size.width, 0, imgTriangle.size.width)];
     self.btnLogin.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLogin.width) + imgTriangle.size.width, 0, -((sizeTitleLogin.width) + imgTriangle.size.width));
     
@@ -218,7 +228,10 @@
     [self.btnVerifyPhone addTarget:self action:@selector(btnVerifyClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnVerifyPhone.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLable = [self.btnVerifyPhone.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnVerifyPhone.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnVerifyPhone.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnVerifyPhone setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangle.size.width, 0, imgTriangle.size.width)];
     self.btnVerifyPhone.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangle.size.width, 0, -((sizeTitleLable.width) + imgTriangle.size.width));
     
@@ -285,7 +298,10 @@
     [self.btnSignIn.titleLabel setFont:[helperIns getFontLight:15.0f]];
     [self.btnSignIn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
-    CGSize sizeTitleLable = [self.btnSignIn.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnSignIn.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnSignIn.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnSignIn setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangle.size.width, 0, imgTriangle.size.width)];
     self.btnSignIn.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangle.size.width, 0, -((sizeTitleLable.width) + imgTriangle.size.width));
     
@@ -299,7 +315,7 @@
     [self.txtUserNameSignIn setDelegate:self];
     [self.txtUserNameSignIn setTextColor:borderColor];
     [self.txtUserNameSignIn setPlaceholder:@"USERNAME"];
-    [self.txtUserNameSignIn setText:@"duc@sycomore.vn"];
+    [self.txtUserNameSignIn setText:@""];
     [self.txtUserNameSignIn setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.txtUserNameSignIn setKeyboardAppearance:UIKeyboardAppearanceDark];
     [self.txtUserNameSignIn setReturnKeyType:UIReturnKeyNext];
@@ -320,7 +336,7 @@
     [self.txtPasswordSignIn setSecureTextEntry:YES];
     [self.txtPasswordSignIn setTextColor:borderColor];
     [self.txtPasswordSignIn setPlaceholder:@"PASSWORD"];
-    [self.txtPasswordSignIn setText:@"abc123"];
+    [self.txtPasswordSignIn setText:@""];
     [self.txtPasswordSignIn setAutocorrectionType:UITextAutocorrectionTypeNo];
     [self.txtPasswordSignIn setKeyboardAppearance:UIKeyboardAppearanceDark];
     [self.txtPasswordSignIn setReturnKeyType:UIReturnKeyGo];
@@ -351,8 +367,11 @@
     [self.vPopup setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.vBlurPopup addSubview:self.vPopup];
     
-    CGSize sizeTextConfirm = { self.vPopup.bounds.size.width , self.vPopup.bounds.size.width };
-    CGSize sizeLblConfirm = [@"CONFIRM THIS IS YOUR PHONE NUMBER" sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeTextConfirm lineBreakMode:NSLineBreakByWordWrapping];
+//    CGSize sizeTextConfirm = { self.vPopup.bounds.size.width , self.vPopup.bounds.size.width };
+    
+    CGSize sizeLblConfirm = [@"CONFIRM THIS IS YOUR PHONE NUMBER" boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:13.0f]} context:nil].size;
+    
+//    CGSize sizeLblConfirm = [@"CONFIRM THIS IS YOUR PHONE NUMBER" sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeTextConfirm lineBreakMode:NSLineBreakByWordWrapping];
     
     self.lblConfirm = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.vPopup.bounds.size.width, sizeLblConfirm.height + 10)];
     [self.lblConfirm setNumberOfLines:0];
@@ -381,7 +400,6 @@
     [self.btnEdit.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnEdit setContentMode:UIViewContentModeCenter];
     [self.btnEdit setTitle:@"EDIT" forState:UIControlStateNormal];
-    [self.btnEdit addTarget:self action:@selector(btnVerifyClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnEdit.titleLabel setFont:[helperIns getFontLight:15.0f]];
     [self.btnEdit setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.btnEdit addTarget:self action:@selector(btnEditClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -411,7 +429,10 @@
     [self.btnContinue setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.btnContinue addTarget:self action:@selector(btnContinueClick:) forControlEvents:UIControlEventTouchUpInside];
     
-    CGSize sizeTitleLable = [self.btnContinue.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnContinue.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnContinue.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnContinue setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangleContinue.size.width, 0, imgTriangleContinue.size.width)];
     self.btnContinue.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangleContinue.size.width, 0, -((sizeTitleLable.width) + imgTriangleContinue.size.width));
     
@@ -430,8 +451,10 @@
     [self.vPopupWaring setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
     [self.vBlurPopupWarning addSubview:self.vPopupWaring];
     
-    CGSize sizeTextConfirm = { self.vPopupWaring.bounds.size.width , self.vPopupWaring.bounds.size.width };
-    CGSize sizeLblConfirm = [@"WARNING" sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeTextConfirm lineBreakMode:NSLineBreakByWordWrapping];
+//    CGSize sizeTextConfirm = { self.vPopupWaring.bounds.size.width , self.vPopupWaring.bounds.size.width };
+    CGSize sizeLblConfirm = [@"WARNING" boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:13.0f]} context:nil].size;
+    
+//    CGSize sizeLblConfirm = [@"WARNING" sizeWithFont:[helperIns getFontLight:13.0f] constrainedToSize:sizeTextConfirm lineBreakMode:NSLineBreakByWordWrapping];
     
     self.lblConfirmWaring = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.vPopupWaring.bounds.size.width, sizeLblConfirm.height + 10)];
     [self.lblConfirmWaring setNumberOfLines:0];
@@ -465,7 +488,10 @@
     [self.btnContinueWaring.titleLabel setFont:[helperIns getFontLight:15.0f]];
     [self.btnContinueWaring setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
-    CGSize sizeTitleLable = [self.btnContinueWaring.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnContinueWaring.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnContinueWaring.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnContinueWaring setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangleContinue.size.width, 0, imgTriangleContinue.size.width)];
     self.btnContinueWaring.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangleContinue.size.width, 0, -((sizeTitleLable.width) + imgTriangleContinue.size.width));
     
@@ -587,10 +613,10 @@
 }
 
 - (void) initCamera{
-    self.vCamera = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 5, 0, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    self.vCamera = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 5, 0, self.view.bounds.size.width, self.vParentPage.bounds.size.height)];
     [self.vParentPage addSubview:self.vCamera];
     
-    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height - hHeader)];
+    self.cameraCapture = [[SCCameraCaptureV7 alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.vParentPage.bounds.size.height)];
     [self.cameraCapture resetCamera];
     [self.vCamera addSubview:self.cameraCapture];
     
@@ -607,16 +633,6 @@
     [self.vTool.layer addSublayer:likeTool];
     
     CGFloat hButtonTool = 40;
-//    if ([[UIScreen mainScreen] bounds].size.height == 568)
-//    {
-//        hButtonTool = 45;
-//        //iphone 5
-//    }
-//    else
-//    {
-//        hButtonTool = 35;
-//        //iphone 3.5 inch screen iphone 3g,4s
-//    }
     
     UIView *vLibrary = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width / 4, yLineTool)];
     [vLibrary setContentMode:UIViewContentModeCenter];
@@ -714,7 +730,7 @@
     
     UIView *vBorder = [[UIView alloc] initWithFrame:CGRectMake((vTakePhoto.bounds.size.width / 2) - ((vTakePhoto.bounds.size.height / 2) - 10), 10, vTakePhoto.bounds.size.height - 20, vTakePhoto.bounds.size.height - 20)];
     vBorder.clipsToBounds = YES;
-    vBorder.layer.borderColor = [helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
+    vBorder.layer.borderColor = [helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]].CGColor;
     vBorder.layer.borderWidth = 1.0f;
     [vBorder setBackgroundColor:[UIColor clearColor]];
     vBorder.layer.cornerRadius = vBorder.bounds.size.width / 2;
@@ -752,7 +768,10 @@
     [self.btnSkip setTitleColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]] forState:UIControlStateNormal];
     [self.btnSkip addTarget:self action:@selector(btnSkipClick:) forControlEvents:UIControlEventTouchUpInside];
     
-    CGSize sizeTitleLable = [self.btnSkip.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+//    CGSize sizeTitleLable = [self.btnSkip.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:sizeText lineBreakMode:NSLineBreakByWordWrapping];
+    
+    CGSize sizeTitleLable = [self.btnSkip.titleLabel.text boundingRectWithSize:sizeText options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
     [self.btnSkip setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgTriangleSkip.size.width, 0, imgTriangleSkip.size.width)];
     self.btnSkip.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgTriangleSkip.size.width, 0, -((sizeTitleLable.width) + imgTriangleSkip.size.width));
 
@@ -769,10 +788,10 @@
     self.vEditPhoto = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width * 6, 0, self.view.bounds.size.width, self.vParentPage.bounds.size.height)];
     [self.vParentPage addSubview:self.vEditPhoto];
     
-    self.vPreviewPhoto = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width)];
+    self.vPreviewPhoto = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width - (hStatusBar))];
     [self.vEditPhoto addSubview:self.vPreviewPhoto];
     
-    self.vGridLineEditPhoto = [[SCGridView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width)];
+    self.vGridLineEditPhoto = [[SCGridView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.width - (hStatusBar))];
     [self.vGridLineEditPhoto setBackgroundColor:[UIColor clearColor]];
     [self.vGridLineEditPhoto setUserInteractionEnabled:NO];
     [self.vEditPhoto addSubview:self.vGridLineEditPhoto];
@@ -785,20 +804,23 @@
     UIImage *imgJoinNow = [helperIns imageWithView:triangleJoinNow];
     
     self.btnDone = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.btnDone setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    [self.btnDone setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.btnDone setImage:imgJoinNow forState:UIControlStateNormal];
     [self.btnDone.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnDone setContentMode:UIViewContentModeCenter];
-    [self.btnDone setFrame:CGRectMake(0, self.vEditPhoto.bounds.size.height - hButton, self.view.bounds.size.width, hButton)];
+    [self.btnDone setFrame:CGRectMake(0, self.vEditPhoto.bounds.size.height - 100, self.view.bounds.size.width, 100)];
     [self.btnDone setTitle:@"DONE" forState:UIControlStateNormal];
     [self.btnDone addTarget:self action:@selector(btnDoneClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.btnDone.titleLabel setFont:[helperIns getFontLight:15.0f]];
     
-    CGSize sizeTitleLable = [self.btnDone.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnDone.titleLabel.text boundingRectWithSize:size options:NSStringDrawingUsesFontLeading | NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontLight:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnDone.titleLabel.text sizeWithFont:[helperIns getFontLight:15.0f] constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping];
+    
     [self.btnDone setTitleEdgeInsets:UIEdgeInsetsMake(0, -imgJoinNow.size.width, 0, imgJoinNow.size.width)];
     self.btnDone.imageEdgeInsets = UIEdgeInsetsMake(0, (sizeTitleLable.width) + imgJoinNow.size.width, 0, -((sizeTitleLable.width) + imgJoinNow.size.width));
     
-    [self.btnDone setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.btnDone setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
     [self.btnDone setAlpha:0.8];
     [self.vEditPhoto addSubview:self.btnDone];
@@ -807,6 +829,15 @@
 - (BOOL) textFieldShouldReturn:(UITextField *)textField{
     if (textField.returnKeyType == UIReturnKeyGo) {
         if (!self.vLoginPage.hidden) {
+            BOOL isConnected = [helperIns checkConnected];
+            if (!isConnected) {
+                [self.view endEditing:YES];
+                [self showHiddenPopupWarning:YES withWarning:@"no internet"];
+                
+                [self.vLogin setFrame:CGRectMake(0, self.vLoginPage.bounds.size.height - ((hButton * 2) + 10), self.view.bounds.size.width, (hButton * 2) + 10)];
+                
+                return NO;
+            }
             //Call login
             if ([self.txtUserNameSignIn.text isEqualToString:@""] || [self.txtPasswordSignIn.text isEqualToString:@""]) {
                 [self.view endEditing:YES];
@@ -834,7 +865,15 @@
                     
                     return NO;
                 }
-            
+                
+                BOOL isValidEmail = [helperIns validateEmail:self.txtEmail.text];
+                if (!isValidEmail) {
+                    [self.txtEmail setFrame:CGRectMake(20, self.vEmail.bounds.size.height - hButton, self.view.bounds.size.width - 40, hButton)];
+                    [self.view endEditing:YES];
+                    [self showHiddenPopupWarning:YES withWarning:@"invalid email address"];
+                    
+                    return NO;
+                }
             }
             
             if (cPage == 3) {
@@ -847,6 +886,7 @@
                     
                     return NO;
                 }
+            
             }
             
             if (cPage == 4) {
@@ -886,7 +926,7 @@
 
     [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
 
-        [self.vParentPage setFrame:CGRectMake(-(self.view.bounds.size.width * cPage), hHeader, self.vParentPage.bounds.size.width, self.vParentPage.bounds.size.height)];
+        [self.vParentPage setFrame:CGRectMake(-(self.view.bounds.size.width * cPage), hHeader + hStatusBar, self.vParentPage.bounds.size.width, self.vParentPage.bounds.size.height)];
         
         if (cPage == 2 && self.vLoginPage.isHidden) {
             
@@ -937,6 +977,8 @@
 }
 
 - (void) previous{
+    [storeIns playSoundPress];
+    
     cPage--;
     [self.view endEditing:YES];
 
@@ -947,7 +989,7 @@
     
     [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         
-        [self.vParentPage setFrame:CGRectMake(-(self.view.bounds.size.width * cPage), hHeader, self.vParentPage.bounds.size.width, self.vParentPage.bounds.size.height)];
+        [self.vParentPage setFrame:CGRectMake(-(self.view.bounds.size.width * cPage), hHeader + hStatusBar, self.vParentPage.bounds.size.width, self.vParentPage.bounds.size.height)];
         
         if (cPage == 0 && !self.vLoginPage.isHidden) {
 
@@ -1004,12 +1046,14 @@
 
 #pragma -mark handle event
 - (void) btnRegisterClick:(id)sender{
+    [storeIns playSoundPress];
     
     [self next];
     
 }
 
 - (void) btnVerifyClick:(id)sender{
+    [storeIns playSoundPress];
     
     [self.view endEditing:YES];
     
@@ -1022,6 +1066,7 @@
         [UIView animateWithDuration:0.1 animations:^{
             
             [self.vVerify setFrame:CGRectMake(self.view.bounds.size.width * 1, self.vParentPage.bounds.size.height - (hDisplayPhone + hButton + 10), self.view.bounds.size.width, hDisplayPhone + hButton + 10)];
+            [self.lblPhoneNumber setText:[NSString stringWithFormat:@"+84 - %@", self.txtPhoneNumber.text]];
             
             [self.vBlurPopup setHidden:NO];
         }];
@@ -1060,6 +1105,7 @@
 }
 
 - (void) btnEditClick:(id)sender{
+    [storeIns playSoundPress];
     [UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.vBlurPopup setHidden:YES];
     } completion:^(BOOL finished) {
@@ -1072,6 +1118,8 @@
 }
 
 - (void) btnContinueClick:(id)sender{
+    [storeIns playSoundPress];
+    
     NSString *phoneHash = [helperIns encoded:self.txtPhoneNumber.text];
     NSString *cmd = [NSString stringWithFormat:@"REG{%@}%@<EOF>", self.txtPhoneNumber.text, phoneHash];
     [netIns registerPhone:cmd];
@@ -1128,7 +1176,6 @@
     }
 }
 
-
 - (void) processUpAvatar{
     NSData *dataAvatar = [helperIns compressionImage:imgAvatar];
     NSData *dataThumbnail = UIImageJPEGRepresentation(imgThumb, 1);
@@ -1141,6 +1188,8 @@
 }
 
 - (void) btnLoginClick:(id)sender{
+    [storeIns playSoundPress];
+    
     [self.vVerify setHidden:YES];
     [self next];
     [self.vLoginPage setHidden:NO];
@@ -1190,12 +1239,15 @@
 }
 
 - (void) btnShowHiddenGridTap:(id)sender{
+    [storeIns playSoundPress];
     
     [self.vGridLine setHidden:!self.vGridLine.isHidden];
     
 }
 
 - (void) btnShowLibrary:(id)sender{
+    [storeIns playSoundPress];
+    
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     imagePickerController.delegate = self;
@@ -1228,6 +1280,8 @@
 }
 
 - (void) btnSwitchCamera:(id)sender{
+    [storeIns playSoundPress];
+    
     if (inSwitchCamera) {
         return;
     }
@@ -1238,6 +1292,8 @@
 }
 
 - (void) btnChangeFlash:(id)sender{
+    [storeIns playSoundPress];
+    
     if (inChangeFlash) {
         return;
     }
@@ -1278,6 +1334,8 @@
 }
 
 - (void) btnTakePhotoTapRegister:(id)sender{
+    [storeIns playSoundPress];
+    
     [self.cameraCapture captureImage:nil];
 }
 
@@ -1287,9 +1345,6 @@
 
 - (void) nsCompleteCapture{
     UIImage *img = [self.cameraCapture getImageCapture];
-
-//    UIImage *_newImage = [helperIns imageByScalingAndCroppingForSize:img withSize:CGSizeMake(self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
-    
     UIImage *_newImage = [helperIns cropImage:img withFrame:CGRectMake(0, 0, self.view.bounds.size.width * [[UIScreen mainScreen] scale], self.view.bounds.size.width * [[UIScreen mainScreen] scale])];
     
     [self.cameraCapture closeImage];
@@ -1359,6 +1414,11 @@
                 //send veriify code - default 9990
                 [netIns sendAuthCode:[NSString stringWithFormat:@"AUTHCODE{%@<EOF>", @"9999"]];
                 [self next];
+            }else{
+                [self showHiddenPopupWarning:YES withWarning:@"phone number exists"];
+                
+                NetworkCommunication *nw = [NetworkCommunication shareInstance];
+                [nw connectSocket];
             }
         }
         
@@ -1415,7 +1475,7 @@
                     _newUser.widthAvatar = @"0";
                     _newUser.heightAvatar = @"0";
                     _newUser.scaleAvatar = @"1";
-//                    _newUser.contacts = contactList;
+                    _newUser.contacts = storeIns.contactList;
                     
                     NSString *cmd = [self->dataMapIns cmdNewUser:_newUser];
                 
@@ -1436,16 +1496,28 @@
 
 - (void) resetFormLogin{
     cPage = -1;
+    
+    self.txtUserNameSignIn.text = @"";
+    self.txtPasswordSignIn.text = @"";
+    [self.txtPasswordSignIn setSecureTextEntry:YES];
+    
+    [self.cameraCapture resetCamera];
+    
+    [self.vVerify setHidden:NO];
+    
     [self next];
     
     [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self.vLogin setFrame:CGRectMake(0, self.vLoginPage.bounds.size.height - ((hButton * 2) + 10), self.view.bounds.size.width, (hButton * 2) + 10)];
     } completion:^(BOOL finished) {
-        
+        [self.btnPrevious setHidden:YES];
+        [self.vLoginPage setHidden:YES];
     }];
 }
 
 - (void) resetForm{
+    
+    [self.cameraCapture resetCamera];
     
     [self.view endEditing:YES];
     

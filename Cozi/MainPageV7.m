@@ -57,12 +57,12 @@
         _columnResult = _columnFlood;
     }
     
-    CGFloat widthCell = (self.bounds.size.width / _columnResult) - 25;
+    CGFloat widthCell = (self.bounds.size.width / _columnResult) - (self.interItemSpacingY * (_columnResult - 1));
     widthCell = widthCell < 100 ? 100 : widthCell;
     
     self.itemSize = CGSizeMake(widthCell, widthCell);
     
-    SCCollectionViewLayout *layout = [[SCCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:3];
+    SCCollectionViewLayout *layout = [[SCCollectionViewLayout alloc] initWithData:self.itemInsets withItemSize:self.itemSize withSpacingY:self.interItemSpacingY withColumns:_columnResult];
 
     self.scCollection = [[SCCollectionViewController alloc] initWithFrame: CGRectMake(0, 0, self.bounds.size.width, fViewH + 10) collectionViewLayout:layout];
     
@@ -70,6 +70,9 @@
 //    [temp setBackgroundColor:[UIColor colorWithRed:45/255.0f green:45/255.0f blue:45/255.0f alpha:1.0]];
     
     [self.scCollection initWithData:nil withType:0];
+    [self.scCollection setBounces:YES];
+//    [self.scCollection setAlwaysBounceHorizontal:YES];
+    [self.scCollection setAlwaysBounceVertical:YES];
     [self.scCollection setShowsHorizontalScrollIndicator:NO];
     [self.scCollection setShowsVerticalScrollIndicator:NO];
     [self.scCollection setBackgroundColor:[UIColor clearColor]];

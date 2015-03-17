@@ -24,6 +24,9 @@
 #import "CoziCoreData.h"
 #import "ImageLibraryViewController.h"
 #import "SCChatToolKitView.h"
+#import "SCRequestChat.h"
+#import <AudioToolbox/AudioToolbox.h>
+#import "Recent.h"
 
 @interface ChatView : UIView <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, SCMessageTableViewDelegate, HPGrowingTextViewDelegate, UITextViewDelegate>
 {
@@ -51,6 +54,8 @@
     UIButton            *btnShowLibrary;
     CGFloat             hHeader;
     UIView              *vHeader;
+    
+    int                 typeChat;
 }
 
 @property (nonatomic, strong) UIView                *vNewMessage;
@@ -62,6 +67,7 @@
 @property (nonatomic, strong) NetworkCommunication *networkIns;
 @property (nonatomic, strong) DataMap              *dataMapIns;
 @property (nonatomic, strong) Friend               *friendIns;
+@property (nonatomic, strong) Recent                *recentIns;
 
 @property (nonatomic, strong) SCMessageTableViewV2   *tbView;
 //@property (nonatomic, strong) UIView               *messageView;
@@ -80,6 +86,9 @@
 @property (nonatomic, strong) UILabel                   *lblFirstName;
 @property (nonatomic, strong) UILabel                   *lblLastName;
 @property (nonatomic, strong) UILabel                   *lblLocationInfo;
+@property (nonatomic, strong) UIButton                  *btnBack;
+
+@property (nonatomic, strong) SCRequestChat             *vRequestChat;
 
 - (NSData*) getImgDataSend;
 - (void) addFriendIns:(Friend*)_friendInstance;
@@ -90,4 +99,5 @@
 - (void) resetCamera;
 - (void) resetUI;
 - (CGFloat) getHeaderHeight;
+- (BOOL) getStatusIsShowPanel;
 @end

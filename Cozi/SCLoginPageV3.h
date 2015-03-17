@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
 #import "TriangleView.h"
 #import "Helper.h"
 #import "SCCameraCaptureV7.h"
@@ -16,10 +17,10 @@
 #import "SCTextField.h"
 #import "NetworkController.h"
 #import "PNetworkCommunication.h"
-#import "NetworkController.h"
 #import "NewUser.h"
 #import "Store.h"
 #import "DataMap.h"
+#import "NetworkCommunication.h"
 
 @interface SCLoginPageV3 : UIViewController <UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PNetworkCommunication>
 {
@@ -38,6 +39,8 @@
     
     CGFloat             hTool;
     CGFloat             yLineTool;
+    
+    CGFloat             hStatusBar;
     
     int                 statusFlash; //0:off-1:on:2:auto
     BOOL                inSwitchCamera;

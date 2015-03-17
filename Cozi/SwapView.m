@@ -20,9 +20,6 @@
     self=[super initWithFrame:frame];
     _headerH=0;
     _sizeLogo = CGSizeMake(60, 60);
-//    [self drawHeader];
-    
-//    [self initHeader];
 
     return self;
 }

@@ -67,7 +67,9 @@
     [self.btnSendPhoneNumber setTitle:@"SEND PHONE" forState:UIControlStateNormal];
     [self.btnSendPhoneNumber setImage:imgSignIn forState:UIControlStateNormal];
     
-    CGSize sizeTitleLable = [self.btnSendPhoneNumber.titleLabel.text sizeWithFont:[helperIns getFontThin:15.0f] constrainedToSize:sizeScreen lineBreakMode:NSLineBreakByWordWrapping];
+    CGSize sizeTitleLable = [self.btnSendPhoneNumber.titleLabel.text boundingRectWithSize:sizeScreen options:NSStringDrawingUsesFontLeading| NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[helperIns getFontThin:15.0f]} context:nil].size;
+    
+//    CGSize sizeTitleLable = [self.btnSendPhoneNumber.titleLabel.text sizeWithFont:[helperIns getFontThin:15.0f] constrainedToSize:sizeScreen lineBreakMode:NSLineBreakByWordWrapping];
     
     [self.btnSendPhoneNumber.titleLabel setTextAlignment:NSTextAlignmentLeft];
     [self.btnSendPhoneNumber setContentMode:UIViewContentModeCenter];

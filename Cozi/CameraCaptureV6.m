@@ -188,6 +188,16 @@
     
 }
 
+- (void) stopStartSession{
+    if (self.session.isRunning) {
+        [self.session stopRunning];
+    }
+    
+    if (!self.session.isRunning) {
+        [self.session startRunning];
+    }
+}
+
 - (void) resizeCameraPreview{
 
     [self.imagePreview setFrame:self.bounds];
@@ -195,6 +205,13 @@
     [imgViewImageCapture setFrame:self.bounds];
     [captureVideoPreviewLayer setFrame:self.bounds];
 
+}
+
+- (void) resizeCameraPreview:(CGRect)_frame{
+    [self.imagePreview setFrame:_frame];
+    [self.imgViewCapture setFrame:_frame];
+    [imgViewImageCapture setFrame:_frame];
+    [captureVideoPreviewLayer setFrame:_frame];
 }
 
 -(void)enableTorch:(AVCaptureTorchMode)torchMode{
@@ -254,8 +271,7 @@
                 }else{
                 UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationLeftMirrored];
                     
-                    UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
-//                    UIImage *imgResize = [self resizeImage:flippedImage];
+                    UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];;
                     [imgViewImageCapture setImage: imgResize];
                 }
             }else{
@@ -268,7 +284,6 @@
                     UIImage * flippedImage = [UIImage imageWithCGImage:result.CGImage scale:result.scale orientation:UIImageOrientationRight];
                  
                     UIImage *imgResize = [helperIns imageByScalingAndCroppingForSize:flippedImage withSize:CGSizeMake(self.bounds.size.width * [[UIScreen mainScreen] scale], self.bounds.size.height * [[UIScreen mainScreen] scale])];
-//                    UIImage *imgResize = [self resizeImage:flippedImage];
                     [imgViewImageCapture setImage: imgResize];
                 }
             }

@@ -49,17 +49,18 @@
     urlImage = _urlImage;
     
     photoPreview = [[SCPhotoPreview alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height - 40)];
-    
+    NSLog(@"url: %@", _urlImage);
     [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:_urlImage options:3 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-        
+        NSLog(@"download image complete %i/%i", receivedSize, expectedSize);
     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
         if (image && finished) {
+
             dispatch_async(dispatch_get_main_queue(), ^{
                 [photoPreview setImagePreview:image];
                 [self addSubview:photoPreview];
+                [waitingLoad stopAnimating];
             });
-            
-            [waitingLoad stopAnimating];
+        
         }
     }];
     
@@ -209,6 +210,8 @@
 
 - (void) closeImage{
     //remove cache image
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"closeFullImage" object:nil];
+    
     [SDImageCache.sharedImageCache removeImageForKey:[urlImage absoluteString]];
 
     [self removeFromSuperview];

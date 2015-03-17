@@ -38,10 +38,12 @@
 -(void)captureImage : (UIImageView*)imgView;
 -(void)tapFocus: (CGPoint)point;
 - (void) resizeCameraPreview;
+- (void) resizeCameraPreview:(CGRect)_frame;
 - (void) setIsFullCameraCapture:(BOOL)_isFullCamera;
 - (void)handlePinchGesture:(UIGestureRecognizer *)recognizer;
 - (BOOL) getInShowPhoto;
 - (void) closeImage;
 - (UIImage *)getImageSend;
 - (void) resetCamera;
+- (void) stopStartSession;
 @end

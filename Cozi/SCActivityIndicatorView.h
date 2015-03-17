@@ -20,4 +20,6 @@
 @property (nonatomic, strong) UIActivityIndicatorView           *activityView;
 @property (nonatomic, strong) UIView                            *vLoading;
 @property (nonatomic, strong) UILabel                           *lblLoading;
+
+- (void) setText:(NSString*)_strText;
 @end

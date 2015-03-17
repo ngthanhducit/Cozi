@@ -20,6 +20,8 @@
 }
 
 - (void) layoutSubviews{
+    Helper *hp = [Helper shareInstance];
+    
     [self setShowsCancelButton:NO animated:NO];
     UITextField *searchField;
     NSUInteger numViews = [self.subviews count];
@@ -30,15 +32,16 @@
     }
     
     if(!(searchField == nil)) {
-        searchField.textColor = [UIColor whiteColor];
+        searchField.textColor = [hp colorWithHex:[hp getHexIntColorWithKey:@"GreenColor2"]];
+        
         searchField.font = [UIFont fontWithName:@"Roboto-Light" size:18.0f];
         searchField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         [searchField setBorderStyle:UITextBorderStyleNone];
-        [searchField setBackgroundColor:[UIColor clearColor]];
+//        [searchField setBackgroundColor:[UIColor whiteColor]];
         [searchField setRightView:nil];
         [searchField setBackground:nil];
 
-        searchField.leftView  = nil;
+//        searchField.leftView  = nil;
         
     }else{
         
@@ -46,19 +49,22 @@
         
         [self bringSubviewToFront:searchField];
         
-        searchField.textColor = [UIColor whiteColor];
+        searchField.textColor = [hp colorWithHex:[hp getHexIntColorWithKey:@"GreenColor2"]];
         searchField.font = [UIFont fontWithName:@"Roboto-Light" size:13.0f];
         searchField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         [searchField setBorderStyle:UITextBorderStyleNone];
-        [searchField setBackgroundColor:[UIColor clearColor]];
+//        [searchField setBackgroundColor:[UIColor whiteColor]];
         [searchField setRightView:nil];
         [searchField setBackground:nil];
         
-        searchField.leftView  = nil;
+//        searchField.leftView  = nil;
     }
     
 //    [self setBackgroundColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
 //    [self setBarTintColor:[UIColor colorWithRed:235.0f/255.0f green:235.0f/255.0f blue:235.0f/255.0f alpha:1.0f]];
+    
+    [self setBackgroundColor:[UIColor whiteColor]];
+    [self setBarTintColor:[UIColor whiteColor]];
 
     [super layoutSubviews];
 }

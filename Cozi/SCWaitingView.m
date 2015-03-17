@@ -36,7 +36,7 @@
     [self addSubview:self.vProgressBlur];
     
     self.vProgress = [[UIView alloc] initWithFrame:CGRectMake(10, (self.bounds.size.height / 2) - (self.bounds.size.width / 2) / 2, self.bounds.size.width - 20, self.bounds.size.width / 2)];
-    [self.vProgress setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor"]]];
+    [self.vProgress setBackgroundColor:[helperIns colorWithHex:[helperIns getHexIntColorWithKey:@"GreenColor2"]]];
     [self.vProgressBlur addSubview:self.vProgress];
     
     UIActivityIndicatorView *waiting = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
