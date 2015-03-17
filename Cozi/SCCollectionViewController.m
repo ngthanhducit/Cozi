@@ -15,7 +15,7 @@
 const CGFloat spacingCell = 10.0f;
 @implementation SCCollectionViewController
 
-static NSString * const reuseIdentifier = @"Cell";
+static NSString * const reuseIdentifier = @"reuseRecentCell";
 
 - (id) initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout{
     self = [super initWithFrame:frame collectionViewLayout:layout];
@@ -35,7 +35,11 @@ static NSString * const reuseIdentifier = @"Cell";
     self.storeIns = [Store shareInstance];
     self.helperIns = [Helper shareInstance];
     
+    imgNotify = [self.helperIns getImageFromSVGName:@"notify"];
+    
     gColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]];
+//    newMessageColor = [UIColor colorWithRed:242/255.0f green:50/255.0f blue:2/255.0f alpha:1];
+    newMessageColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"RedColor1"]];
     
     [self setBackgroundColor:[UIColor whiteColor]];
     [self setShowsHorizontalScrollIndicator:NO];
@@ -60,13 +64,6 @@ static NSString * const reuseIdentifier = @"Cell";
     }else{
         if (_itemData != nil) {
             itemData = _itemData;
-//            int count = (int)[_itemData count];
-//            for (int i = 0 ; i < count; i++) {
-//                if ([((Friend*)[_itemData objectAtIndex:i]).friendMessage count] > 0) {
-////                    [itemData addObject:[_itemData objectAtIndex:i]];
-//                    itemData = ((Friend*)[_itemData objectAtIndex:i]).friendMessage;
-//                }
-//            }
         }
     }
 
@@ -104,49 +101,62 @@ static NSString * const reuseIdentifier = @"Cell";
         SCCollectionViewCell *scCell = [collectionView dequeueReusableCellWithReuseIdentifier:PhotoCellIdentifier
                                                                                  forIndexPath:indexPath];
         
-//        UILongPressGestureRecognizer *recognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-//        [scCell addGestureRecognizer:recognizer];
         
-        [scCell setBackgroundColor:[UIColor clearColor]];
+        scCell.layer.shouldRasterize = YES;
+        scCell.layer.rasterizationScale = [UIScreen mainScreen].scale;
         
         [scCell.imgView setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.imgView.bounds.size.width / 2), (scCell.bounds.size.width / 2) - (scCell.imgView.bounds.size.width / 2), scCell.imgView.bounds.size.width, scCell.imgView.bounds.size.height)];
         
-//        Friend *_friend = [self.storeIns.friends objectAtIndex:indexPath.section];
-        Friend *_friend = [itemData objectAtIndex:indexPath.section];
+//        Friend *_friend = [itemData objectAtIndex:indexPath.section];
+        Recent *_recent = [itemData objectAtIndex:indexPath.section];
         
         CGFloat margin = (scCell.bounds.size.height - (scCell.imgView.bounds.size.height + (scCell.lblName.bounds.size.height / 2))) / 2;
         
-        [scCell.viewBorder setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.viewBorder.bounds.size.width / 2), margin - 5, scCell.viewBorder.bounds.size.width, scCell.viewBorder.bounds.size.height)];
-        [scCell.viewBorder setBackgroundColor:[UIColor clearColor]];
-        [scCell.viewBorder setContentMode:UIViewContentModeScaleAspectFill];
-        [scCell.viewBorder setAutoresizingMask:UIViewAutoresizingNone];
-        
-        [scCell.viewBorder setClipsToBounds:YES];
-        scCell.viewBorder.layer.cornerRadius = CGRectGetHeight(scCell.viewBorder.frame)/2;
-
-        if (_friend.statusFriend == 0) {
-//            [scCell.viewBorder setBackgroundColor:[UIColor whiteColor]];
-        }
-        
-        if (_friend.statusFriend == 1) {
-//            scCell.viewBorder.layer.borderColor = [self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]].CGColor;
-        }
+//        [scCell.viewBorder setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.viewBorder.bounds.size.width / 2), margin - 5, scCell.viewBorder.bounds.size.width, scCell.viewBorder.bounds.size.height)];
+//        [scCell.viewBorder setBackgroundColor:[UIColor clearColor]];
+//        [scCell.viewBorder setContentMode:UIViewContentModeScaleAspectFill];
+//        [scCell.viewBorder setAutoresizingMask:UIViewAutoresizingNone];
+//        
+//        [scCell.viewBorder setClipsToBounds:YES];
+//        scCell.viewBorder.layer.cornerRadius = CGRectGetHeight(scCell.viewBorder.frame)/2;
         
         [scCell.shadowImage setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.shadowImage.bounds.size.width / 2), margin, scCell.shadowImage.bounds.size.width, scCell.shadowImage.bounds.size.height)];
-        [scCell.shadowImage setBackgroundColor:[UIColor clearColor]];
         [scCell.shadowImage setContentMode:UIViewContentModeScaleAspectFill];
         [scCell.shadowImage setAutoresizingMask:UIViewAutoresizingNone];
         [scCell.shadowImage setClipsToBounds:NO];
-        [scCell.shadowImage setBackgroundColor:[[UIColor clearColor] colorWithAlphaComponent:0.8]];
-        
         scCell.shadowImage.layer.cornerRadius = CGRectGetHeight(scCell.shadowImage.frame)/2;
+        
         scCell.shadowImage.layer.shadowColor = [UIColor grayColor].CGColor;
         scCell.shadowImage.layer.shadowOffset = CGSizeMake(1, 1.5);
         scCell.shadowImage.layer.shadowOpacity = 1;
         scCell.shadowImage.layer.shadowRadius = 1.0;
         
         CGFloat marginAvatar = (scCell.shadowImage.bounds.size.height - scCell.imgView.bounds.size.height) / 2;
-        [scCell.imgView setImage:_friend.thumbnail];
+        
+        if (_recent.thumbnail) {
+            
+            [scCell.imgView setImage:_recent.thumbnail];
+            
+        }else{
+            if (![_recent.urlThumbnail isEqualToString:@""]) {
+                
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:_recent.urlThumbnail] options:4 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    if (image && finished) {
+                        _recent.thumbnail = image;
+                        [scCell.imgView setImage:image];
+                    }
+                }];
+                
+            }else{
+                
+                _recent.thumbnail = [self.helperIns getDefaultAvatar];
+                [scCell.imgView setImage:[self.helperIns getDefaultAvatar]];
+            
+            }
+        }
+        
         [scCell.imgView setFrame:CGRectMake(marginAvatar, marginAvatar, scCell.imgView.bounds.size.width, scCell.imgView.bounds.size.height)];
         
         [scCell.imgView setContentMode:UIViewContentModeScaleAspectFill];
@@ -154,43 +164,94 @@ static NSString * const reuseIdentifier = @"Cell";
         [scCell.imgView setClipsToBounds:NO];
         scCell.imgView.layer.cornerRadius = CGRectGetHeight(scCell.imgView.frame)/2;
         scCell.imgView.layer.masksToBounds = YES;
-        scCell.imgView.layer.backgroundColor = [UIColor clearColor].CGColor;
+
 
         [scCell.lblName setTextAlignment:NSTextAlignmentCenter];
         [scCell.lblName setFrame:CGRectMake(0, scCell.bounds.size.height - (scCell.lblName.bounds.size.height) + 2, scCell.bounds.size.width, scCell.lblName.bounds.size.height)];
         [scCell.lblName setFont:[self.helperIns getFontLight:11]];
         [scCell.lblName setBackgroundColor:[UIColor clearColor]];
-        [scCell.lblName setText:[[_friend nickName] uppercaseString]];
+        NSString *name = [_recent.nameRecent uppercaseString];
+        [scCell.lblName setText:name];
 
+        [scCell.vBorderNotify setBackgroundColor:[UIColor colorWithRed:248/255.0f green:248/255.0f blue:248/255.0f alpha:1]];
+        scCell.vBorderNotify.layer.cornerRadius = scCell.vBorderNotify.bounds.size.width / 2;
+        [scCell.vBorderNotify setContentMode:UIViewContentModeCenter];
+        [scCell.vBorderNotify setAutoresizingMask:UIViewAutoresizingNone];
+        [scCell.vBorderNotify setClipsToBounds:YES];
+        [scCell.vBorderNotify setHidden:NO];
+        
         [scCell.imgNotify setHidden:NO];
-        [scCell.imgNotify setImage:[self.helperIns getImageFromSVGName:@"notify"]];
+        [scCell.imgNotify setImage:imgNotify];
         scCell.imgNotify.layer.cornerRadius = scCell.imgNotify.bounds.size.width / 2;
         [scCell.imgNotify setContentMode:UIViewContentModeCenter];
         [scCell.imgNotify setAutoresizingMask:UIViewAutoresizingNone];
         [scCell.imgNotify setClipsToBounds:YES];
         
-        if ([_friend.friendMessage count] > 0 && [[_friend.friendMessage lastObject] statusMessage] == 1 &&
-            [[_friend.friendMessage lastObject] senderID] > 0) {
+        if (_recent.typeRecent == 0) {
+            if ([_recent.friendIns.friendMessage count] > 0 && [[_recent.friendIns.friendMessage lastObject] statusMessage] == 1 &&
+                [[_recent.friendIns.friendMessage lastObject] senderID] > 0) {
+                
+                //            NSAttributedString *textAttribute = [[NSAttributedString alloc] initWithString:scCell.lblName.text attributes:@{ NSForegroundColorAttributeName : gColor }];
+                //            [scCell.lblName setAttributedText:textAttribute];
+                
+                scCell.imgView.layer.borderWidth = 2.0f;
+                scCell.imgView.layer.borderColor = gColor.CGColor;
+                
+                [scCell.imgNotify setBackgroundColor:newMessageColor];
+            }else{
+                if (_recent.friendIns.isFriendWithYour == 0) {
+                    
+                    //            [scCell.lblName setTextColor:[UIColor blackColor]];
+                    
+                    scCell.imgView.layer.borderWidth = 0.0f;
+                    scCell.imgView.layer.borderColor = [UIColor clearColor].CGColor;
+                    
+                    [scCell.imgNotify setHidden:YES];
+                    [scCell.vBorderNotify setHidden:YES];
+                    
+                }else{
+                    
+                    scCell.imgView.layer.borderWidth = 2.0f;
+                    scCell.imgView.layer.borderColor = gColor.CGColor;
+                    
+                    [scCell.imgNotify setBackgroundColor:newMessageColor];
+                    
+                }
+            }
+    
+        }else{  //Group Chat
             
-            NSAttributedString *textAttribute = [[NSAttributedString alloc] initWithString:scCell.lblName.text attributes:@{ NSForegroundColorAttributeName : gColor }];
-            [scCell.lblName setAttributedText:textAttribute];
+            if ([_recent.messengerRecent count] > 0 && [[_recent.messengerRecent lastObject] statusMessage] == 1 &&
+                [[_recent.messengerRecent lastObject] senderID] > 0) {
+                
+                scCell.imgView.layer.borderWidth = 2.0f;
+                scCell.imgView.layer.borderColor = gColor.CGColor;
+                
+                [scCell.imgNotify setBackgroundColor:newMessageColor];
+            }else{
+                if (_recent.friendIns.isFriendWithYour == 0) {
+                    
+                    scCell.imgView.layer.borderWidth = 0.0f;
+                    scCell.imgView.layer.borderColor = [UIColor clearColor].CGColor;
+                    
+                    [scCell.imgNotify setHidden:YES];
+                    [scCell.vBorderNotify setHidden:YES];
+                    
+                }else{
+                    
+                    scCell.imgView.layer.borderWidth = 2.0f;
+                    scCell.imgView.layer.borderColor = gColor.CGColor;
+                    
+                    [scCell.imgNotify setBackgroundColor:newMessageColor];
+                    
+                }
+            }
             
-//            [scCell.lblName setTextColor:[self.helperIns colorWithHex:[self.helperIns getHexIntColorWithKey:@"GreenColor"]]];
-            
-            scCell.imgView.layer.borderWidth = 2.0f;
-            scCell.imgView.layer.borderColor = gColor.CGColor;
-            
-            [scCell.imgNotify setBackgroundColor:gColor];
-        }else{
-            [scCell.lblName setTextColor:[UIColor blackColor]];
-            
-            scCell.imgView.layer.borderWidth = 0.0f;
-            scCell.imgView.layer.borderColor = [UIColor clearColor].CGColor;
-            
-            [scCell.imgNotify setHidden:YES];
         }
         
-        [scCell.imgNotify setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.imgNotify.bounds.size.width / 2) + 26, (scCell.bounds.size.height / 2) - (scCell.imgNotify.bounds.size.height / 2) - 25, 20, 20)];
+//        [scCell.imgNotify setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.imgNotify.bounds.size.width / 2) + 26, (scCell.bounds.size.height / 2) - (scCell.imgNotify.bounds.size.height / 2) - 25, 20, 20)];
+        
+        [scCell.vBorderNotify setFrame:CGRectMake((scCell.bounds.size.width / 2) - (scCell.vBorderNotify.bounds.size.width / 2) + 26, (scCell.bounds.size.height / 2) - (scCell.imgNotify.bounds.size.height / 2) - 25, 24, 24)];
         
         return scCell;
     }
@@ -232,11 +293,11 @@ static NSString * const reuseIdentifier = @"Cell";
     
     if (type == 0) {
 
-        [timerNewMessenger invalidate];
-        timerNewMessenger = nil;
-        Friend *_friend = [itemData objectAtIndex:indexPath.section];
+//        [timerNewMessenger invalidate];
+//        timerNewMessenger = nil;
+        Recent *_recent = [itemData objectAtIndex:indexPath.section];
         NSString *key = @"tapCellIndex";
-        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_friend forKey:key];
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject:_recent forKey:key];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"postTapCellIndex" object:nil userInfo:dictionary];
         
     }

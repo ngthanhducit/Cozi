@@ -20,27 +20,31 @@
     self = [super initWithFrame:frame];
     if (self) {
 
-        self.imgNotify = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+        Helper *hp = [Helper shareInstance];
+        
+        self.vBorderNotify = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 24, 24)];
+        self.imgNotify = [[UIImageView alloc] initWithFrame:CGRectMake(2, 2, 20, 20)];
+        [self.vBorderNotify addSubview:self.imgNotify];
         
         self.shadowImage = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 70, 70)];
+        [self.shadowImage setBackgroundColor:[hp colorWithHex:[hp getHexIntColorWithKey:@"GrayColor2"]]];
         
-        self.viewBorder = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+//        self.viewBorder = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
         self.imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0, 0.0, 70, 70)];
         
         [self.shadowImage addSubview:imgView];
         
         self.lblName = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, 100, 15)];
         
-        self.borderLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+//        self.borderLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
         
-        [self.borderLine setHidden:YES];
+//        [self.borderLine setHidden:YES];
         
-        [self.contentView addSubview:self.viewBorder];
+//        [self.contentView addSubview:self.viewBorder];
         [self.contentView addSubview:self.lblName];
-        [self.contentView addSubview:self.borderLine];
-//        [self.contentView addSubview:self.imgView];
+//        [self.contentView addSubview:self.borderLine];
         [self.contentView addSubview:self.shadowImage];
-        [self.contentView addSubview:self.imgNotify];
+        [self.contentView addSubview:self.vBorderNotify];
     }
     
     return self;

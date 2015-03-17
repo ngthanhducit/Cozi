@@ -14,7 +14,7 @@
 #import "ImageSelected.h"
 #import <QuartzCore/QuartzCore.h>
 
-static NSString * const PhotoCellIdentifier = @"PhotoCell";
+static NSString * const PhotoCellIdentifier = @"ChatRecentCell";
 @protocol SCCollectionViewDelegate <NSObject>
 
 @required
@@ -33,6 +33,9 @@ static NSString * const PhotoCellIdentifier = @"PhotoCell";
     NSTimer                         *timerNewMessenger;
     
     UIColor                         *gColor;
+    UIColor                         *newMessageColor;
+    
+    UIImage                         *imgNotify;
 }
 
 
