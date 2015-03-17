@@ -87,22 +87,6 @@
     [scCell.btnAccept setTag:2000 + indexPath.row];
     [scCell.btnAccept addTarget:self action:@selector(btnAcceptClick:) forControlEvents:UIControlEventTouchUpInside];
     
-//    [scCell.btnFollowing setTag:1000 + indexPath.row];
-//    
-//    [scCell.btnFollowing addTarget:self action:@selector(btnFollowingClick:) forControlEvents:UIControlEventTouchUpInside];
-//    
-//    if (like.userLikeId != storeIns.user.userID) {
-//        BOOL isExists = [storeIns isFollowing:like.userLikeId];
-//        [scCell.btnFollowing setHidden:NO];
-//        if (isExists) {
-//            [scCell.btnFollowing setTitle:@"Following" forState:UIControlStateNormal];
-//        }else{
-//            [scCell.btnFollowing setTitle:@"Follow" forState:UIControlStateNormal];
-//        }
-//    }else{
-//        [scCell.btnFollowing setHidden:YES];
-//    }
-    
     return scCell;
 }
 

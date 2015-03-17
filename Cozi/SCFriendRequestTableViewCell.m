@@ -24,8 +24,6 @@ const CGSize        sizeIconFriendRequest = { 35 , 35};
         
         helperIns = [Helper shareInstance];
         
-        //        [self setSelectionStyle:UITableViewCellSelectionStyleNone];
-        
         self.imgAvatar = [[UIImageView alloc] initWithFrame:CGRectMake(10, (self.bounds.size.height / 2) - (sizeIconFriendRequest.height / 2), sizeIconFriendRequest.width, sizeIconFriendRequest.height)];
         [self.imgAvatar setBackgroundColor:[UIColor clearColor]];
         [self.imgAvatar setImage:[helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"]];
