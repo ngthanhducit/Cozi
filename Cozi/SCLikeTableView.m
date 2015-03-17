@@ -116,6 +116,8 @@
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [storeIns playSoundPress];
+    
     PostLike *_like = [_wallData.likes objectAtIndex:indexPath.row];
     
     if (storeIns.user.userID == _like.userLikeId) {
@@ -129,6 +131,8 @@
 }
 
 - (void) btnFollowingClick:(id)sender{
+    [storeIns playSoundPress];
+    
     NSLog(@"click Following");
     UIButton *btnFollowing = (UIButton*)sender;
     NSInteger _tagFollowing = btnFollowing.tag;
