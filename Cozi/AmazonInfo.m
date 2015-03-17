@@ -11,6 +11,7 @@
 @implementation AmazonInfo
 
 @synthesize key;
+@synthesize typeAmazon;
 @synthesize keyMessage;
 @synthesize policy;
 @synthesize signature;

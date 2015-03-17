@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface UserSearch : NSObject
 {
@@ -23,4 +24,5 @@
 @property (nonatomic, copy) NSString    *phoneNumber;
 @property (nonatomic, copy) NSString        *userName;
 @property (nonatomic)       int         isAddFriend;
+@property (nonatomic, strong) UIImage   *imgThumbnail;
 @end

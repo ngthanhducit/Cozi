@@ -17,17 +17,13 @@
 @synthesize gender;
 @synthesize avatar;
 @synthesize statusFriend;
-@synthesize leftAvatar;
-@synthesize topAvatar;
-@synthesize widthAvatar;
-@synthesize heightAvatar;
-@synthesize scaleAvatar;
 @synthesize friendMessage;
 @synthesize userID;
 @synthesize phoneNumber;
 @synthesize statusAddFriend;
 @synthesize birthDay;
 @synthesize relationship;
+@synthesize isFriendWithYour;
 
 - (id) init{
     self = [super init];
@@ -39,6 +35,8 @@
 }
 
 - (void) setup{
+    isFriendWithYour = 0;
+    
     self.friendMessage = [[NSMutableArray alloc] init];
 }
 @end

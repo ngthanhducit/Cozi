@@ -80,10 +80,10 @@
             NSArray *subData = [[subCommand objectAtIndex:1] componentsSeparatedByString:@"~"];
             if ([subData count] > 0) {
                 //Map user info
-                if ([[subData objectAtIndex:0] length] > 0) {
+                if ([[subData objectAtIndex:0] length] > 1) {
                     
                     NSArray *subParameter = [[subData objectAtIndex:0] componentsSeparatedByString:@"}"];
-                    if ([subParameter count] > 0) {
+                    if ([subParameter count] > 1) {
                         [self.storeIns.user setUserID:[[subParameter objectAtIndex:0] intValue]];
                         [self.storeIns.user setNickName:[self.helperIns decode:[subParameter objectAtIndex:1]]];
                         [self.storeIns.user setBirthDay:[subParameter objectAtIndex:2]];
@@ -97,6 +97,9 @@
                             
                             if (image && finished) {
                                 [self.storeIns.user setThumbnail:image];
+                                
+                                NSArray *subUrl = [strThumbnail componentsSeparatedByString:@"/"];
+                                [self.helperIns saveImageToDocument:image withName:[subUrl lastObject]];
                             }
 
                         }];
@@ -122,12 +125,18 @@
                                 
                                 if (image && finished) {
                                     [self.storeIns.user setAvatar:image];
+                                    
+                                    NSArray *subUrl = [strAvatar componentsSeparatedByString:@"/"];
+                                    [self.helperIns saveImageToDocument:image withName:[subUrl lastObject]];
+                                    
                                     [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
                                 }
                                 
                             }];
                         }else{
+                            
                             [[NSNotificationCenter defaultCenter] postNotificationName:@"loadUserComplete" object:nil];
+                            
                         }
                         
                         NSDate *serverDate = [self.helperIns convertStringToDate:[subParameter objectAtIndex:15]];
@@ -140,12 +149,13 @@
                 }
                 
                 //map list friend
-                if ([[subData objectAtIndex:1] length] > 0) {
+                if ([[subData objectAtIndex:1] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:1] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
                         
                         for (int i = 0; i < count; i++) {
+                            
                             NSArray *subFriend = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subFriend count] > 1) {
                                 Friend *_newFriend = [[Friend alloc] init];
@@ -164,22 +174,21 @@
                                     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                                         if (image && finished) {
                                             _newFriend.thumbnail = image;
+                                            
+                                            NSArray *subUrl = [strThumbnail componentsSeparatedByString:@"/"];
+                                            [self.helperIns saveImageToDocument:image withName:[subUrl lastObject]];
                                         }
                                     }];
                                     
                                 }else{
+                                    
                                     UIImage *imgThumbnail = [self.helperIns getImageFromSVGName:@"icon-AvatarGrey.svg"];
                                     [_newFriend setThumbnail:imgThumbnail];
                                     [_newFriend setThumbnailOffline:imgThumbnail];
+                                    
                                 }
                                 
                                 [_newFriend setUrlThumbnail:strThumbnail];
-                                
-                                [_newFriend setLeftAvatar: [[subFriend objectAtIndex:4] floatValue]];
-                                [_newFriend setTopAvatar: [[subFriend objectAtIndex:5] floatValue]];
-                                [_newFriend setWidthAvatar: [[subFriend objectAtIndex:6] floatValue]];
-                                [_newFriend setHeightAvatar: [[subFriend objectAtIndex:7] floatValue]];
-                                [_newFriend setScaleAvatar: [[subFriend objectAtIndex:8] floatValue]];
                                 
                                 if ([[[subFriend objectAtIndex:9] uppercaseString] isEqualToString:@"TRUE"]) {
                                     [_newFriend setStatusFriend:1];
@@ -197,7 +206,7 @@
                 }
                 
                 //map message offline
-                if ([[subData objectAtIndex:2] length] > 0) {
+                if ([[subData objectAtIndex:2] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:2] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
@@ -205,8 +214,10 @@
                         for (int i = 0; i < count; i++) {
                             NSArray *subMessageOffline = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subMessageOffline count] > 1) {
+                                
                                 Messenger *_newMessage = [[Messenger alloc] init];
                                 [_newMessage setSenderID:[[subMessageOffline objectAtIndex:0] intValue]];
+                                [_newMessage setFriendID:[[subMessageOffline objectAtIndex:0] intValue]];
                                 [_newMessage setStrMessage:[self.helperIns decode:[subMessageOffline objectAtIndex:1]]];
                                 [_newMessage setKeySendMessage:[subMessageOffline objectAtIndex:2]];
                                 [_newMessage setStatusMessage:1];
@@ -223,13 +234,14 @@
                                 [self addMessageToFriend:_newMessage];
                                 
                                 [coziCoreDataIns saveMessenger:_newMessage];
+                                
                             }
                         }
                     }
                 }
                 
                 //map message photo offline
-                if ([[subData objectAtIndex:3] length] > 0) {
+                if ([[subData objectAtIndex:3] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:3] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
@@ -239,17 +251,19 @@
                             if ([subPhotoOffline count] > 1) {
                                 Messenger *_messagePhoto = [[Messenger alloc] init];
                                 [_messagePhoto setSenderID:[[subPhotoOffline objectAtIndex:0] intValue]];
+                                [_messagePhoto setFriendID:[[subPhotoOffline objectAtIndex:0] intValue]];
                                 [_messagePhoto setStrMessage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
+                                [_messagePhoto setUrlImage:[self.helperIns decode:[subPhotoOffline objectAtIndex:1]]];
                                 [_messagePhoto setTypeMessage:1];
                                 [_messagePhoto setStatusMessage:1];
                                 [_messagePhoto setKeySendMessage:[subPhotoOffline objectAtIndex:2]];
                                 
-                                NSURL *imgUrl = [NSURL URLWithString:_messagePhoto.strMessage];
-                                NSData *imgData = [NSData dataWithContentsOfURL:imgUrl];
-                                UIImage *img = [UIImage imageWithData:imgData];
+//                                NSURL *imgUrl = [NSURL URLWithString:_messagePhoto.strMessage];
+//                                NSData *imgData = [NSData dataWithContentsOfURL:imgUrl];
+//                                UIImage *img = [UIImage imageWithData:imgData];
                                 
-                                [_messagePhoto setThumnail:img];
-                                [_messagePhoto setDataImage:imgData];
+//                                [_messagePhoto setThumnail:img];
+//                                [_messagePhoto setDataImage:imgData];
                                 
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subPhotoOffline objectAtIndex:3]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
@@ -266,44 +280,92 @@
                 }
                 
                 //map list friend request
-                if ([[subData objectAtIndex:4] length] > 0) {
+                if ([[subData objectAtIndex:4] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:4] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
                         for (int i = 0; i < count; i++) {
                             NSArray *subFriendRequest = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subFriendRequest count] > 1) {
+
+                                Friend *_friend = [Friend new];
+                                _friend.isFriendWithYour = 1;
+                                [_friend setUserID:self.storeIns.user.userID];
+                                _friend.friendID = [[subFriendRequest objectAtIndex:0] intValue];
+                                [_friend setNickName:[self.helperIns decode:[subFriendRequest objectAtIndex:1]]];
+                                [_friend setUrlThumbnail:[self.helperIns decode:[subFriendRequest objectAtIndex:2]]];
+                                [_friend setUrlAvatar:[self.helperIns decode:[subFriendRequest objectAtIndex:3]]];
                                 
-                                UserSearch *_friendRequest = [UserSearch new];
-                                _friendRequest.friendID = [[subFriendRequest objectAtIndex:0] intValue];
-                                _friendRequest.nickName = [self.helperIns decode:[subFriendRequest objectAtIndex:1]];
-                                _friendRequest.urlAvatar = [self.helperIns decode:[subFriendRequest objectAtIndex:2]];
-                                _friendRequest.urlAvatarFull = [self.helperIns decode:[subFriendRequest objectAtIndex:3]];
-                                _friendRequest.userID = self.storeIns.user.userID;
+                                //Add Default Messenger
+                                NSString *_keyMessage = [self.storeIns randomKeyMessenger];
+                                Messenger *_newMessage = [[Messenger alloc] init];
+                                [_newMessage setStrMessage: [NSString stringWithFormat:@"%@ %@", _friend.nickName, @"want to chat with you"]];
+                                _newMessage.senderID = _friend.friendID;
+                                [_newMessage setTypeMessage:0];
+                                [_newMessage setStatusMessage:1];
+                                [_newMessage setKeySendMessage:_keyMessage];
+                                [_newMessage setTimeMessage:[self.helperIns getDateFormatMessage:[NSDate date]]];
+                                [_newMessage setDataImage:nil];
+                                [_newMessage setThumnail:nil];
+                                [_newMessage setFriendID:_friend.friendID];
+                                [_newMessage setUserID:self.storeIns.user.userID];
                                 
-                                [self.storeIns.friendsRequest addObject:_friendRequest];
-                                //insert friend request
-//                                BOOL _isExists = [coziCoreDataIns isExistsFriendRequest:self.storeIns.user.userID withFriendRequestID:_friendRequest.friendID];
-//                                if (!_isExists) {
-//                                    [coziCoreDataIns saveFriendRequest:_friendRequest];
-//                                }
+                                _friend.friendMessage = [NSMutableArray new];
+                                [_friend.friendMessage addObject:_newMessage];
+                                
+                                [self progressRecent:_friend];
+                                
                             }
                         }
                     }
                 }
                 
                 //Map IsRead Message Offline
-                if ([[subData objectAtIndex:5] length] > 0) {
+                if ([[subData objectAtIndex:5] length] > 1) {
                     
+                    NSArray *subParameter = [[subData objectAtIndex:5] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+
+                            }
+
+                        }
+                    }
                 }
                 
                 //Map IsRead Photo Offline
-                if ([[subData objectAtIndex:6] length] > 0) {
+                if ([[subData objectAtIndex:6] length] > 1) {
+                    
+                    NSArray *subParameter = [[subData objectAtIndex:5] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+                                
+                            }
+                        }
+                    }
                     
                 }
                 
                 //Map Location Offline
-                if ([[subData objectAtIndex:7] length] > 0) {
+                if ([[subData objectAtIndex:7] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:7] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count =(int)[subParameter count];
@@ -318,9 +380,13 @@
                                 [_newMessage setStatusMessage:1];
                                 [_newMessage setTypeMessage:2];
                                 [_newMessage setSenderID:[[subLocation objectAtIndex:0] intValue]];
+                                [_newMessage setFriendID:[[subLocation objectAtIndex:0] intValue]];
                                 _newMessage.longitude = [subLocation objectAtIndex:1];
                                 _newMessage.latitude = [subLocation objectAtIndex:2];
                                 _newMessage.keySendMessage = [subLocation objectAtIndex:3];
+                                
+                                NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _newMessage.latitude, _newMessage.longitude, @"%7c" , _newMessage.latitude, _newMessage.longitude];
+                                _newMessage.urlImage = url;
                                 
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subLocation objectAtIndex:4]];
                                 
@@ -331,43 +397,124 @@
                                 _newMessage.timeOutMessenger = [[subLocation objectAtIndex:5] intValue];
                                 
                                 [self addMessageToFriend:_newMessage];
-                                
-                                //save info request google
-                                ReceiveLocation *_receiveLocation = [[ReceiveLocation alloc] init];
-                                _receiveLocation.senderID = [[subLocation objectAtIndex:0] intValue];
-                                _receiveLocation.longitude = [subLocation objectAtIndex:1];
-                                _receiveLocation.latitude = [subLocation objectAtIndex:2];
-                                _receiveLocation.keySendMessage = [subLocation objectAtIndex:3];
-                                
-                                [self.storeIns.receiveLocation addObject:_receiveLocation];
-                                [self.storeIns processReceiveLocation];
                             }
                         }
                     }
                 }
                 
                 //Map IsRead Location Offline
-                if ([[subData objectAtIndex:8] length] > 0) {
+                if ([[subData objectAtIndex:8] length] > 1) {
+                    
+                    NSArray *subParameter = [[subData objectAtIndex:5] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+
+                            }
+                            
+                        }
+                    }
                     
                 }
                 
                 //Map Message Remove Offline
-                if ([[subData objectAtIndex:9] length] > 0) {
+                if ([[subData objectAtIndex:9] length] > 1) {
+                    
+                    NSArray *subParameter = [[subData objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                int userReceiveID = [[subValue objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subValue objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                            }
+
+                        }
+                    }
                     
                 }
                 
                 //Map Photo Remove Offline
-                if ([[subData objectAtIndex:10] length] > 0) {
+                if ([[subData objectAtIndex:10] length] > 1) {
+                    
+                    NSArray *subParameter = [[subData objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                int userReceiveID = [[subValue objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subValue objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                            }
+                            
+                        }
+                    }
                     
                 }
                 
                 //Map Location Remove Offline
-                if ([[subData objectAtIndex:11] length] > 0) {
+                if ([[subData objectAtIndex:11] length] > 1) {
+                    
+                    NSArray *subParameter = [[subData objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                int userReceiveID = [[subValue objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subValue objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
                     
                 }
                 
                 //Map Follower(Follow This User)
-                if ([[subData objectAtIndex:12] length] > 0) {
+                if ([[subData objectAtIndex:12] length] > 1) {
                     //save Follower
                     NSArray *subParameter = [[subData objectAtIndex:12] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
@@ -391,7 +538,7 @@
                 }
                 
                 //Map Following(This User Follow)
-                if ([[subData objectAtIndex:13] length] > 0) {
+                if ([[subData objectAtIndex:13] length] > 1) {
                     NSArray *subParameter = [[subData objectAtIndex:12] componentsSeparatedByString:@"$"];
                     if ([subParameter count] > 0) {
                         int count = (int)[subParameter count];
@@ -535,31 +682,85 @@
                             NSArray *subFriendRequest = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
                             if ([subFriendRequest count] > 1) {
                                 
-                                UserSearch *_friendRequest = [UserSearch new];
-                                _friendRequest.friendID = [[subFriendRequest objectAtIndex:0] intValue];
-                                _friendRequest.nickName = [self.helperIns decode:[subFriendRequest objectAtIndex:1]];
-                                _friendRequest.urlAvatar = [self.helperIns decode:[subFriendRequest objectAtIndex:2]];
-                                _friendRequest.urlAvatarFull = [self.helperIns decode:[subFriendRequest objectAtIndex:3]];
-                                _friendRequest.userID = self.storeIns.user.userID;
+                                Friend *_friend = [Friend new];
+                                _friend.isFriendWithYour = 1;
+                                [_friend setUserID:self.storeIns.user.userID];
+                                _friend.friendID = [[subFriendRequest objectAtIndex:0] intValue];
+                                [_friend setNickName:[self.helperIns decode:[subFriendRequest objectAtIndex:1]]];
+                                [_friend setUrlThumbnail:[self.helperIns decode:[subFriendRequest objectAtIndex:2]]];
+                                [_friend setUrlAvatar:[self.helperIns decode:[subFriendRequest objectAtIndex:3]]];
                                 
-                                [self.storeIns.friendsRequest addObject:_friendRequest];
+                                //Add Default Messenger
+                                NSString *_keyMessage = [self.storeIns randomKeyMessenger];
+                                Messenger *_newMessage = [[Messenger alloc] init];
+                                [_newMessage setStrMessage: [NSString stringWithFormat:@"%@ %@", _friend.nickName, @"want to chat with you"]];
+                                _newMessage.senderID = _friend.friendID;
+                                [_newMessage setTypeMessage:0];
+                                [_newMessage setStatusMessage:1];
+                                [_newMessage setKeySendMessage:_keyMessage];
+                                [_newMessage setTimeMessage:[self.helperIns getDateFormatMessage:[NSDate date]]];
+                                [_newMessage setDataImage:nil];
+                                [_newMessage setThumnail:nil];
+                                [_newMessage setFriendID:_friend.friendID];
+                                [_newMessage setUserID:self.storeIns.user.userID];
+                                
+                                _friend.friendMessage = [NSMutableArray new];
+                                [_friend.friendMessage addObject:_newMessage];
+                                
+                                [self progressRecent:_friend];
+
                             }
                         }
                     }
                 }
                 
                 //Map isReadMessage
-                if ([[subValue objectAtIndex:4] length] > 0) {
+                if ([[subValue objectAtIndex:4] length] > 1) {
                     
+                    NSArray *subParameter = [[subValue objectAtIndex:4] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+
+                            if ([subValue count] > 1) {
+                                
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+
+                            }
+                        }
+                    }
                 }
                 
                 //Map isReadPhoto
-                if ([[subValue objectAtIndex:5] length] > 0) {
+                if ([[subValue objectAtIndex:5] length] > 1) {
+                    NSArray *subParameter = [[subValue objectAtIndex:5] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+
+                            if ([subValue count] > 1) {
+                                
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+
+                            }
+                        }
+                    }
                     
                 }
                 
                 //map frined online
-                if ([[subValue objectAtIndex:6] length] > 0) {
+                if ([[subValue objectAtIndex:6] length] > 1) {
                     NSArray *subFriend = [[subValue objectAtIndex:6] componentsSeparatedByString:@"$"];
                     if ([subFriend count] > 1) {
                         int count = (int)[subFriend count];
@@ -570,7 +771,7 @@
                 }
                 
                 //Map Location Offline
-                if ([[subValue objectAtIndex:7] length] > 0) {
+                if ([[subValue objectAtIndex:7] length] > 1) {
                     NSArray *subLocation = [[subValue objectAtIndex:7] componentsSeparatedByString:@"$"];
                     if ([subLocation count] > 1) {
                         int count = (int)[subLocation count];
@@ -590,7 +791,11 @@
                                 _newMessage.longitude = [subParameter objectAtIndex:1];
                                 _newMessage.latitude = [subParameter objectAtIndex:2];
                                 _newMessage.keySendMessage = [subParameter objectAtIndex:3];
-
+                                
+                                NSString *url = [NSString stringWithFormat:@"http://maps.google.com/maps/api/staticmap?center=%@,%@&zoom=13&size=480x320&scale=2&sensor=true&markers=color:red%@%@,%@", _newMessage.latitude, _newMessage.longitude, @"%7c" , _newMessage.latitude, _newMessage.longitude];
+                                
+                                _newMessage.urlImage = url;
+                                
                                 NSDate *timeMessage = [self.helperIns convertStringToDate:[subParameter objectAtIndex:4]];
                                 NSDate *_dateTimeMessage = [timeMessage dateByAddingTimeInterval:deltaTime];
                                 
@@ -601,15 +806,6 @@
                                 
                                 [coziCoreDataIns saveMessenger:_newMessage];
                                 
-                                //save info request google
-                                ReceiveLocation *_receiveLocation = [[ReceiveLocation alloc] init];
-                                _receiveLocation.senderID = [[subParameter objectAtIndex:0] intValue];
-                                _receiveLocation.longitude = [subParameter objectAtIndex:1];
-                                _receiveLocation.latitude = [subParameter objectAtIndex:2];
-                                _receiveLocation.keySendMessage = [subParameter objectAtIndex:3];
-                                
-                                [self.storeIns.receiveLocation addObject:_receiveLocation];
-                                [self.storeIns processReceiveLocation];
                             }
                             
                         }
@@ -617,22 +813,111 @@
                 }
                 
                 //Map IsRead Location Offline
-                if ([[subValue objectAtIndex:8] length] > 0) {
-                    
+                if ([[subValue objectAtIndex:8] length] > 1) {
+                    NSArray *subParameter = [[subValue objectAtIndex:8] componentsSeparatedByString:@"$"];
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            if ([subValue count] > 1) {
+                                
+                                [self.storeIns updateStatusMessageFriendWithKey:[[subValue objectAtIndex:0] intValue] withMessageID:[subValue objectAtIndex:1] withStatus:2];
+                                
+                                Messenger *_messenger = [self.storeIns getMessageFriendID:[[subValue objectAtIndex:0] intValue] withKeyMessage:[subValue objectAtIndex:1]];
+                                
+                                [coziCoreDataIns updateMessenger:_messenger];
+                                
+                            }
+                        }
+                    }
                 }
                 
                 //Map Messenger Remove Offline
-                if ([[subValue objectAtIndex:9] length] > 0) {
+                if ([[subValue objectAtIndex:9] length] > 1) {
+                    
+                    NSArray *subParameter = [[subValue objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            if ([subValue count] > 1) {
+                                
+                                int userReceiveID = [[subParameter objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subParameter objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                                
+                            }
+                        }
+                    }
                     
                 }
                 
                 //Map Photo Remove Offline
-                if ([[subValue objectAtIndex:10] length] > 0) {
+                if ([[subValue objectAtIndex:10] length] > 1) {
+                    
+                    NSArray *subParameter = [[subValue objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            
+                            if ([subValue count] > 1) {
+                                int userReceiveID = [[subValue objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subValue objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                            }
+
+                        }
+                    }
                     
                 }
                 
                 //Map Location Remove Offline
-                if ([[subValue objectAtIndex:11] length] > 0) {
+                if ([[subValue objectAtIndex:11] length] > 1) {
+                    
+                    NSArray *subParameter = [[subValue objectAtIndex:9] componentsSeparatedByString:@"$"];
+                    
+                    if ([subParameter count] > 0) {
+                        int count = (int)[subParameter count];
+                        for (int i = 0; i < count; i++) {
+                            NSArray *subValue = [[subParameter objectAtIndex:i] componentsSeparatedByString:@"}"];
+                            if ([subValue count] > 1) {
+                                int userReceiveID = [[subValue objectAtIndex:0] intValue];
+                                if (userReceiveID > 0) {
+                                    
+                                    NSString *keyMessage = [subValue objectAtIndex:1];
+                                    
+                                    BOOL isDelete = [self.storeIns deleteMessenger:userReceiveID withKeyMessenger:keyMessage];
+                                    
+                                    if (isDelete) {
+                                        [coziCoreDataIns deleteMessenger:keyMessage];
+                                    }
+                                    
+                                }
+                            }
+
+                        }
+                    }
                     
                 }
                 
@@ -724,20 +1009,6 @@
                 [self.storeIns.user setBirthDay:[subValue objectAtIndex:2]];
                 [self.storeIns.user setGender:[subValue objectAtIndex:3]];
                 
-//                NSData *nsData = [[NSData alloc] init];
-//                
-//                nsData = [self.helperIns decodeBase64:[subValue objectAtIndex:4]];
-//                UIImage *img = [[UIImage alloc] init];
-//                img = [UIImage imageWithData:nsData];
-//                if (img == nil) {
-//                    if ([[self.storeIns.user.gender uppercaseString] isEqualToString:@"MALE"]) {
-//                        img = [SVGKImage imageNamed:@"icon-contact-male.svg"].UIImage;
-//                    }else{
-//                        img = [SVGKImage imageNamed:@"icon-contact-female.svg"].UIImage;
-//                    }
-//                }
-//                
-//                [self.storeIns.user setAvatar:img];
                 
                 NSURL *urlThumbnail = [NSURL URLWithString:[subValue objectAtIndex:4]];
                 NSData *dataThumbnail = [NSData dataWithContentsOfURL:urlThumbnail];
@@ -792,9 +1063,6 @@
                             [_newFriend setFriendID:[[subFriends objectAtIndex:0] intValue]];
                             [_newFriend setNickName:[subFriends objectAtIndex:1]];
                             
-//                            NSData *nsData = [[NSData alloc] init];
-//                            nsData = [self.helperIns decodeBase64:[subFriends objectAtIndex:2]];
-//                            UIImage *img = nil;
                             NSURL *urlThumbnail = [NSURL URLWithString:[subFriends objectAtIndex:2]];
                             NSData *dataThumbnail = [NSData dataWithContentsOfURL:urlThumbnail];
                             UIImage *imgThumbnail = [UIImage imageWithData:dataThumbnail];
@@ -802,22 +1070,7 @@
                             [_newFriend setUrlThumbnail:[subFriends objectAtIndex:2]];
                             
                             [_newFriend setGender:[subFriends objectAtIndex:3]];
-                            [_newFriend setLeftAvatar:[[subFriends objectAtIndex:4] floatValue]];
-                            [_newFriend setTopAvatar:[[subFriends objectAtIndex:5] floatValue]];
-                            [_newFriend setWidthAvatar:[[subFriends objectAtIndex:6] floatValue]];
-                            [_newFriend setHeightAvatar:[[subFriends objectAtIndex:7] floatValue]];
-                            [_newFriend setScaleAvatar:[[subFriends objectAtIndex:8] floatValue]];
                             [_newFriend setUrlAvatar:[subFriends objectAtIndex:9]];
-//                            [_newFriend setDataAvatar:nsData];
-//                            if (img == nil) {
-//                                if ([[_newFriend.gender uppercaseString] isEqualToString:@"MALE"]) {
-//                                    img = [SVGKImage imageNamed:@"icon-contact-male.svg"].UIImage;
-//                                }else{
-//                                    img = [SVGKImage imageNamed:@"icon-contact-female.svg"].UIImage;
-//                                }
-//                                
-//                            }
-//                            [_newFriend setAvatar:img];
                             
                             [self.storeIns.friends addObject:_newFriend];
                         }
@@ -911,16 +1164,16 @@
     return [NSString stringWithFormat:@"LOCATIONISREAD{%i}%@<EOF>", _friendID, _keyMessage];
 }
 
-- (NSString *) removeMessage:(int)_userReceive withKeyMessage:(int)_keyMessenger{
-    return [NSString stringWithFormat:@"REMOVEMESSAGE{%i}%i<EOF>", _userReceive, _keyMessenger];
+- (NSString *) removeMessage:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger{
+    return [NSString stringWithFormat:@"REMOVEMESSAGE{%i}%@<EOF>", _userReceive, _keyMessenger];
 }
 
-- (NSString *) removePhoto:(int)_userReceive withKeyMessage:(int)_keyMessenger{
-    return [NSString stringWithFormat:@"REMOVEPHOTO{%i}%i<EOF>", _userReceive, _keyMessenger];
+- (NSString *) removePhoto:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger{
+    return [NSString stringWithFormat:@"REMOVEPHOTO{%i}%@<EOF>", _userReceive, _keyMessenger];
 }
 
-- (NSString *) removeLocation:(int)_userReceive withKeyMessage:(int)_keyMessenger{
-    return [NSString stringWithFormat:@"REMOVELOCATION{%i}%i<EOF>", _userReceive, _keyMessenger];
+- (NSString *) removeLocation:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger{
+    return [NSString stringWithFormat:@"REMOVELOCATION{%i}%@<EOF>", _userReceive, _keyMessenger];
 }
 
 - (int) mapSendMessage:(NSString*)str{
@@ -986,6 +1239,11 @@
 
 - (NSString*) requestFriendCommand:(int)userID withDigit:(NSString*)digit{
     return [NSString stringWithFormat:@"SENDFRIENDREQUEST{%i}%@<EOF>", userID, digit];
+}
+
+//Group Chat
+- (NSString *) commandSendMessageToGroup:(int)groupId withKeyMessage:(NSString*)_keyMessage withMessage:(NSString*)message withTimeout:(int)_timeout{
+    return [NSString stringWithFormat:@"SENDGROUPMESSAGE{%i}%@}%@}%i<EOF>", groupId, [self.helperIns encodedBase64:[message dataUsingEncoding:NSUTF8StringEncoding]], _keyMessage, _timeout];
 }
 
 - (int) mapRequestFriends:(NSString*)str{
@@ -1072,8 +1330,8 @@
 
 }
 
-- (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage{
-    return [NSString stringWithFormat:@"RESULTUPLOADPHOTO{%i}%i}%d<EOF>", code, _friendID, _keyMessage];
+- (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSString*)_keyMessage{
+    return [NSString stringWithFormat:@"RESULTUPLOADPHOTO{%i}%i}%@<EOF>", code, _friendID, _keyMessage];
 }
 
 - (NSString *) commandSendPhoto:(int)userReceive withKey:(NSString*)key withKeyMessage:(NSString*)_keyMessage withTimeout:(int)_timeOut{
@@ -1168,6 +1426,9 @@
                 }
                 
                 [newDataWall setTime:[subCommand objectAtIndex:5]];
+                [newDataWall setDatePost:[self.helperIns convertStringToDate:newDataWall.time]];
+                
+                
                 [newDataWall setClientKey:[self.helperIns decode:[subCommand objectAtIndex:6]]];
                 [newDataWall setFirstName:[self.helperIns decode:[subCommand objectAtIndex:7]]];
                 [newDataWall setLastName: [self.helperIns decode:[subCommand objectAtIndex:8]]];
@@ -1325,6 +1586,8 @@
                 }
                 
                 [newDataWall setTime:[subCommand objectAtIndex:5]];
+                [newDataWall setDatePost:[self.helperIns convertStringToDate:newDataWall.time]];
+                
                 [newDataWall setClientKey:[self.helperIns decode:[subCommand objectAtIndex:6]]];
                 [newDataWall setFirstName:[self.helperIns decode:[subCommand objectAtIndex:7]]];
                 [newDataWall setLastName: [self.helperIns decode:[subCommand objectAtIndex:8]]];
@@ -1395,6 +1658,7 @@
                 [newDataWall setUrlAvatarFull:[self.helperIns decode:[subCommand objectAtIndex:14]]];
                 
                 [self.storeIns addNoisesData:newDataWall];
+//                [result addObject:newDataWall];
                 
             }
             
@@ -1404,4 +1668,46 @@
     return result;
 }
 
+- (void) progressRecent:(Friend*)_friend{
+    
+    if (self.storeIns.recent == nil) {
+        self.storeIns.recent = [NSMutableArray new];
+    }
+    
+    //find friend recent list
+    int indexRecent = -1;
+    BOOL isExists = NO;
+    
+    int count = (int)[self.storeIns.recent count];
+    for (int i = 0; i < count; i++) {
+        if ([[self.storeIns.recent objectAtIndex:i] recentID] == _friend.friendID) {
+            isExists = YES;
+            indexRecent = i;
+            break;
+        }
+    }
+    
+    if (!isExists) {
+        Recent *_newRecent = [Recent new];
+        _newRecent.recentID = _friend.friendID;
+        _newRecent.typeRecent = 0;
+        _newRecent.thumbnail = _friend.thumbnail;
+        _newRecent.urlThumbnail = _friend.urlThumbnail;
+        _newRecent.nameRecent = _friend.nickName;
+        _newRecent.friendIns = _friend;
+        //property group chat
+        _newRecent.friendRecent = [NSMutableArray new];
+        _newRecent.messengerRecent = [NSMutableArray new];
+        
+        [self.storeIns.recent addObject:_newRecent];
+    }else{
+        Recent *_recent = [self.storeIns.recent objectAtIndex:indexRecent];
+        [self.storeIns.recent removeObjectAtIndex:indexRecent];
+        [self.storeIns.recent insertObject:_recent atIndex:0];
+    }
+}
+
+- (NSString*) getGroupUploadAmazonUrl:(int)_groupID withMessageKey:(NSString*)keyMessage withIsNotify:(int)_isNotify{
+    return [NSString stringWithFormat:@"GETUPLOADAMAZONEURL{%i}%@}%i<EOF>", _groupID, keyMessage, _isNotify];
+}
 @end

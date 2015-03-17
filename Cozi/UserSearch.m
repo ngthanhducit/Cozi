@@ -20,5 +20,6 @@
 @synthesize phoneNumber;
 @synthesize userName;
 @synthesize isAddFriend;
+@synthesize imgThumbnail;
 
 @end

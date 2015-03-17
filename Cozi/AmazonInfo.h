@@ -14,6 +14,7 @@
 }
 
 @property (nonatomic, copy  ) NSString *key;
+@property (nonatomic) int               typeAmazon; //0: single chat photo: 1: group chat photo
 @property (nonatomic, copy  ) NSString *policy;
 @property (nonatomic, copy  ) NSString *signature;
 @property (nonatomic, copy  ) NSString *accessKey;

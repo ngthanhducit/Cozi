@@ -24,6 +24,7 @@
 @property (nonatomic, copy   ) NSString       *longitude;
 @property (nonatomic, copy   ) NSString       *latitude;
 @property (nonatomic, copy   ) NSString       *time;
+@property (nonatomic, strong) NSDate          *datePost;
 @property (nonatomic, copy   ) NSString       *clientKey;
 @property (nonatomic, copy   ) NSString       *firstName;
 @property (nonatomic, copy   ) NSString       *lastName;

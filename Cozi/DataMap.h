@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "Helper.h"
 #import "Store.h"
+#import "Store+CoreData.h"
 #import "Messenger.h"
 #import "Friend.h"
 #import "NewUser.h"
@@ -44,9 +45,9 @@
 - (NSString *) sendIsReadMessage:(int)_friendID withKeyMessage:(NSString*)_keyMessage;
 - (NSString *) sendIsReadPhoto:(int)_friendID withKeyMessage:(NSString*)_keyMessage;
 - (NSString *) sendIsReadLocation:(int)_friendID withKeyMessage:(NSString*)_keyMessage;
-- (NSString *) removeMessage:(int)_userReceive withKeyMessage:(int)_keyMessenger;
-- (NSString *) removePhoto:(int)_userReceive withKeyMessage:(int)_keyMessenger;
-- (NSString *) removeLocation:(int)_userReceive withKeyMessage:(int)_keyMessenger;
+- (NSString *) removeMessage:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger;
+- (NSString *) removePhoto:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger;
+- (NSString *) removeLocation:(int)_userReceive withKeyMessage:(NSString*)_keyMessenger;
 
 - (NSString*) requestFriendCommand:(int)userID withDigit:(NSString*)digit;
 - (int) mapRequestFriends:(NSString*)str;
@@ -62,7 +63,7 @@
 - (AmazonInfo*) mapAmazonUploadAvatar:(NSString *)str;
 - (AmazonInfoPost*) mapAmazonUploadPost:(NSString *)str;
 
-- (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSInteger)_keyMessage;
+- (NSString *) sendResultUploadAmazon:(int)code withFriendID:(int)_friendID withKeyMessage:(NSString*)_keyMessage;
 - (NSString *) commandSendPhoto:(int)userReceive withKey:(NSString*)key withKeyMessage:(NSString*)_keyMessage withTimeout:(int)_timeOut;
 
 - (NSString *) regPhone:(NSString *)strPhone;
@@ -71,4 +72,8 @@
 //Wall Noise
 - (NSMutableArray*) mapDataWall:(NSString*)_str withType:(int)type;
 - (NSMutableArray*) mapDataNoises:(NSString*)_str;
+
+//Group Chat
+- (NSString *) commandSendMessageToGroup:(int)groupId withKeyMessage:(NSString*)_keyMessage withMessage:(NSString*)message withTimeout:(int)_timeout;
+- (NSString*) getGroupUploadAmazonUrl:(int)_groupID withMessageKey:(NSString*)keyMessage withIsNotify:(int)_isNotify;
 @end
